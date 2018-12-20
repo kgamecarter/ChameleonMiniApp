@@ -1,5 +1,8 @@
 {
   "chameleonMiniApp": "Chameleon Mini App",
+  "generalSetting": "General Setting",
+  "language": "Language",
   "slot": "Slot",
+  "selectLanguage": "Select Language",
   "settings": "Settings"
 }

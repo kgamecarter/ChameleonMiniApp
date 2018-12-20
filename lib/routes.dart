@@ -4,11 +4,13 @@ import 'generated/i18n.dart';
 
 import 'views/home/homePage.dart';
 import 'views/settings/settingsPage.dart';
+import 'views/settings/languagePage.dart';
 
 class Routes {
 
   var routes = <String, WidgetBuilder>{
-    "/Settings": (BuildContext context) => new SettingsPage()
+    "/Settings": (BuildContext context) => new SettingsPage(),
+    "/Settings/Language": (BuildContext context) => new LanguagePage(),
   };
 
   Routes() {

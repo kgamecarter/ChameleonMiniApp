@@ -1,4 +1,7 @@
 {
+  "generalSetting": "一般設定",
+  "language": "語言",
   "slot": "槽位",
+  "selectLanguage": "選擇語言",
   "settings": "設定"
 }
