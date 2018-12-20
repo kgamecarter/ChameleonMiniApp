@@ -19,6 +19,7 @@ class S implements WidgetsLocalizations {
   @override
   TextDirection get textDirection => TextDirection.ltr;
 
+  String get chameleonMiniApp => "Chameleon Mini App";
   String get settings => "Settings";
   String get slot => "Slot";
 }
