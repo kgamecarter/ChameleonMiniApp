@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'generated/i18n.dart';
 
 void main() => runApp(MyApp());
 
@@ -7,6 +9,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: S.delegate.supportedLocales,
+      localeResolutionCallback: S.delegate.resolution(fallback: Locale("en", "")),
       title: 'Chameleon Mini App',
       theme: ThemeData(
         primarySwatch: Colors.orange,
@@ -26,8 +35,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-   @override
+  @override
   Widget build(BuildContext context) {
+    if (choices == null) {
+      choices = <Choice>[
+        Choice(title: '${S.of(context).Slot} 1', icon: Icons.filter_1),
+        Choice(title: '${S.of(context).Slot} 2', icon: Icons.filter_2),
+        Choice(title: '${S.of(context).Slot} 3', icon: Icons.filter_3),
+        Choice(title: '${S.of(context).Slot} 4', icon: Icons.filter_4),
+        Choice(title: '${S.of(context).Slot} 5', icon: Icons.filter_5),
+        Choice(title: '${S.of(context).Slot} 6', icon: Icons.filter_6),
+        Choice(title: '${S.of(context).Slot} 7', icon: Icons.filter_7),
+        Choice(title: '${S.of(context).Slot} 8', icon: Icons.filter_8),
+      ];
+    }
     return MaterialApp(
       theme: ThemeData(
         primarySwatch: Colors.orange,
@@ -68,16 +89,7 @@ class Choice {
   final IconData icon;
 }
 
-const List<Choice> choices = const <Choice>[
-  const Choice(title: 'Slot 1', icon: Icons.filter_1),
-  const Choice(title: 'Slot 2', icon: Icons.filter_2),
-  const Choice(title: 'Slot 3', icon: Icons.filter_3),
-  const Choice(title: 'Slot 4', icon: Icons.filter_4),
-  const Choice(title: 'Slot 5', icon: Icons.filter_5),
-  const Choice(title: 'Slot 6', icon: Icons.filter_6),
-  const Choice(title: 'Slot 7', icon: Icons.filter_7),
-  const Choice(title: 'Slot 8', icon: Icons.filter_8),
-];
+List<Choice> choices;
 
 class ChoiceCard extends StatelessWidget {
   const ChoiceCard({Key key, this.choice}) : super(key: key);
