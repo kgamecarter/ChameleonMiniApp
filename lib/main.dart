@@ -69,14 +69,14 @@ class Choice {
 }
 
 const List<Choice> choices = const <Choice>[
-  const Choice(title: 'TAG 1', icon: Icons.filter_1),
-  const Choice(title: 'TAG 2', icon: Icons.filter_2),
-  const Choice(title: 'TAG 3', icon: Icons.filter_3),
-  const Choice(title: 'TAG 4', icon: Icons.filter_4),
-  const Choice(title: 'TAG 5', icon: Icons.filter_5),
-  const Choice(title: 'TAG 6', icon: Icons.filter_6),
-  const Choice(title: 'TAG 7', icon: Icons.filter_7),
-  const Choice(title: 'TAG 8', icon: Icons.filter_8),
+  const Choice(title: 'Slot 1', icon: Icons.filter_1),
+  const Choice(title: 'Slot 2', icon: Icons.filter_2),
+  const Choice(title: 'Slot 3', icon: Icons.filter_3),
+  const Choice(title: 'Slot 4', icon: Icons.filter_4),
+  const Choice(title: 'Slot 5', icon: Icons.filter_5),
+  const Choice(title: 'Slot 6', icon: Icons.filter_6),
+  const Choice(title: 'Slot 7', icon: Icons.filter_7),
+  const Choice(title: 'Slot 8', icon: Icons.filter_8),
 ];
 
 class ChoiceCard extends StatelessWidget {

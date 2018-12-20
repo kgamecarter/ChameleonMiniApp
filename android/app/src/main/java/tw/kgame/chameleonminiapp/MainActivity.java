@@ -1,4 +1,4 @@
-package com.example.chameleonminiapp;
+package tw.kgame.chameleonminiapp;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
