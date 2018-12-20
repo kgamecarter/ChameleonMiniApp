@@ -35,18 +35,33 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+  _pushSettings() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) {
+          return new Scaffold(
+            appBar: new AppBar(
+              title: new Text(S.of(context).settings),
+            ),
+          );
+        }
+      )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (choices == null) {
       choices = <Choice>[
-        Choice(title: '${S.of(context).Slot} 1', icon: Icons.filter_1),
-        Choice(title: '${S.of(context).Slot} 2', icon: Icons.filter_2),
-        Choice(title: '${S.of(context).Slot} 3', icon: Icons.filter_3),
-        Choice(title: '${S.of(context).Slot} 4', icon: Icons.filter_4),
-        Choice(title: '${S.of(context).Slot} 5', icon: Icons.filter_5),
-        Choice(title: '${S.of(context).Slot} 6', icon: Icons.filter_6),
-        Choice(title: '${S.of(context).Slot} 7', icon: Icons.filter_7),
-        Choice(title: '${S.of(context).Slot} 8', icon: Icons.filter_8),
+        Choice(title: '${S.of(context).slot} 1', icon: Icons.filter_1),
+        Choice(title: '${S.of(context).slot} 2', icon: Icons.filter_2),
+        Choice(title: '${S.of(context).slot} 3', icon: Icons.filter_3),
+        Choice(title: '${S.of(context).slot} 4', icon: Icons.filter_4),
+        Choice(title: '${S.of(context).slot} 5', icon: Icons.filter_5),
+        Choice(title: '${S.of(context).slot} 6', icon: Icons.filter_6),
+        Choice(title: '${S.of(context).slot} 7', icon: Icons.filter_7),
+        Choice(title: '${S.of(context).slot} 8', icon: Icons.filter_8),
       ];
     }
     return MaterialApp(
@@ -67,6 +82,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               }).toList(),
             ),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.settings),
+                onPressed: _pushSettings,
+              )
+            ],
           ),
           body: TabBarView(
             children: choices.map((Choice choice) {

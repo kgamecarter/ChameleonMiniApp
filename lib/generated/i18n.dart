@@ -19,7 +19,8 @@ class S implements WidgetsLocalizations {
   @override
   TextDirection get textDirection => TextDirection.ltr;
 
-  String get Slot => "Slot";
+  String get settings => "Settings";
+  String get slot => "Slot";
 }
 
 class $zh_TW extends S {
@@ -29,7 +30,9 @@ class $zh_TW extends S {
   TextDirection get textDirection => TextDirection.ltr;
 
   @override
-  String get Slot => "槽位";
+  String get settings => "設定";
+  @override
+  String get slot => "槽位";
 }
 
 class $en extends S {
