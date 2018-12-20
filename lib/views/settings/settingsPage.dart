@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 
+import '../../services/settings.dart';
 import '../../generated/i18n.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key}) : super(key: key);
-
-  final Settings settings = Settings();
 
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+
+  final Settings settings = Settings();
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -22,15 +24,17 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  String _localToString(Locale local) {
-    if (local == null)
+  String _localToString(Locale locale) {
+    print(locale);
+    if (locale == null)
       return S.of(context).systemDefault;
-    if (local.languageCode == 'en')
+    if (locale.languageCode == 'en')
       return S.of(context).english;
-    if (local.languageCode == 'zh') {
-      if (local.countryCode == 'TW')
+    if (locale.languageCode == 'zh') {
+      if (locale.countryCode == 'TW')
         return S.of(context).traditionalChinese;
     }
+    return null;
   }
 
   Widget bodyData() {
@@ -62,15 +66,18 @@ class _SettingsPageState extends State<SettingsPage> {
                       color: Colors.grey,
                     ),
                     title: Text(S.of(context).language),
-                    subtitle: Text(_localToString(widget.settings.locale)),
+                    subtitle: Text(_localToString(settings.locale)),
                     trailing: Icon(Icons.arrow_right),
                     onTap: () {
                       Navigator.of(context).pushNamed('/Settings/Language').then((value) {
                         if (value == null)
                           return;
                         if (value == 'default')
-                          setState(() => widget.settings.locale = null);
-                        setState(() => widget.settings.locale = value);
+                          value = null;
+                        setState(() {
+                          settings.locale = value;
+                          settings.save();
+                        });
                       });
                     },
                   ),
@@ -83,8 +90,4 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     );
   }
-}
-
-class Settings {
-  Locale locale = Locale('zh', 'TW');
 }
