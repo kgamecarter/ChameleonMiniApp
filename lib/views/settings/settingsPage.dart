@@ -22,6 +22,17 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  String _localToString(Locale local) {
+    if (local == null)
+      return S.of(context).systemDefault;
+    if (local.languageCode == 'en')
+      return S.of(context).english;
+    if (local.languageCode == 'zh') {
+      if (local.countryCode == 'TW')
+        return S.of(context).traditionalChinese;
+    }
+  }
+
   Widget bodyData() {
     return SingleChildScrollView(
       child: Theme(
@@ -51,11 +62,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       color: Colors.grey,
                     ),
                     title: Text(S.of(context).language),
-                    subtitle: Text(widget.settings.locale.toString()),
+                    subtitle: Text(_localToString(widget.settings.locale)),
                     trailing: Icon(Icons.arrow_right),
                     onTap: () {
                       Navigator.of(context).pushNamed('/Settings/Language').then((value) {
-                        print(value);
+                        if (value == null)
+                          return;
+                        if (value == 'default')
+                          setState(() => widget.settings.locale = null);
+                        setState(() => widget.settings.locale = value);
                       });
                     },
                   ),

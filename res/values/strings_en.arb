@@ -1,8 +1,11 @@
 {
   "chameleonMiniApp": "Chameleon Mini App",
+  "english": "English",
   "generalSetting": "General Setting",
   "language": "Language",
   "slot": "Slot",
   "selectLanguage": "Select Language",
-  "settings": "Settings"
+  "settings": "Settings",
+  "traditionalChinese": "Traditional Chinese",
+  "systemDefault": "System Default"
 }
