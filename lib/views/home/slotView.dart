@@ -30,6 +30,17 @@ class _SlotViewState extends State<SlotView> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           children: <Widget>[
+            TextField(
+              controller: TextEditingController(text: widget.slot.uid),
+              decoration: InputDecoration(
+                labelText: S.of(context).uid,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20.0),
+              ),
+              keyboardType: TextInputType.text,
+              onChanged: (str) {
+                widget.slot.uid = str;
+              },
+            ),
             ListTile(
               title: Text(S.of(context).mode),
               trailing: DropdownButton(
@@ -44,17 +55,6 @@ class _SlotViewState extends State<SlotView> {
                   });
                 },
               ),
-            ),
-            TextField(
-              controller: TextEditingController(text: widget.slot.uid),
-              decoration: InputDecoration(
-                labelText: S.of(context).uid,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20.0),
-              ),
-              keyboardType: TextInputType.text,
-              onChanged: (str) {
-                widget.slot.uid = str;
-              },
             ),
             ListTile(
               title: Text(S.of(context).button),
