@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
+import 'dart:convert';
 import 'package:usb_serial/usb_serial.dart';
 
 import 'slotView.dart';
@@ -63,9 +65,32 @@ class _HomePageState extends State<HomePage> {
     if (devices.length == 0) {
       return;
     } 
-	  port = await devices[0].create();
-    //port.inputStream.listen((data) {
-    //});
+    port = await devices[0].create();
+    
+    bool openResult = await port.open();
+    if ( !openResult ) {
+      print("Failed to open");
+      return;
+    }
+    
+    await port.setDTR(true);
+    await port.setRTS(true);
+
+    port.setPortParameters(115200, UsbPort.DATABITS_8,
+      UsbPort.STOPBITS_1, UsbPort.PARITY_NONE);
+
+    // print first result and close port.
+    var decoder = AsciiDecoder();
+    port.inputStream.listen((Uint8List event) {
+      var str = decoder.convert(event);
+      print(str);
+      setState(() {
+        slots[0].uid = str;
+      });
+    });
+    var encoder = AsciiEncoder();
+    var ascii = encoder.convert('VERSIONMY?\r\n');
+    port.write(ascii);
     setState(() => connected = true);
   }
 
