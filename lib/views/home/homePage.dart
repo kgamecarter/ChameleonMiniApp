@@ -15,7 +15,16 @@ class _HomePageState extends State<HomePage> {
 
   GlobalKey<ScaffoldState> scaffoldState = new GlobalKey<ScaffoldState>();
 
-  List<Slot> slots;
+  List<Slot> slots = <Slot>[
+    Slot(index: 0),
+    Slot(index: 1),
+    Slot(index: 2),
+    Slot(index: 3),
+    Slot(index: 4),
+    Slot(index: 5),
+    Slot(index: 6),
+    Slot(index: 7),
+  ];
   bool connected = false;
   UsbPort port;
 
@@ -67,18 +76,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (slots == null) {
-      slots = <Slot>[
-        Slot(index: 0),
-        Slot(index: 1),
-        Slot(index: 2),
-        Slot(index: 3),
-        Slot(index: 4),
-        Slot(index: 5),
-        Slot(index: 6),
-        Slot(index: 7),
-      ];
-    }
     return DefaultTabController(
         length: slots.length,
         child: Scaffold(
