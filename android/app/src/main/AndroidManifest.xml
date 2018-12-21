@@ -15,7 +15,7 @@
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="Chameleon Mini App"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@drawable/chameleon">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

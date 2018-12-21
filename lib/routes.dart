@@ -26,7 +26,7 @@ class Routes {
       localeResolutionCallback: S.delegate.resolution(fallback: Locale('en', '')),
       title: 'Chameleon Mini App',
       theme: ThemeData(
-        primarySwatch: Colors.orange,
+        primarySwatch: Colors.lime,
       ),
       home: HomePage(),
       routes: routes,
