@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'slotView.dart';
 import '../../generated/i18n.dart';
 
 class HomePage extends StatefulWidget {
@@ -9,6 +11,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  List<Slot> slots;
 
   _pushSettings() {
     Navigator.of(context).pushNamed('/Settings');
@@ -61,39 +65,6 @@ class _HomePageState extends State<HomePage> {
               );
             }).toList(),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class Slot {
-  const Slot({this.title, this.icon});
-
-  final String title;
-  final IconData icon;
-}
-
-List<Slot> slots;
-
-class SlotView extends StatelessWidget {
-  const SlotView({Key key, this.slot}) : super(key: key);
-
-  final Slot slot;
-
-  @override
-  Widget build(BuildContext context) {
-    final TextStyle textStyle = Theme.of(context).textTheme.display1;
-    return Card(
-      color: Colors.white,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Icon(slot.icon, size: 128.0, color: textStyle.color),
-            Text(slot.title, style: textStyle),
-          ],
         ),
       ),
     );

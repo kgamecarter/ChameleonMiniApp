@@ -12,11 +12,14 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
 
+  GlobalKey<ScaffoldState> scaffoldState = new GlobalKey<ScaffoldState>();
+
   final Settings settings = Settings();
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      key: scaffoldState,
       appBar: new AppBar(
         title: new Text(S.of(context).settings),
       ),
@@ -74,6 +77,11 @@ class _SettingsPageState extends State<SettingsPage> {
                           return;
                         if (value == 'default')
                           value = null;
+                        S.delegate.load(value).then((trans) {
+                          scaffoldState.currentState.showSnackBar(SnackBar(
+                            content: Text(trans.effectiveAfterRestartingTheApp),
+                          ));
+                        });
                         setState(() {
                           settings.locale = value;
                           settings.save();
