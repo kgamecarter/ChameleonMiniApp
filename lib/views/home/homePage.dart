@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:usb_serial/usb_serial.dart';
 
 import 'slotView.dart';
 import '../../generated/i18n.dart';
@@ -13,9 +14,38 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   List<Slot> slots;
+  bool connected = false;
+  UsbPort port;
 
   _pushSettings() {
     Navigator.of(context).pushNamed('/Settings');
+  }
+
+  _connect() async {
+    List<UsbDevice> devices = await UsbSerial.listDevices();
+    print(devices);
+
+    if (devices.length == 0) {
+      return;
+    } 
+	  port = await devices[0].create();
+    //port.inputStream.listen((data) {
+    //});
+    setState(() {
+      connected = true;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    UsbSerial.usbEventStream.listen((UsbEvent event) {
+      print("Usb Event $event");
+      setState(() {
+        connected = false;
+      });
+    });
   }
 
   @override
@@ -47,9 +77,13 @@ class _HomePageState extends State<HomePage> {
             ),
             actions: <Widget>[
               IconButton(
+                icon: Icon(Icons.usb, color: connected ? Colors.blue : Colors.black,),
+                onPressed: _connect,
+              ),
+              IconButton(
                 icon: Icon(Icons.settings),
                 onPressed: _pushSettings,
-              )
+              ),
             ],
           ),
           body: TabBarView(
