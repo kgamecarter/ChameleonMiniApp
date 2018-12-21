@@ -25,6 +25,7 @@ dependencies:
   usb_serial: ^0.1.0
   shared_preferences: ^0.4.3
   open_file: ^1.1.1
+  threading: ^0.0.10
 
 dev_dependencies:
   flutter_test:
