@@ -25,6 +25,16 @@ class _HomePageState extends State<HomePage> {
     Slot(index: 6),
     Slot(index: 7),
   ];
+  final List<Icon> slotIcons = const <Icon>[
+    const Icon(Icons.filter_1),
+    const Icon(Icons.filter_2),
+    const Icon(Icons.filter_3),
+    const Icon(Icons.filter_4),
+    const Icon(Icons.filter_5),
+    const Icon(Icons.filter_6),
+    const Icon(Icons.filter_7),
+    const Icon(Icons.filter_8),
+  ];
   bool connected = false;
   UsbPort port;
 
@@ -86,6 +96,7 @@ class _HomePageState extends State<HomePage> {
               isScrollable: true,
               tabs: slots.map((Slot slot) {
                 return Tab(
+                  icon: slotIcons[slot.index],
                   text: '${S.of(context).slot} ${slot.index + 1}',
                 );
               }).toList(),
