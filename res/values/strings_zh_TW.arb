@@ -1,11 +1,14 @@
 {
+  "button": "按鈕",
   "effectiveAfterRestartingTheApp": "重啟App後生效",
   "english": "英文",
   "generalSetting": "一般設定",
   "language": "語言",
+  "mode": "模式",
   "slot": "槽位",
   "selectLanguage": "選擇語言",
   "settings": "設定",
   "traditionalChinese": "正體中文",
+  "uid": "UID",
   "systemDefault": "系統預設"
 }

@@ -28,7 +28,6 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   String _localToString(Locale locale) {
-    print(locale);
     if (locale == null)
       return S.of(context).systemDefault;
     if (locale.languageCode == 'en')

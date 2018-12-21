@@ -22,31 +22,26 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     if (slots == null) {
       slots = <Slot>[
-        Slot(title: '${S.of(context).slot} 1', icon: Icons.filter_1),
-        Slot(title: '${S.of(context).slot} 2', icon: Icons.filter_2),
-        Slot(title: '${S.of(context).slot} 3', icon: Icons.filter_3),
-        Slot(title: '${S.of(context).slot} 4', icon: Icons.filter_4),
-        Slot(title: '${S.of(context).slot} 5', icon: Icons.filter_5),
-        Slot(title: '${S.of(context).slot} 6', icon: Icons.filter_6),
-        Slot(title: '${S.of(context).slot} 7', icon: Icons.filter_7),
-        Slot(title: '${S.of(context).slot} 8', icon: Icons.filter_8),
+        Slot(index: 0),
+        Slot(index: 1),
+        Slot(index: 2),
+        Slot(index: 3),
+        Slot(index: 4),
+        Slot(index: 5),
+        Slot(index: 6),
+        Slot(index: 7),
       ];
     }
-    return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.orange,
-        accentColor: Colors.white
-      ),
-      home: DefaultTabController(
+    return DefaultTabController(
         length: slots.length,
         child: Scaffold(
           appBar: AppBar(
             title: Text(S.of(context).chameleonMiniApp),
             bottom: TabBar(
               isScrollable: true,
-              tabs: slots.map((Slot choice) {
+              tabs: slots.map((Slot slot) {
                 return Tab(
-                  text: choice.title,
+                  text: '${S.of(context).slot} ${slot.index + 1}',
                 );
               }).toList(),
             ),
@@ -66,7 +61,6 @@ class _HomePageState extends State<HomePage> {
             }).toList(),
           ),
         ),
-      ),
-    );
+      );
   }
 }

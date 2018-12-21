@@ -1,12 +1,15 @@
 {
+  "button": "Button",
   "effectiveAfterRestartingTheApp": "Effective after restarting app",
   "chameleonMiniApp": "Chameleon Mini App",
   "english": "English",
   "generalSetting": "General Setting",
   "language": "Language",
+  "mode": "Mode",
   "slot": "Slot",
   "selectLanguage": "Select Language",
   "settings": "Settings",
   "traditionalChinese": "Traditional Chinese",
+  "uid": "UID",
   "systemDefault": "System Default"
 }

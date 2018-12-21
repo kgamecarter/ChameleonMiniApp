@@ -13,7 +13,7 @@ class _LanguagePageState extends State<LanguagePage> {
 
   @override
   Widget build(BuildContext context) {
-    return  new Scaffold(
+    return new Scaffold(
       appBar: new AppBar(
         title: new Text(S.of(context).selectLanguage),
       ),
