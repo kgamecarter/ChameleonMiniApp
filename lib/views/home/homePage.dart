@@ -13,6 +13,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
+  GlobalKey<ScaffoldState> scaffoldState = new GlobalKey<ScaffoldState>();
+
   List<Slot> slots;
   bool connected = false;
   UsbPort port;
@@ -21,7 +23,21 @@ class _HomePageState extends State<HomePage> {
     Navigator.of(context).pushNamed('/Settings');
   }
 
+  _disconnected() async {
+    await port?.close();
+    port = null;
+    scaffoldState.currentState.showSnackBar(SnackBar(
+      content: Text(S.of(context).usbDisconnected),
+      duration: Duration(seconds: 10),
+    ));
+    setState(() => connected = false);
+  }
+
   _connect() async {
+    if (connected) {
+      await _disconnected();
+      return;
+    }
     List<UsbDevice> devices = await UsbSerial.listDevices();
     print(devices);
 
@@ -31,20 +47,21 @@ class _HomePageState extends State<HomePage> {
 	  port = await devices[0].create();
     //port.inputStream.listen((data) {
     //});
-    setState(() {
-      connected = true;
-    });
+    setState(() => connected = true);
   }
 
   @override
   void initState() {
     super.initState();
 
-    UsbSerial.usbEventStream.listen((UsbEvent event) {
-      print("Usb Event $event");
-      setState(() {
-        connected = false;
-      });
+    UsbSerial.usbEventStream.listen((UsbEvent msg) {
+      print("Usb Event $msg");
+      if (msg.event == UsbEvent.ACTION_USB_ATTACHED) {
+        _connect();
+      }
+      if (msg.event == UsbEvent.ACTION_USB_DETACHED) {
+        _disconnected();
+      }
     });
   }
 
@@ -65,6 +82,7 @@ class _HomePageState extends State<HomePage> {
     return DefaultTabController(
         length: slots.length,
         child: Scaffold(
+          key: scaffoldState,
           appBar: AppBar(
             title: Text(S.of(context).chameleonMiniApp),
             bottom: TabBar(

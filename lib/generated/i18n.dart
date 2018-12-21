@@ -32,6 +32,7 @@ class S implements WidgetsLocalizations {
   String get systemDefault => "System Default";
   String get traditionalChinese => "Traditional Chinese";
   String get uid => "UID";
+  String get usbDisconnected => "USB Disconnected";
 }
 
 class $zh_TW extends S {
@@ -41,27 +42,29 @@ class $zh_TW extends S {
   TextDirection get textDirection => TextDirection.ltr;
 
   @override
-  String get button => "按鈕";
-  @override
-  String get mode => "模式";
-  @override
-  String get systemDefault => "系統預設";
-  @override
   String get selectLanguage => "選擇語言";
   @override
   String get settings => "設定";
   @override
   String get traditionalChinese => "正體中文";
   @override
-  String get uid => "UID";
-  @override
   String get effectiveAfterRestartingTheApp => "重啟App後生效";
-  @override
-  String get english => "英文";
   @override
   String get language => "語言";
   @override
   String get slot => "槽位";
+  @override
+  String get button => "按鈕";
+  @override
+  String get mode => "模式";
+  @override
+  String get systemDefault => "系統預設";
+  @override
+  String get uid => "UID";
+  @override
+  String get english => "英文";
+  @override
+  String get usbDisconnected => "USB 已斷線";
   @override
   String get generalSetting => "一般設定";
 }
