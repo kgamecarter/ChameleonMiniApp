@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:typed_data';
-import 'dart:convert';
 import 'package:usb_serial/usb_serial.dart';
 
+import '../../services/chameleonClient.dart';
 import 'slotView.dart';
 import '../../generated/i18n.dart';
 
@@ -17,6 +16,7 @@ class _HomePageState extends State<HomePage> {
 
   GlobalKey<ScaffoldState> scaffoldState = new GlobalKey<ScaffoldState>();
 
+  final ChameleonClient client = ChameleonClient();
   List<Slot> slots = <Slot>[
     Slot(index: 0),
     Slot(index: 1),
@@ -38,15 +38,13 @@ class _HomePageState extends State<HomePage> {
     const Icon(Icons.filter_8),
   ];
   bool connected = false;
-  UsbPort port;
 
   _pushSettings() {
     Navigator.of(context).pushNamed('/Settings');
   }
 
   _disconnected() async {
-    await port?.close();
-    port = null;
+    await client.close();
     scaffoldState.currentState.showSnackBar(SnackBar(
       content: Text(S.of(context).usbDisconnected),
       duration: Duration(seconds: 10),
@@ -65,7 +63,7 @@ class _HomePageState extends State<HomePage> {
     if (devices.length == 0) {
       return;
     } 
-    port = await devices[0].create();
+    var port = await devices[0].create();
     
     bool openResult = await port.open();
     if ( !openResult ) {
@@ -79,19 +77,11 @@ class _HomePageState extends State<HomePage> {
     port.setPortParameters(115200, UsbPort.DATABITS_8,
       UsbPort.STOPBITS_1, UsbPort.PARITY_NONE);
 
-    // print first result and close port.
-    var decoder = AsciiDecoder();
-    port.inputStream.listen((Uint8List event) {
-      var str = decoder.convert(event);
-      print(str);
-      setState(() {
-        slots[0].uid = str;
-      });
-    });
-    var encoder = AsciiEncoder();
-    var ascii = encoder.convert('VERSIONMY?\r\n');
-    port.write(ascii);
+    client.port = port;
     setState(() => connected = true);
+    var ver = await client.version();
+    setState(() => slots[0].uid = ver);
+    await client.active(2);
   }
 
   @override
