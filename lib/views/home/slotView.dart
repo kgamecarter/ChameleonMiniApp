@@ -30,6 +30,7 @@ class _SlotViewState extends State<SlotView> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           children: <Widget>[
+            SizedBox(height: 16,),
             TextField(
               controller: TextEditingController(text: widget.slot.uid),
               decoration: InputDecoration(
