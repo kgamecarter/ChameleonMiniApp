@@ -25,6 +25,7 @@ class S implements WidgetsLocalizations {
   String get english => "English";
   String get generalSetting => "General Setting";
   String get language => "Language";
+  String get memorySize => "Memory Size";
   String get mode => "Mode";
   String get selectLanguage => "Select Language";
   String get settings => "Settings";
@@ -64,6 +65,8 @@ class $zh_TW extends S {
   String get systemDefault => "系統預設";
   @override
   String get uid => "UID";
+  @override
+  String get memorySize => "記憶體大小";
   @override
   String get english => "英文";
   @override

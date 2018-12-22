@@ -108,11 +108,13 @@ class _HomePageState extends State<HomePage> {
     var uid = await client.getUid();
     var mode = await client.getMode();
     var button = await client.getButton();
+    var memorySize = await client.getMemorySize();
     var slot = slots[i];
     setState(() {
       slot.uid = uid;
       slot.mode = mode;
       slot.button = button;
+      slot.memorySize = memorySize;
     });
   }
 

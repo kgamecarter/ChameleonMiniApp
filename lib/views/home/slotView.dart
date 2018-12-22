@@ -7,6 +7,7 @@ class Slot {
 
   final int index;
   String uid;
+  int memorySize;
   String mode = "CLOSED";
   String button = "CLOSED";
   String longPressButton = "CLOSED";
@@ -71,6 +72,10 @@ class _SlotViewState extends State<SlotView> {
                 ],
                 onChanged: _buttonModeChanged,
               ),
+            ),
+            ListTile(
+              title: Text(S.of(context).memorySize),
+              trailing: Text(widget.slot.memorySize.toString()),
             ),
           ],
         ),

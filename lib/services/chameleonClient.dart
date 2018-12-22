@@ -70,7 +70,7 @@ class ChameleonClient {
     return result.split(',');
   }
 
-  Future<String> getMemorySize() => sendCommand('MEMSIZEMY?');
+  Future<int> getMemorySize() async => int.parse(await sendCommand('MEMSIZEMY?'));
 
   Future<String> getUid() => sendCommand('UIDMY?');
 
