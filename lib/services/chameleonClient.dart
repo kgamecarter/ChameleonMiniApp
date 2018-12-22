@@ -13,9 +13,10 @@ class ChameleonClient {
   _emptyEvent(Uint8List data) { }
 
   Future close() async {
+    await subcription?.cancel();
+    subcription = null;
     await port?.close();
     port = null;
-    subcription = null;
   }
 
   Future<String> sendCommand(String cmd) async {

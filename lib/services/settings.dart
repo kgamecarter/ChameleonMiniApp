@@ -15,7 +15,6 @@ class Settings {
   load() async {
     _prefs = await SharedPreferences.getInstance();
     String str = _prefs.getString('locale');
-    print(str);
     if (str == 'en_')
       locale = Locale('en');
     if (str == 'zh_TW')
