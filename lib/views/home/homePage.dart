@@ -129,6 +129,7 @@ class _HomePageState extends State<HomePage> {
         _disconnected();
       }
     });
+    _connect();
   }
 
   @override

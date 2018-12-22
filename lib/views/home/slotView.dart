@@ -23,6 +23,12 @@ class SlotView extends StatefulWidget {
 }
 
 class _SlotViewState extends State<SlotView> {
+  
+  _uidChanged(String str) => widget.slot.uid = str;
+  _uidEditingComplete() {
+  }
+  _modeChanged(String str) => setState(() => widget.slot.mode = str);
+  _buttonModeChanged(String str) => setState(() => widget.slot.button = str);
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +46,8 @@ class _SlotViewState extends State<SlotView> {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 20.0),
               ),
               keyboardType: TextInputType.text,
-              onChanged: (str) {
-                widget.slot.uid = str;
-              },
+              onChanged: _uidChanged,
+              onEditingComplete: _uidEditingComplete,
             ),
             ListTile(
               title: Text(S.of(context).mode),
@@ -51,11 +56,7 @@ class _SlotViewState extends State<SlotView> {
                 items: widget.modes?.map((str) => DropdownMenuItem(value: str, child: Text(str)))?.toList() ?? <DropdownMenuItem<String>>[
                   DropdownMenuItem(value: 'CLOSED', child: Text('CLOSED'),),
                 ],
-                onChanged: (str) {
-                  setState(() {
-                    widget.slot.mode = str;
-                  });
-                },
+                onChanged: _modeChanged,
               ),
             ),
             ListTile(
@@ -65,11 +66,7 @@ class _SlotViewState extends State<SlotView> {
                 items: widget.buttonModes?.map((str) => DropdownMenuItem(value: str, child: Text(str)))?.toList() ?? <DropdownMenuItem<String>>[
                   DropdownMenuItem(value: 'CLOSED', child: Text('CLOSED'),),
                 ],
-                onChanged: (str) {
-                  setState(() {
-                    widget.slot.button = str;
-                  });
-                },
+                onChanged: _buttonModeChanged,
               ),
             ),
           ],
