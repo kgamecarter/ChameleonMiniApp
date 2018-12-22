@@ -10,8 +10,7 @@ class Settings {
     return _settings;
   }
 
-  Settings._internal() {
-  }
+  Settings._internal();
 
   load() async {
     _prefs = await SharedPreferences.getInstance();

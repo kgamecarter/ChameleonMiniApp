@@ -41,10 +41,43 @@ class ChameleonClient {
 
   Future<String> version() => sendCommand('VERSIONMY?');
 
-  Future active(int index) async => await sendCommand('SETTINGMY=$index');
+  Future<void> active(int index) async => await sendCommand('SETTINGMY=$index');
 
   Future<int> getActive() async {
     var result = await sendCommand('SETTINGMY?');
     return int.parse(result[result.length - 1]);
   }
+
+  Future<List<String>> getAvailableCommands() async {
+    var result = await sendCommand('HELPMY');
+    return result.split(',');
+  }
+
+  Future<List<String>> getButtonModes() async {
+    var result = await sendCommand('BUTTONMY');
+    return result.split(',');
+  }
+
+  Future<List<String>> getLongPressButtonModes() async {
+    var result = await sendCommand('BUTTON_LONGMY');
+    return result.split(',');
+  }
+
+  Future<String> getMemorySize() => sendCommand('MEMSIZEMY?');
+
+  Future<String> getUid() => sendCommand('UIDMY?');
+
+  Future<void> setUid(String uid) => sendCommand('UIDMY=$uid');
+
+  Future<String> getMode() => sendCommand('CONFIGMY?');
+
+  Future<void> setMode(String mode) => sendCommand('CONFIGMY=$mode');
+
+  Future<String> getButton() => sendCommand('BUTTONMY?');
+
+  Future<void> setButton(String mode) => sendCommand('BUTTONMY=$mode');
+
+  Future<String> getLongPressButton() => sendCommand('BUTTON_LONG?');
+
+  Future<void> setLongPressButton(String mode) => sendCommand('BUTTON_LONG=$mode');
 }

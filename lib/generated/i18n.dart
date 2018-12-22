@@ -26,6 +26,7 @@ class S implements WidgetsLocalizations {
   String get generalSetting => "General Setting";
   String get language => "Language";
   String get mode => "Mode";
+  String get noUsbDevices => "No USB Devices";
   String get selectLanguage => "Select Language";
   String get settings => "Settings";
   String get slot => "Slot";

@@ -61,6 +61,10 @@ class _HomePageState extends State<HomePage> {
     print(devices);
 
     if (devices.length == 0) {
+      scaffoldState.currentState.showSnackBar(SnackBar(
+        content: Text(S.of(context).noUsbDevices),
+        duration: Duration(seconds: 3),
+      ));
       return;
     } 
     var port = await devices[0].create();

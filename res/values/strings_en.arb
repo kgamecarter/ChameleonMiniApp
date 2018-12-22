@@ -6,6 +6,7 @@
   "generalSetting": "General Setting",
   "language": "Language",
   "mode": "Mode",
+  "noUsbDevices": "No USB Devices",
   "slot": "Slot",
   "selectLanguage": "Select Language",
   "settings": "Settings",
