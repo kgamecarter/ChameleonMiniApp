@@ -26,13 +26,13 @@ class S implements WidgetsLocalizations {
   String get generalSetting => "General Setting";
   String get language => "Language";
   String get mode => "Mode";
-  String get noUsbDevices => "No USB Devices";
   String get selectLanguage => "Select Language";
   String get settings => "Settings";
   String get slot => "Slot";
   String get systemDefault => "System Default";
   String get traditionalChinese => "Traditional Chinese";
   String get uid => "UID";
+  String get usbDeviceNotFound => "USB device not found";
   String get usbDisconnected => "USB Disconnected";
 }
 
@@ -42,6 +42,8 @@ class $zh_TW extends S {
   @override
   TextDirection get textDirection => TextDirection.ltr;
 
+  @override
+  String get usbDeviceNotFound => "找不到 USB 裝置";
   @override
   String get selectLanguage => "選擇語言";
   @override

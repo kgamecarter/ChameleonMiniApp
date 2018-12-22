@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
 
     if (devices.length == 0) {
       scaffoldState.currentState.showSnackBar(SnackBar(
-        content: Text(S.of(context).noUsbDevices),
+        content: Text(S.of(context).usbDeviceNotFound),
         duration: Duration(seconds: 3),
       ));
       return;

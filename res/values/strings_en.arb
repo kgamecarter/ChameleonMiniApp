@@ -6,12 +6,12 @@
   "generalSetting": "General Setting",
   "language": "Language",
   "mode": "Mode",
-  "noUsbDevices": "No USB Devices",
   "slot": "Slot",
   "selectLanguage": "Select Language",
   "settings": "Settings",
   "traditionalChinese": "Traditional Chinese",
   "uid": "UID",
+  "usbDeviceNotFound": "USB device not found",
   "usbDisconnected": "USB Disconnected",
   "systemDefault": "System Default"
 }
