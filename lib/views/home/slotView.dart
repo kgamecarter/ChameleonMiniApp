@@ -6,15 +6,17 @@ class Slot {
   Slot({this.index});
 
   final int index;
-  String mode = "NONE";
-  String uid = "12345678";
-  String button = "NONE";
+  String uid;
+  String mode = "CLOSED";
+  String button = "CLOSED";
+  String longPressButton = "CLOSED";
 }
 
 class SlotView extends StatefulWidget {
-  SlotView({Key key, this.slot}) : super(key: key);
+  SlotView({Key key, this.slot, this.modes, this.buttonModes}) : super(key: key);
 
   final Slot slot;
+  final List<String> modes, buttonModes;
 
   @override
   _SlotViewState createState() => _SlotViewState();
@@ -46,9 +48,8 @@ class _SlotViewState extends State<SlotView> {
               title: Text(S.of(context).mode),
               trailing: DropdownButton(
                 value: widget.slot.mode,
-                items: <DropdownMenuItem<String>>[
-                  DropdownMenuItem(value: 'NONE', child: Text('NONE'),),
-                  DropdownMenuItem(value: 'MF_DETECTOIN', child: Text('MF_DETECTOIN'),),
+                items: widget.modes?.map((str) => DropdownMenuItem(value: str, child: Text(str)))?.toList() ?? <DropdownMenuItem<String>>[
+                  DropdownMenuItem(value: 'CLOSED', child: Text('CLOSED'),),
                 ],
                 onChanged: (str) {
                   setState(() {
@@ -61,9 +62,8 @@ class _SlotViewState extends State<SlotView> {
               title: Text(S.of(context).button),
               trailing: DropdownButton(
                 value: widget.slot.button,
-                items: <DropdownMenuItem<String>>[
-                  DropdownMenuItem(value: 'NONE', child: Text('NONE'),),
-                  DropdownMenuItem(value: 'SWITCH_CARD', child: Text('SWITCH_CARD'),),
+                items: widget.buttonModes?.map((str) => DropdownMenuItem(value: str, child: Text(str)))?.toList() ?? <DropdownMenuItem<String>>[
+                  DropdownMenuItem(value: 'CLOSED', child: Text('CLOSED'),),
                 ],
                 onChanged: (str) {
                   setState(() {

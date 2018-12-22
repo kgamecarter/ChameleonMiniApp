@@ -82,10 +82,38 @@ class _HomePageState extends State<HomePage> {
       UsbPort.STOPBITS_1, UsbPort.PARITY_NONE);
 
     client.port = port;
+    await refreshAll();
     setState(() => connected = true);
-    var ver = await client.version();
-    setState(() => slots[0].uid = ver);
-    await client.active(2);
+  }
+
+  String version;
+  List<String> commands, modes, buttonModes, longPressButtonModes;
+
+  Future<void> refreshAll() async {
+    var selectedSlot = await client.getActive();
+    version = await client.version();
+    commands = await client.getCommands();
+    modes = await client.getModes();
+    buttonModes = await client.getButtonModes();
+    for (int i = 0; i < 8; i++)
+      await refresh(i);
+    await client.active(selectedSlot);
+  }
+
+  Future<void> refresh(int i) async {
+    await client.active(i);
+    var selectedSlot = await client.getActive();
+    if (selectedSlot != i)
+      return;
+    var uid = await client.getUid();
+    var mode = await client.getMode();
+    var button = await client.getButton();
+    var slot = slots[i];
+    setState(() {
+      slot.uid = uid;
+      slot.mode = mode;
+      slot.button = button;
+    });
   }
 
   @override
@@ -135,7 +163,11 @@ class _HomePageState extends State<HomePage> {
             children: slots.map((Slot slot) {
               return Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: SlotView(slot: slot),
+                child: SlotView(
+                  slot: slot,
+                  modes: modes,
+                  buttonModes: buttonModes,
+                ),
               );
             }).toList(),
           ),

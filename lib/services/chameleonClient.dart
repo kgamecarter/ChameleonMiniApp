@@ -19,19 +19,21 @@ class ChameleonClient {
   }
 
   Future<String> sendCommand(String cmd) async {
+    print(cmd);
     var data = asciiCodec.encode('$cmd\r\n');
     var c = new Completer<String>();
     if (subcription == null)
       subcription = port.inputStream.listen(_emptyEvent);
     subcription.onData((bytes) {
       var str = asciiCodec.decode(bytes);
+      print(str);
       var strs = str.split('\r\n').where((s) => s.isNotEmpty).toList();
-      if (strs.length == 1 &&
-          str[0] != '100:OK' &&
-          str[0] != '101:OK WITH TEXT') {
-        c.completeError(str[0]);
-      } else {
+      if (strs[0].startsWith('100:')) {
+        c.complete(null);
+      } else if (strs[0].startsWith('101:')) {
         c.complete(strs[strs.length - 1]);
+      } else {
+        c.completeError(str[0]);
       }
       subcription.onData(_emptyEvent);
     });
@@ -48,8 +50,13 @@ class ChameleonClient {
     return int.parse(result[result.length - 1]);
   }
 
-  Future<List<String>> getAvailableCommands() async {
+  Future<List<String>> getCommands() async {
     var result = await sendCommand('HELPMY');
+    return result.split(',');
+  }
+
+  Future<List<String>> getModes() async {
+    var result = await sendCommand('CONFIGMY');
     return result.split(',');
   }
 
