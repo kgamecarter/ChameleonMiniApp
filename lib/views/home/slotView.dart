@@ -23,9 +23,11 @@ class SlotView extends StatefulWidget {
 }
 
 class _SlotViewState extends State<SlotView> {
-  
+  FocusNode uidFocusNode = FocusNode();
   _uidChanged(String str) => widget.slot.uid = str;
   _uidEditingComplete() {
+    uidFocusNode.unfocus();
+    print(widget.slot.uid);
   }
   _modeChanged(String str) => setState(() => widget.slot.mode = str);
   _buttonModeChanged(String str) => setState(() => widget.slot.button = str);
@@ -40,6 +42,7 @@ class _SlotViewState extends State<SlotView> {
           children: <Widget>[
             SizedBox(height: 16,),
             TextField(
+              focusNode: uidFocusNode,
               controller: TextEditingController(text: widget.slot.uid),
               decoration: InputDecoration(
                 labelText: S.of(context).uid,
