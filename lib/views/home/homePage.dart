@@ -39,11 +39,11 @@ class _HomePageState extends State<HomePage> {
   ];
   bool connected = false;
 
-  _pushSettings() {
+  void _pushSettings() {
     Navigator.of(context).pushNamed('/Settings');
   }
 
-  _disconnected() async {
+  Future<void> _disconnected() async {
     await client.close();
     scaffoldState.currentState.showSnackBar(SnackBar(
       content: Text(S.of(context).usbDisconnected),
@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
     setState(() => connected = false);
   }
 
-  _connect() async {
+   Future<void> _connect() async {
     if (connected) {
       await _disconnected();
       return;
