@@ -9,16 +9,16 @@ class Slot {
   final int index;
   String uid;
   int memorySize;
-  String mode = "CLOSED";
-  String button = "CLOSED";
-  String longPressButton = "CLOSED";
+  String mode;
+  String button;
+  String longPressButton;
 }
 
 class SlotView extends StatefulWidget {
-  SlotView({Key key, this.slot, this.modes, this.buttonModes}) : super(key: key);
+  SlotView({Key key, this.slot, this.modes, this.buttonModes, this.longPressButtonModes}) : super(key: key);
 
   final Slot slot;
-  final List<String> modes, buttonModes;
+  final List<String> modes, buttonModes, longPressButtonModes;
 
   @override
   _SlotViewState createState() => _SlotViewState();
@@ -34,6 +34,7 @@ class _SlotViewState extends State<SlotView> {
   }
   _modeChanged(String str) => setState(() => widget.slot.mode = str);
   _buttonModeChanged(String str) => setState(() => widget.slot.button = str);
+  _longPressButtonModeChanged(String str) => setState(() => widget.slot.longPressButton = str);
 
   @override
   Widget build(BuildContext context) {
@@ -54,11 +55,10 @@ class _SlotViewState extends State<SlotView> {
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
+                      disabledHint: Text(S.of(context).notAvailable),
                       value: widget.slot.mode,
                       isDense: true,
-                      items: widget.modes?.map((str) => DropdownMenuItem(value: str, child: Text(str)))?.toList() ?? <DropdownMenuItem<String>>[
-                        DropdownMenuItem(value: 'CLOSED', child: Text('CLOSED'),),
-                      ],
+                      items: widget.modes?.map((str) => DropdownMenuItem(value: str, child: Text(str)))?.toList(),
                       onChanged: _modeChanged,
                     ),
                   ),
@@ -66,6 +66,7 @@ class _SlotViewState extends State<SlotView> {
               },
             ),
             TextField(
+              enabled: widget.modes != null,
               focusNode: uidFocusNode,
               controller: TextEditingController(text: widget.slot.uid),
               decoration: InputDecoration(
@@ -74,7 +75,7 @@ class _SlotViewState extends State<SlotView> {
               ),
               keyboardType: TextInputType.text,
               inputFormatters: [
-                WhitelistingTextInputFormatter(RegExp(r'^[0-9a-fA-F]{0,7}')),
+                WhitelistingTextInputFormatter(RegExp(r'^[0-9a-fA-F]{0,14}')),
               ],
               onChanged: _uidChanged,
               onEditingComplete: _uidEditingComplete,
@@ -88,12 +89,30 @@ class _SlotViewState extends State<SlotView> {
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
+                      disabledHint: Text(S.of(context).notAvailable),
                       value: widget.slot.button,
                       isDense: true,
-                      items: widget.buttonModes?.map((str) => DropdownMenuItem(value: str, child: Text(str)))?.toList() ?? <DropdownMenuItem<String>>[
-                        DropdownMenuItem(value: 'CLOSED', child: Text('CLOSED'),),
-                      ],
+                      items: widget.buttonModes?.map((str) => DropdownMenuItem(value: str, child: Text(str)))?.toList(),
                       onChanged: _buttonModeChanged,
+                    ),
+                  ),
+                );
+              },
+            ),
+            FormField(
+              builder: (FormFieldState state) {
+                return InputDecorator(
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.short_text),
+                    labelText: S.of(context).longPressButton,
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      disabledHint: Text(S.of(context).notAvailable),
+                      value: widget.slot.longPressButton,
+                      isDense: true,
+                      items: widget.longPressButtonModes?.map((str) => DropdownMenuItem(value: str, child: Text(str)))?.toList(),
+                      onChanged: _longPressButtonModeChanged,
                     ),
                   ),
                 );

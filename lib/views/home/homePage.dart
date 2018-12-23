@@ -45,6 +45,16 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _disconnected() async {
     await client.close();
+    modes = null;
+    buttonModes = null;
+    longPressButtonModes = null;
+    for (var slot in slots) {
+      slot.uid = null;
+      slot.memorySize = null;
+      slot.mode = null;
+      slot.button = null;
+      slot.longPressButton = null;
+    }
     scaffoldState.currentState.showSnackBar(SnackBar(
       content: Text(S.of(context).usbDisconnected),
       duration: Duration(seconds: 10),
@@ -95,6 +105,9 @@ class _HomePageState extends State<HomePage> {
     commands = await client.getCommands();
     modes = await client.getModes();
     buttonModes = await client.getButtonModes();
+    try {
+      longPressButtonModes = await client.getLongPressButtonModes();
+    } catch (e) { }
     for (int i = 0; i < 8; i++)
       await refresh(i);
     await client.active(selectedSlot);
@@ -108,12 +121,16 @@ class _HomePageState extends State<HomePage> {
     var uid = await client.getUid();
     var mode = await client.getMode();
     var button = await client.getButton();
+    String longPressButton;
+    if (longPressButtonModes != null)
+      longPressButton = await client.getLongPressButton();
     var memorySize = await client.getMemorySize();
     var slot = slots[i];
     setState(() {
       slot.uid = uid;
       slot.mode = mode;
       slot.button = button;
+      slot.longPressButton = longPressButton;
       slot.memorySize = memorySize;
     });
   }
@@ -170,6 +187,7 @@ class _HomePageState extends State<HomePage> {
                   slot: slot,
                   modes: modes,
                   buttonModes: buttonModes,
+                  longPressButtonModes: longPressButtonModes,
                 ),
               );
             }).toList(),

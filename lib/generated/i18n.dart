@@ -25,8 +25,10 @@ class S implements WidgetsLocalizations {
   String get english => "English";
   String get generalSetting => "General Setting";
   String get language => "Language";
+  String get longPressButton => "Long Press Button";
   String get memorySize => "Memory Size";
   String get mode => "Mode";
+  String get notAvailable => "N/A";
   String get selectLanguage => "Select Language";
   String get settings => "Settings";
   String get slot => "Slot";
@@ -58,11 +60,15 @@ class $zh_TW extends S {
   @override
   String get slot => "槽位";
   @override
+  String get notAvailable => "不可用";
+  @override
   String get button => "按鈕";
   @override
   String get mode => "模式";
   @override
   String get systemDefault => "系統預設";
+  @override
+  String get longPressButton => "長按按鈕";
   @override
   String get uid => "UID";
   @override
