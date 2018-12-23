@@ -1,4 +1,5 @@
 {
+  "apply": "應用",
   "button": "按鈕",
   "effectiveAfterRestartingTheApp": "重啟App後生效",
   "english": "英文",
@@ -8,6 +9,7 @@
   "memorySize": "記憶體大小",
   "mode": "模式",
   "notAvailable": "不可用",
+  "refresh": "刷新",
   "slot": "槽位",
   "selectLanguage": "選擇語言",
   "settings": "設定",

@@ -19,6 +19,7 @@ class S implements WidgetsLocalizations {
   @override
   TextDirection get textDirection => TextDirection.ltr;
 
+  String get apply => "Apply";
   String get button => "Button";
   String get chameleonMiniApp => "Chameleon Mini App";
   String get effectiveAfterRestartingTheApp => "Effective after restarting app";
@@ -29,6 +30,7 @@ class S implements WidgetsLocalizations {
   String get memorySize => "Memory Size";
   String get mode => "Mode";
   String get notAvailable => "N/A";
+  String get refresh => "Refresh";
   String get selectLanguage => "Select Language";
   String get settings => "Settings";
   String get slot => "Slot";
@@ -54,7 +56,11 @@ class $zh_TW extends S {
   @override
   String get traditionalChinese => "正體中文";
   @override
+  String get apply => "應用";
+  @override
   String get effectiveAfterRestartingTheApp => "重啟App後生效";
+  @override
+  String get refresh => "刷新";
   @override
   String get language => "語言";
   @override

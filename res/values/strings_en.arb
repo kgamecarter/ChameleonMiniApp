@@ -1,4 +1,5 @@
 {
+  "apply": "Apply",
   "button": "Button",
   "effectiveAfterRestartingTheApp": "Effective after restarting app",
   "chameleonMiniApp": "Chameleon Mini App",
@@ -9,6 +10,7 @@
   "memorySize": "Memory Size",
   "mode": "Mode",
   "notAvailable": "N/A",
+  "refresh": "Refresh",
   "slot": "Slot",
   "selectLanguage": "Select Language",
   "settings": "Settings",

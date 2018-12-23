@@ -185,6 +185,7 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.all(16.0),
                 child: SlotView(
                   slot: slot,
+                  client: client,
                   modes: modes,
                   buttonModes: buttonModes,
                   longPressButtonModes: longPressButtonModes,
