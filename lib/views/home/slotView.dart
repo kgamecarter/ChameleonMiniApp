@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../generated/i18n.dart';
 
@@ -24,6 +25,7 @@ class SlotView extends StatefulWidget {
 }
 
 class _SlotViewState extends State<SlotView> {
+  final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   FocusNode uidFocusNode = FocusNode();
   _uidChanged(String str) => widget.slot.uid = str;
   _uidEditingComplete() {
@@ -35,47 +37,75 @@ class _SlotViewState extends State<SlotView> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white,
-      child: Center(
+    return new SafeArea(
+      top: false,
+      bottom: false,
+      child: Form(
+        key: _formKey,
+        autovalidate: true,
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           children: <Widget>[
-            SizedBox(height: 16,),
+            FormField(
+              builder: (FormFieldState state) {
+                return InputDecorator(
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.functions),
+                    labelText: S.of(context).mode,
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: widget.slot.mode,
+                      isDense: true,
+                      items: widget.modes?.map((str) => DropdownMenuItem(value: str, child: Text(str)))?.toList() ?? <DropdownMenuItem<String>>[
+                        DropdownMenuItem(value: 'CLOSED', child: Text('CLOSED'),),
+                      ],
+                      onChanged: _modeChanged,
+                    ),
+                  ),
+                );
+              },
+            ),
             TextField(
               focusNode: uidFocusNode,
               controller: TextEditingController(text: widget.slot.uid),
               decoration: InputDecoration(
+                icon: Icon(Icons.fingerprint),
                 labelText: S.of(context).uid,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20.0),
               ),
               keyboardType: TextInputType.text,
+              inputFormatters: [
+                WhitelistingTextInputFormatter(RegExp(r'^[0-9a-fA-F]{0,7}')),
+              ],
               onChanged: _uidChanged,
               onEditingComplete: _uidEditingComplete,
             ),
-            ListTile(
-              title: Text(S.of(context).mode),
-              trailing: DropdownButton(
-                value: widget.slot.mode,
-                items: widget.modes?.map((str) => DropdownMenuItem(value: str, child: Text(str)))?.toList() ?? <DropdownMenuItem<String>>[
-                  DropdownMenuItem(value: 'CLOSED', child: Text('CLOSED'),),
-                ],
-                onChanged: _modeChanged,
-              ),
+            FormField(
+              builder: (FormFieldState state) {
+                return InputDecorator(
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.short_text),
+                    labelText: S.of(context).button,
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: widget.slot.button,
+                      isDense: true,
+                      items: widget.buttonModes?.map((str) => DropdownMenuItem(value: str, child: Text(str)))?.toList() ?? <DropdownMenuItem<String>>[
+                        DropdownMenuItem(value: 'CLOSED', child: Text('CLOSED'),),
+                      ],
+                      onChanged: _buttonModeChanged,
+                    ),
+                  ),
+                );
+              },
             ),
-            ListTile(
-              title: Text(S.of(context).button),
-              trailing: DropdownButton(
-                value: widget.slot.button,
-                items: widget.buttonModes?.map((str) => DropdownMenuItem(value: str, child: Text(str)))?.toList() ?? <DropdownMenuItem<String>>[
-                  DropdownMenuItem(value: 'CLOSED', child: Text('CLOSED'),),
-                ],
-                onChanged: _buttonModeChanged,
+            TextField(
+              enabled: false,
+              controller: TextEditingController(text: widget.slot.memorySize?.toString()),
+              decoration: InputDecoration(
+                icon: Icon(Icons.memory),
+                labelText: S.of(context).memorySize,
               ),
-            ),
-            ListTile(
-              title: Text(S.of(context).memorySize),
-              trailing: Text(widget.slot.memorySize.toString()),
             ),
           ],
         ),
