@@ -19,27 +19,32 @@ class ChameleonClient {
     port = null;
   }
 
-  Future<String> sendCommand(String cmd) async {
+  Future<Uint8List> sendCommandRaw(String cmd) async {
     print(cmd);
     var data = asciiCodec.encode('$cmd\r\n');
-    var c = new Completer<String>();
+    var c = new Completer<Uint8List>();
     if (subcription == null)
       subcription = port.inputStream.listen(_emptyEvent);
     subcription.onData((bytes) {
-      var str = asciiCodec.decode(bytes);
-      print(str);
-      var strs = str.split('\r\n').where((s) => s.isNotEmpty).toList();
-      if (strs[0].startsWith('100:')) {
-        c.complete(null);
-      } else if (strs[0].startsWith('101:')) {
-        c.complete(strs[strs.length - 1]);
-      } else {
-        c.completeError(str[0]);
-      }
+      c.complete(bytes);
       subcription.onData(_emptyEvent);
     });
     await port.write(data);
     return await c.future;
+  }
+
+  Future<String> sendCommand(String cmd) async {
+    var bytes = await sendCommandRaw(cmd);
+    var str = asciiCodec.decode(bytes);
+    print(str);
+    var strs = str.split('\r\n').where((s) => s.isNotEmpty).toList();
+    if (strs[0].startsWith('100:')) {
+      return null;
+    } else if (strs[0].startsWith('101:')) {
+      return strs[strs.length - 1];
+    } else {
+      throw str[0];
+    }
   }
 
   Future<String> version() => sendCommand('VERSIONMY?');
@@ -73,6 +78,8 @@ class ChameleonClient {
 
   Future<int> getMemorySize() async => int.parse(await sendCommand('MEMSIZEMY?'));
 
+  Future<int> getUidSize() async => int.parse(await sendCommand('UIDSIZEMY?'));
+
   Future<String> getUid() => sendCommand('UIDMY?');
 
   Future<void> setUid(String uid) => sendCommand('UIDMY=$uid');
@@ -85,7 +92,19 @@ class ChameleonClient {
 
   Future<void> setButton(String mode) => sendCommand('BUTTONMY=$mode');
 
-  Future<String> getLongPressButton() => sendCommand('BUTTON_LONG?');
+  Future<String> getLongPressButton() => sendCommand('BUTTON_LONGMY?');
 
-  Future<void> setLongPressButton(String mode) => sendCommand('BUTTON_LONG=$mode');
+  Future<void> setLongPressButton(String mode) => sendCommand('BUTTON_LONGMY=$mode');
+
+  Future<bool> getReadOnly() async => (await sendCommand('READONLYMY?') == '1' ? true : false);
+
+  Future<void> setReadOnly(bool state) => sendCommand('READONLYMY=${state ? 1 : 0}');
+
+  Future<Uint8List> getDetection() => sendCommandRaw('DETECTIONMY?');
+
+  Future<void> reset() => sendCommand('RESETMY');
+
+  Future<void> clear() => sendCommand('CLEARMY');
+
+  Future<String> getRssi() => sendCommand('RSSIMY?');
 }
