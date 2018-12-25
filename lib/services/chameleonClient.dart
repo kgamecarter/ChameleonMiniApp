@@ -130,6 +130,11 @@ class ChameleonClient {
 
   Future<String> getRssi() => sendCommand('RSSIMY?');
 
+  Future<Uint8List> download() async {
+    var xmodem = await sendCommandXmodem('DOWNLOADMY');
+    return await xmodem.receive();
+  }
+
   Future<List<Slot>> refreshAll() async {
     var selectedSlot = await getActive();
     var slots = <Slot>[];

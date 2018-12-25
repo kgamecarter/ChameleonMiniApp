@@ -54,6 +54,14 @@ class _SlotViewState extends State<SlotView> {
     await _refresh();
   }
 
+  Future<void> _download() async {
+    var client = widget.client;
+    var slot = widget.slot;
+    await client.active(slot.index);
+    var data = client.download();
+    print(data);
+  }
+
   @override
   Widget build(BuildContext context) {
     return new SafeArea(
@@ -160,12 +168,21 @@ class _SlotViewState extends State<SlotView> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.only(left: 20.0),
+                    padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                     child: FlatButton(
                       color: Colors.lime,
                       disabledColor: Colors.grey,
                       child: Text(S.of(context).apply),
                       onPressed: widget.client.connected ? _apply : null,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: FlatButton(
+                      color: Colors.lime,
+                      disabledColor: Colors.grey,
+                      child: Text('DOWNLOAD'),
+                      onPressed: widget.client.connected ? _download : null,
                     ),
                   ),
                 ],
