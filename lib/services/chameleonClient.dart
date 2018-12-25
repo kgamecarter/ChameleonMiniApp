@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:usb_serial/usb_serial.dart';
 
+import 'xmodem.dart';
+
 class Slot {
   Slot({this.index});
 
@@ -30,6 +32,12 @@ class ChameleonClient {
     port = null;
   }
 
+  Future<Xmodem> sendCommandXmodem(String cmd) async {
+    var xmodem = Xmodem(port.inputStream, port.write);
+    await sendCommand(cmd);
+    return xmodem;
+  }
+
   Future<Uint8List> sendCommandRaw(String cmd) async {
     print(cmd);
     var data = asciiCodec.encode('$cmd\r\n');
@@ -49,9 +57,10 @@ class ChameleonClient {
     var str = asciiCodec.decode(bytes);
     print(str);
     var strs = str.split('\r\n').where((s) => s.isNotEmpty).toList();
-    if (strs[0].startsWith('100:')) {
+    if (strs[0].startsWith('100:') || // 100:OK
+        strs[0].startsWith('110:')) { // 110:WAITING FOR XMODEM
       return null;
-    } else if (strs[0].startsWith('101:')) {
+    } else if (strs[0].startsWith('101:')) { // 101:OK WITH TEXT
       return strs[strs.length - 1];
     } else {
       throw str[0];
