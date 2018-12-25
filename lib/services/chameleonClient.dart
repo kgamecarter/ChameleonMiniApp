@@ -23,8 +23,6 @@ class ChameleonClient {
 
   ChameleonClient([this.port]);
 
-  _emptyEvent(Uint8List data) { }
-
   Future close() async {
     await subcription?.cancel();
     subcription = null;
@@ -43,10 +41,10 @@ class ChameleonClient {
     var data = asciiCodec.encode('$cmd\r\n');
     var c = new Completer<Uint8List>();
     if (subcription == null)
-      subcription = port.inputStream.listen(_emptyEvent);
+      subcription = port.inputStream.listen(null);
     subcription.onData((bytes) {
       c.complete(bytes);
-      subcription.onData(_emptyEvent);
+      subcription.onData(null);
     });
     await port.write(data);
     return await c.future;

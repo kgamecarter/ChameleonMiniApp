@@ -58,7 +58,7 @@ class _SlotViewState extends State<SlotView> {
     var client = widget.client;
     var slot = widget.slot;
     await client.active(slot.index);
-    var data = client.download();
+    var data = await client.download();
     print(data);
   }
 
