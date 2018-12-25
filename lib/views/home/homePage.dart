@@ -181,15 +181,12 @@ class _HomePageState extends State<HomePage> {
           ),
           body: TabBarView(
             children: slots.map((Slot slot) {
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: SlotView(
-                  slot: slot,
-                  client: client,
-                  modes: modes,
-                  buttonModes: buttonModes,
-                  longPressButtonModes: longPressButtonModes,
-                ),
+              return SlotView(
+                slot: slot,
+                client: client,
+                modes: modes,
+                buttonModes: buttonModes,
+                longPressButtonModes: longPressButtonModes,
               );
             }).toList(),
           ),

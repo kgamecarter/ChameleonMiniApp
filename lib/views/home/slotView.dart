@@ -85,6 +85,7 @@ class _SlotViewState extends State<SlotView> {
         key: _formKey,
         autovalidate: true,
         child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           children: <Widget>[
             FormField(
               builder: (FormFieldState state) {
