@@ -37,7 +37,6 @@ class _HomePageState extends State<HomePage> {
     const Icon(Icons.filter_7),
     const Icon(Icons.filter_8),
   ];
-  bool connected = false;
 
   void _pushSettings() {
     Navigator.of(context).pushNamed('/Settings');
@@ -45,27 +44,28 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _disconnected() async {
     await client.close();
-    version = null;
-    commands = null;
-    modes = null;
-    buttonModes = null;
-    longPressButtonModes = null;
-    for (var slot in slots) {
-      slot.uid = null;
-      slot.memorySize = null;
-      slot.mode = null;
-      slot.button = null;
-      slot.longPressButton = null;
-    }
+    setState(() {
+      version = null;
+      commands = null;
+      modes = null;
+      buttonModes = null;
+      longPressButtonModes = null;
+      for (var slot in slots) {
+        slot.uid = null;
+        slot.memorySize = null;
+        slot.mode = null;
+        slot.button = null;
+        slot.longPressButton = null;
+      }
+    });
     scaffoldState.currentState.showSnackBar(SnackBar(
       content: Text(S.of(context).usbDisconnected),
       duration: Duration(seconds: 10),
     ));
-    setState(() => connected = false);
   }
 
    Future<void> _connect() async {
-    if (connected) {
+    if (client.connected) {
       await _disconnected();
       return;
     }
@@ -102,7 +102,7 @@ class _HomePageState extends State<HomePage> {
       longPressButtonModes = await client.getLongPressButtonModes();
     } catch (e) { }
     slots = await client.refreshAll();
-    setState(() => connected = true);
+    setState(() => client.connected);
   }
 
   String version;
@@ -143,7 +143,7 @@ class _HomePageState extends State<HomePage> {
             ),
             actions: <Widget>[
               IconButton(
-                icon: Icon(Icons.usb, color: connected ? Colors.blue : Colors.black,),
+                icon: Icon(Icons.usb, color: client.connected ? Colors.blue : Colors.black,),
                 onPressed: _connect,
               ),
               IconButton(

@@ -85,7 +85,7 @@ class _SlotViewState extends State<SlotView> {
               },
             ),
             TextField(
-              enabled: widget.modes != null,
+              enabled: widget.client.connected,
               focusNode: uidFocusNode,
               controller: TextEditingController(text: widget.slot.uid),
               decoration: InputDecoration(
@@ -156,7 +156,7 @@ class _SlotViewState extends State<SlotView> {
                       color: Colors.lime,
                       disabledColor: Colors.grey,
                       child: Text(S.of(context).refresh),
-                      onPressed: widget.modes == null ? null : _refresh,
+                      onPressed: widget.client.connected ? _refresh : null,
                     ),
                   ),
                   Container(
@@ -165,7 +165,7 @@ class _SlotViewState extends State<SlotView> {
                       color: Colors.lime,
                       disabledColor: Colors.grey,
                       child: Text(S.of(context).apply),
-                      onPressed: widget.modes == null ? null : _apply,
+                      onPressed: widget.client.connected ? _apply : null,
                     ),
                   ),
                 ],

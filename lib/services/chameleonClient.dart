@@ -58,6 +58,8 @@ class ChameleonClient {
     }
   }
 
+  bool get connected => port != null;
+
   Future<String> version() => sendCommand('VERSIONMY?');
 
   Future<void> active(int index) async => await sendCommand('SETTINGMY=$index');
