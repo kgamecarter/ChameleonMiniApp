@@ -45,6 +45,8 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _disconnected() async {
     await client.close();
+    version = null;
+    commands = null;
     modes = null;
     buttonModes = null;
     longPressButtonModes = null;
@@ -92,15 +94,6 @@ class _HomePageState extends State<HomePage> {
       UsbPort.STOPBITS_1, UsbPort.PARITY_NONE);
 
     client.port = port;
-    await refreshAll();
-    setState(() => connected = true);
-  }
-
-  String version;
-  List<String> commands, modes, buttonModes, longPressButtonModes;
-
-  Future<void> refreshAll() async {
-    var selectedSlot = await client.getActive();
     version = await client.version();
     commands = await client.getCommands();
     modes = await client.getModes();
@@ -108,32 +101,12 @@ class _HomePageState extends State<HomePage> {
     try {
       longPressButtonModes = await client.getLongPressButtonModes();
     } catch (e) { }
-    for (int i = 0; i < 8; i++)
-      await refresh(i);
-    await client.active(selectedSlot);
+    slots = await client.refreshAll();
+    setState(() => connected = true);
   }
 
-  Future<void> refresh(int i) async {
-    await client.active(i);
-    var selectedSlot = await client.getActive();
-    if (selectedSlot != i)
-      return;
-    var uid = await client.getUid();
-    var mode = await client.getMode();
-    var button = await client.getButton();
-    String longPressButton;
-    if (longPressButtonModes != null)
-      longPressButton = await client.getLongPressButton();
-    var memorySize = await client.getMemorySize();
-    var slot = slots[i];
-    setState(() {
-      slot.uid = uid;
-      slot.mode = mode;
-      slot.button = button;
-      slot.longPressButton = longPressButton;
-      slot.memorySize = memorySize;
-    });
-  }
+  String version;
+  List<String> commands, modes, buttonModes, longPressButtonModes;
 
   @override
   void initState() {

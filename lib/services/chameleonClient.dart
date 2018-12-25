@@ -3,6 +3,17 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:usb_serial/usb_serial.dart';
 
+class Slot {
+  Slot({this.index});
+
+  final int index;
+  String uid;
+  int memorySize;
+  String mode;
+  String button;
+  String longPressButton;
+}
+
 class ChameleonClient {
   final asciiCodec = AsciiCodec();
   UsbPort port;
@@ -107,4 +118,29 @@ class ChameleonClient {
   Future<void> clear() => sendCommand('CLEARMY');
 
   Future<String> getRssi() => sendCommand('RSSIMY?');
+
+  Future<List<Slot>> refreshAll() async {
+    var selectedSlot = await getActive();
+    var slots = <Slot>[];
+    for (int i = 0; i < 8; i++)
+      slots.add(await refresh(i));
+    await active(selectedSlot);
+    return slots;
+  }
+
+  Future<Slot> refresh(int i) async {
+    await active(i);
+    var selectedSlot = await getActive();
+    if (selectedSlot != i)
+      return null;
+    var slot = Slot(index: i);
+    slot.uid = await getUid();
+    slot.mode = await getMode();
+    slot.button = await getButton();
+    try {
+      slot.longPressButton = await getLongPressButton();
+    } catch (e) { }
+    slot.memorySize = await getMemorySize();
+    return slot;
+  }
 }

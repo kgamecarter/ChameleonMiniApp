@@ -4,17 +4,6 @@ import 'package:flutter/services.dart';
 import '../../services/chameleonClient.dart';
 import '../../generated/i18n.dart';
 
-class Slot {
-  Slot({this.index});
-
-  final int index;
-  String uid;
-  int memorySize;
-  String mode;
-  String button;
-  String longPressButton;
-}
-
 class SlotView extends StatefulWidget {
   SlotView({Key key, this.slot, this.client, this.modes, this.buttonModes, this.longPressButtonModes}) : super(key: key);
 
@@ -39,25 +28,14 @@ class _SlotViewState extends State<SlotView> {
   _longPressButtonModeChanged(String str) => setState(() => widget.slot.longPressButton = str);
 
   Future<void> _refresh() async {
-    var client = widget.client;
+    var s = await widget.client.refresh(widget.slot.index);
     var slot = widget.slot;
-    await client.active(slot.index);
-    var selectedSlot = await client.getActive();
-    if (selectedSlot != slot.index)
-      return;
-    var uid = await client.getUid();
-    var mode = await client.getMode();
-    var button = await client.getButton();
-    String longPressButton;
-    if (widget.longPressButtonModes != null)
-      longPressButton = await client.getLongPressButton();
-    var memorySize = await client.getMemorySize();
     setState(() {
-      slot.uid = uid;
-      slot.mode = mode;
-      slot.button = button;
-      slot.longPressButton = longPressButton;
-      slot.memorySize = memorySize;
+      slot.uid = s.uid;
+      slot.mode = s.mode;
+      slot.button = s.button;
+      slot.longPressButton = s.longPressButton;
+      slot.memorySize = s.memorySize;
     });
   }
   
