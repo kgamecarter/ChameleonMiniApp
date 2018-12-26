@@ -26,6 +26,10 @@ dependencies:
   shared_preferences: ^0.4.3
   path_provider: ^0.4.1
   simple_permissions: ^0.1.9
+  file_picker:
+    git:
+      url: git://github.com/miguelpruivo/plugins_flutter_file_picker.git
+      ref: beta
 
 dev_dependencies:
   flutter_test:

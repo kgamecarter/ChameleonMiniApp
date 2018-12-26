@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:simple_permissions/simple_permissions.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../../services/chameleonClient.dart';
 import '../../generated/i18n.dart';
@@ -59,7 +61,33 @@ class _SlotViewState extends State<SlotView> {
     await _refresh();
   }
 
+  Uint8List stringToBytes(String data) {
+    var result = Uint8List(data.length ~/ 2);
+    for (var i = 0; i < result.length; i++) {
+      result[i] = int.parse(data.substring(i << 1, i + 1 << 1), radix: 16);
+    }
+    return result;
+  }
+
   Future<void> _upload() async {
+    var client = widget.client;
+    var slot = widget.slot;
+    
+    final permissionStatus = await SimplePermissions.requestPermission(Permission.WriteExternalStorage);
+    if (permissionStatus == PermissionStatus.authorized) {
+      var filePath = await FilePicker.getFilePath(type: FileType.ANY);
+      var file = File(filePath);
+      var str = (await file.readAsLines())
+        .where((str) => str.length == 32)
+        .map((str) => str.replaceAll('-', 'F'))
+        .join();
+      var data = stringToBytes(str);
+      await client.active(slot.index);
+      await client.upload(data);
+      await _refresh();
+      final snackBar = SnackBar(content: Text('Upload MCT file success.'));
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
   }
 
   String bytesToString(Iterable<int> bytes) {
@@ -255,7 +283,7 @@ class _SlotViewState extends State<SlotView> {
                       color: Colors.lime,
                       disabledColor: Colors.grey,
                       child: Text(S.of(context).upload),
-                      onPressed: /*widget.client.connected ? _upload : */null,
+                      onPressed: widget.client.connected ? _upload : null,
                     ),
                   ),
                   Container(

@@ -133,6 +133,11 @@ class ChameleonClient {
     return await xmodem.receive();
   }
 
+  Future<void> upload(Uint8List data) async {
+    var xmodem = await sendCommandXmodem('UPLOADMY');
+    await xmodem.send(data);
+  }
+
   Future<List<Slot>> refreshAll() async {
     var selectedSlot = await getActive();
     var slots = <Slot>[];
