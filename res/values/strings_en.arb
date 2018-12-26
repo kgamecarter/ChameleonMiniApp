@@ -1,6 +1,8 @@
 {
   "apply": "Apply",
   "button": "Button",
+  "download": "Download",
+  "downloading": "Downloading",
   "effectiveAfterRestartingTheApp": "Effective after restarting app",
   "chameleonMiniApp": "Chameleon Mini App",
   "english": "English",
@@ -16,6 +18,7 @@
   "settings": "Settings",
   "traditionalChinese": "Traditional Chinese",
   "uid": "UID",
+  "upload": "Upload",
   "usbDeviceNotFound": "USB device not found",
   "usbDisconnected": "USB Disconnected",
   "systemDefault": "System Default"

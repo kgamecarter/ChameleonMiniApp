@@ -112,7 +112,6 @@ class Xmodem {
 
                 // block number
                 data = await getData();
-                print(data);
                 // check block number
                 if (data != (blocknumber & 0xFF)) {
                     errorCount++;
@@ -134,9 +133,8 @@ class Xmodem {
                 }
 
                 int checksum = await getData();
-                if (sum % 256 != checksum) {
+                if (sum & 0xFF != checksum) {
                     errorCount++;
-                    putData(NAK);
                     continue;
                 }
 
@@ -146,11 +144,16 @@ class Xmodem {
                 errorCount = 0;
             } catch (e) {
                 print(e);
+            } finally {
+              if (errorCount != 0) {
+                  putData(NAK);
+              }
             }
         } else {
             break;
         }
     }
+    putData(ACK);
     subcription.cancel();
     return Uint8List.fromList(output);
   }

@@ -1,5 +1,10 @@
+import 'dart:io';
+
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission/permission.dart';
 
 import '../../services/chameleonClient.dart';
 import '../../generated/i18n.dart';
@@ -54,12 +59,72 @@ class _SlotViewState extends State<SlotView> {
     await _refresh();
   }
 
+  Future<void> _upload() async {
+  }
+
+  String bytesToString(Iterable<int> bytes) {
+    var str = '';
+    for (var b in bytes)
+      str += b.toRadixString(16).padLeft(2, '0').toUpperCase();
+    return str;
+  }
+
+  String toMct(List<int> data) { // only 1k now
+    var strs = <String>[];
+    for (var i = 0; i < 16; i++) {
+      strs.add('+Sector: $i');
+      for (var j = 0; j < 4; j++) {
+        var block = data.skip(i * 64 + j * 16).take(16);
+        strs.add(bytesToString(block));
+      }
+    }
+    return strs.join('\n');
+  }
+
   Future<void> _download() async {
-    var client = widget.client;
-    var slot = widget.slot;
-    await client.active(slot.index);
-    var data = await client.download();
-    print(data);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        child: Container(
+          padding: EdgeInsets.all(16),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              Container(
+                padding: EdgeInsets.only(left: 16),
+                child: Text(S.of(context).downloading),
+              ),
+            ],
+          ),
+        ),
+      )
+    );
+    try {
+      var client = widget.client;
+      var slot = widget.slot;
+      await client.active(slot.index);
+      var uid = await client.getUid();
+      var result = await client.download();
+      var data = result.take(slot.memorySize).toList();
+      var mctFormat = toMct(data);
+      final permissionStatus = await Permission.requestSinglePermission(PermissionName.Storage);
+      if (permissionStatus == PermissionStatus.allow) {
+        var d = Directory('${(await getExternalStorageDirectory()).path}/MifareClassicTool/dump-files');
+        if (!await d.exists())
+          await d.create(recursive: true);
+              
+        var now = new DateTime.now();
+        var formatter = new DateFormat('yyyy-MM-dd_HH-mm-ss');
+        var f = File('${(await getExternalStorageDirectory()).path}/MifareClassicTool/dump-files/UID_${uid}_${formatter.format(now)}');
+        await f.writeAsString(mctFormat);
+        final snackBar = SnackBar(content: Text('Saved to MCT folder.'));
+        Scaffold.of(context).showSnackBar(snackBar);
+      }
+    } finally {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -168,7 +233,7 @@ class _SlotViewState extends State<SlotView> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                    padding: const EdgeInsets.only(left: 20.0),
                     child: FlatButton(
                       color: Colors.lime,
                       disabledColor: Colors.grey,
@@ -176,12 +241,29 @@ class _SlotViewState extends State<SlotView> {
                       onPressed: widget.client.connected ? _apply : null,
                     ),
                   ),
+                ],
+              )
+            ),
+            Container(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    padding: const EdgeInsets.only(right: 20.0),
+                    child: FlatButton(
+                      color: Colors.lime,
+                      disabledColor: Colors.grey,
+                      child: Text(S.of(context).upload),
+                      onPressed: /*widget.client.connected ? _upload : */null,
+                    ),
+                  ),
                   Container(
                     padding: const EdgeInsets.only(left: 20.0),
                     child: FlatButton(
                       color: Colors.lime,
                       disabledColor: Colors.grey,
-                      child: Text('DOWNLOAD'),
+                      child: Text(S.of(context).download),
                       onPressed: widget.client.connected ? _download : null,
                     ),
                   ),
