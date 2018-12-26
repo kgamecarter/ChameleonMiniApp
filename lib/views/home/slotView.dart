@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission/permission.dart';
+import 'package:simple_permissions/simple_permissions.dart';
 
 import '../../services/chameleonClient.dart';
 import '../../generated/i18n.dart';
@@ -109,8 +109,8 @@ class _SlotViewState extends State<SlotView> {
       var result = await client.download();
       var data = result.take(slot.memorySize).toList();
       var mctFormat = toMct(data);
-      final permissionStatus = await Permission.requestSinglePermission(PermissionName.Storage);
-      if (permissionStatus == PermissionStatus.allow) {
+      final permissionStatus = await SimplePermissions.requestPermission(Permission.WriteExternalStorage);
+      if (permissionStatus == PermissionStatus.authorized) {
         var d = Directory('${(await getExternalStorageDirectory()).path}/MifareClassicTool/dump-files');
         if (!await d.exists())
           await d.create(recursive: true);
