@@ -29,7 +29,7 @@ dependencies:
   file_picker:
     git:
       url: git://github.com/kgamecarter/plugins_flutter_file_picker.git
-      ref: beta
+      ref: master
 
 dev_dependencies:
   flutter_test:
