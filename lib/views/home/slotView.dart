@@ -76,6 +76,8 @@ class _SlotViewState extends State<SlotView> {
     final permissionStatus = await SimplePermissions.requestPermission(Permission.WriteExternalStorage);
     if (permissionStatus == PermissionStatus.authorized) {
       var filePath = await FilePicker.getFilePath(type: FileType.ANY);
+      if (filePath == null)
+        return;
       var file = File(filePath);
       var str = (await file.readAsLines())
         .where((str) => str.length == 32)
