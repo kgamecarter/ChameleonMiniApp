@@ -99,13 +99,24 @@ class _SlotViewState extends State<SlotView> {
     return str;
   }
 
-  String toMct(List<int> data) { // only 1k now
+  String toMct(List<int> data) {
     var strs = <String>[];
-    for (var i = 0; i < 16; i++) {
+    var is4k = data.length == 4096;
+    var size = is4k ? 32 : 16;
+    for (var i = 0; i < size; i++) {
       strs.add('+Sector: $i');
       for (var j = 0; j < 4; j++) {
         var block = data.skip(i * 64 + j * 16).take(16);
         strs.add(bytesToString(block));
+      }
+    }
+    if (is4k) {
+      for (var i = 32; i < 40; i++) {
+        strs.add('+Sector: $i');
+        for (var j = 0; j < 16; j++) {
+          var block = data.skip(2048 + (i - 32) * 256 + j * 16).take(16);
+          strs.add(bytesToString(block));
+        }
       }
     }
     return strs.join('\n');
