@@ -163,15 +163,15 @@ class Span<T> {
     int start = 0, stop = this.length - 1, mid;
     int val = this[stop] & 0xff000000;
     while (start != stop)
-        if (this[start + (mid = (stop - start) >> 1)] > val)
-            stop = start + mid;
-        else
-            start += mid + 1;
+      if (this[start + (mid = (stop - start) >> 1)] > val)
+        stop = start + mid;
+      else
+        start += mid + 1;
     return start;
   }
 
-  operator [](int i) => list[i];
-  operator []=(int i, T value) => list[i] = value;
+  operator [](int i) => list[i + offset];
+  operator []=(int i, T value) => list[i + offset] = value;
 }
 
 class Crapto1 extends Crypto1
@@ -216,7 +216,7 @@ class Crapto1 extends Crypto1
       p = p << 1 | evenParity32(item & mask1);
       p = p << 1 | evenParity32(item & mask2);
       item = p << 24 | (item & 0xffffff);
-      return item;
+      return item & 0xFFFFFFFF;
   }
 
   static int _extendTable(Span<int> tbl, int end, int bit, int m1, int m2, int _in) {
@@ -461,16 +461,17 @@ String mfKey32(int uid, Iterable<Nonce> nonces)
     crapto1.lfsrRollbackWord();
     crapto1.lfsrRollbackWord(nonce.nr, true);
     crapto1.lfsrRollbackWord(uid ^ nonce.nt);
-    var crypto1 = Crypto1();
+    var crypto1 = Crypto1(Crypto1State());
     var allPass = nonces.every((n) {
-      crypto1.state = crapto1.state;
+      crypto1.state.odd = s.odd;
+      crypto1.state.even = s.even;
       crypto1.crypto1Word(uid ^ n.nt);
       crypto1.crypto1Word(n.nr, true);
       var p641 = prngSuccessor(n.nt, 64);
       return n.ar == (crypto1.crypto1Word() ^ p641);
     });
     if (allPass)
-      keys.add(crapto1.state.lfsr);
+      keys.add(s.lfsr);
   });
   return keys.length == 1 ? keys[0] : null;
 }
