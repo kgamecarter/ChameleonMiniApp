@@ -435,3 +435,40 @@ class Crapto1 extends Crypto1
     return statelist;
   }
 }
+
+class Nonce
+{
+  int block, type;
+  
+  int nt;
+
+  int nr;
+
+  int ar;
+}
+
+String mfKey32(int uid, Iterable<Nonce> nonces)
+{
+  var nonce = nonces.take(1).toList()[0];
+  nonces = nonces.skip(1);
+  var p640 = prngSuccessor(nonce.nt, 64);
+  var list = Crapto1.lfsrRecovery32(nonce.ar ^ p640, 0);
+  var keys = List<String>();
+  list.forEach((s) {
+    var crapto1 = Crapto1(s);
+    crapto1.lfsrRollbackWord();
+    crapto1.lfsrRollbackWord(nonce.nr, true);
+    crapto1.lfsrRollbackWord(uid ^ nonce.nt);
+    var crypto1 = Crypto1();
+    var allPass = nonces.every((n) {
+      crypto1.state = crapto1.state;
+      crypto1.crypto1Word(uid ^ n.nt);
+      crypto1.crypto1Word(n.nr, true);
+      var p641 = prngSuccessor(n.nt, 64);
+      return n.ar == (crypto1.crypto1Word() ^ p641);
+    });
+    if (allPass)
+      keys.add(crapto1.state.lfsr);
+  });
+  return keys.length == 1 ? keys[0] : null;
+}
