@@ -108,9 +108,9 @@ const List<int> _oddintParity = <int>[
   1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1
 ];
 
-int oddParity8(int x) => _oddintParity[x];
+int oddParity8(int x) => _oddintParity[x & 0xFF];
 
-int evenParity8(int x) => _oddintParity[x] ^ 1;
+int evenParity8(int x) => _oddintParity[x & 0xFF] ^ 1;
 
 int evenParity32(int x) {
   x ^= x >> 16;
@@ -120,14 +120,16 @@ int evenParity32(int x) {
 
 int swapEndian(int x) {
   x = (x >> 8 & 0xff00ff) | (x & 0xff00ff) << 8;
+  x &= 0xFFFFFFFF;
   x = x >> 16 | x << 16;
+  x &= 0xFFFFFFFF;
   return x;
 }
 
 int prngSuccessor(int x, int n) {
     x = swapEndian(x);
     while (n-- > 0)
-      x = x >> 1 | (x >> 16 ^ x >> 18 ^ x >> 19 ^ x >> 21) << 31;
+      x = x >> 1 | ((x >> 16 ^ x >> 18 ^ x >> 19 ^ x >> 21) & 1) << 31;
     return swapEndian(x);
 }
 
@@ -218,22 +220,22 @@ class Crapto1 extends Crypto1
   }
 
   static int _extendTable(Span<int> tbl, int end, int bit, int m1, int m2, int _in) {
-      _in <<= 24;
-      var i = 0;
-      for (tbl[i] <<= 1; i <= end; tbl[++i] <<= 1)
-        if ((filter(tbl[i]) ^ filter(tbl[i] | 1)) != 0) {
-          tbl[i] |= filter(tbl[i]) ^ bit;
-          tbl[i] = _updateContribution(tbl[i], m1, m2);
-          tbl[i] ^= _in;
-        } else if (filter(tbl[i]) == bit) {
-          tbl[++end] = tbl[i + 1];
-          tbl[i + 1] = tbl[i] | 1;
-          tbl[i] = _updateContribution(tbl[i], m1, m2);
-          tbl[i++] ^= _in;
-          tbl[i] = _updateContribution(tbl[i], m1, m2);
-          tbl[i] ^= _in;
-        } else
-          tbl[i--] = tbl[end--];
+    _in <<= 24;
+    var i = 0;
+    for (tbl[i] <<= 1; i <= end; tbl[++i] <<= 1)
+      if ((filter(tbl[i]) ^ filter(tbl[i] | 1)) != 0) {
+        tbl[i] |= filter(tbl[i]) ^ bit;
+        tbl[i] = _updateContribution(tbl[i], m1, m2);
+        tbl[i] ^= _in;
+      } else if (filter(tbl[i]) == bit) {
+        tbl[++end] = tbl[i + 1];
+        tbl[i + 1] = tbl[i] | 1;
+        tbl[i] = _updateContribution(tbl[i], m1, m2);
+        tbl[i++] ^= _in;
+        tbl[i] = _updateContribution(tbl[i], m1, m2);
+        tbl[i] ^= _in;
+      } else
+        tbl[i--] = tbl[end--];
     return end;
   }
 
@@ -362,12 +364,12 @@ class Crapto1 extends Crypto1
   static const List<int> _C2 = const <int>[ 0x1A822E0, 0x21A822E0, 0x21A822E0 ];
 
   static List<Crypto1State> lfsrRecovery64(int ks2, int ks3) {
-    var oks = List<int>(32);
-    var eks = List<int>(32);
-    var hi = List<int>(32);
+    var oks = List<int>.filled(32, 0);
+    var eks = List<int>.filled(32, 0);
+    var hi = List<int>.filled(32, 0);
     var low = 0;
     var win = 0;
-    var table =  List<int>(1 << 16);
+    var table =  List<int>.filled(1 << 16, 0);
     var statelist = List<Crypto1State>();
 
     for (var i = 30; i >= 0; i -= 2) {
@@ -471,4 +473,18 @@ String mfKey32(int uid, Iterable<Nonce> nonces)
       keys.add(crapto1.state.lfsr);
   });
   return keys.length == 1 ? keys[0] : null;
+}
+
+String mfKey64(int uid, int nt, int nr, int ar, int at)
+{
+    // Extract the keystream from the messages
+    var ks2 = ar ^ prngSuccessor(nt, 64); // keystream used to encrypt reader response
+    var ks3 = at ^ prngSuccessor(nt, 96); // keystream used to encrypt tag response
+    var revstate = Crapto1.lfsrRecovery64(ks2, ks3)[0];
+    var crapto1 = Crapto1(revstate);
+    crapto1.lfsrRollbackWord();
+    crapto1.lfsrRollbackWord();
+    crapto1.lfsrRollbackWord(nr, true);
+    crapto1.lfsrRollbackWord(uid ^ nt);
+    return crapto1.state.lfsr;
 }
