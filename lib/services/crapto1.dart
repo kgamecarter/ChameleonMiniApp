@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 class Crypto1State {
   int odd = 0;
   int even = 0;
@@ -133,8 +135,8 @@ int prngSuccessor(int x, int n) {
     return swapEndian(x);
 }
 
-class Span<T> {
-  List<T> list;
+class Span {
+  Uint32List list;
   int offset;
   int length;
 
@@ -143,7 +145,7 @@ class Span<T> {
       length = list.length - offset;
   }
 
-  Span<T> slice(int start, [int len]) {
+  Span slice(int start, [int len]) {
     return Span(list, offset + start, len != null ? len : length - start);
   }
 
@@ -166,7 +168,7 @@ class Span<T> {
   }
 
   operator [](int i) => list[i + offset];
-  operator []=(int i, T value) => list[i + offset] = value;
+  operator []=(int i, int value) => list[i + offset] = value;
 }
 
 class Crapto1 extends Crypto1
@@ -207,14 +209,14 @@ class Crapto1 extends Crypto1
   }
 
   static int _updateContribution(int item, int mask1, int mask2) {
-      int p = item >> 25;
-      p = p << 1 | evenParity32(item & mask1);
-      p = p << 1 | evenParity32(item & mask2);
-      item = p << 24 | (item & 0xffffff);
-      return item & 0xFFFFFFFF;
+    int p = item >> 25;
+    p = p << 1 | evenParity32(item & mask1);
+    p = p << 1 | evenParity32(item & mask2);
+    item = p << 24 | (item & 0xffffff);
+    return item & 0xFFFFFFFF;
   }
 
-  static int _extendTable(Span<int> tbl, int end, int bit, int m1, int m2, int _in) {
+  static int _extendTable(Span tbl, int end, int bit, int m1, int m2, int _in) {
     _in <<= 24;
     var i = 0;
     for (tbl[i] <<= 1; i <= end; tbl[++i] <<= 1)
@@ -234,7 +236,7 @@ class Crapto1 extends Crypto1
     return end;
   }
 
-  static int _extendTableSimple(List<int> tbl, int end, int bit) {
+  static int _extendTableSimple(Uint32List tbl, int end, int bit) {
     var i = 0;
     for (tbl[i] <<= 1; i <= end; tbl[++i] <<= 1) {
       if ((filter(tbl[i]) ^ filter(tbl[i] | 1)) != 0) {
@@ -249,7 +251,7 @@ class Crapto1 extends Crypto1
     return end;
   }
 
-  static void _recover(Span<int> odd, int oddTail, int oks, Span<int> even, int evenTail, int eks, int rem, List<Crypto1State> sl, int _in) {
+  static void _recover(Span odd, int oddTail, int oks, Span even, int evenTail, int eks, int rem, List<Crypto1State> sl, int _in) {
     var o = 0;
     var e = 0;
 
@@ -306,8 +308,8 @@ class Crapto1 extends Crypto1
     for (var i = 30; i >= 0; i -= 2)
       eks = eks << 1 | _beBit(ks2, i);
 
-    var odd = List<int>.filled(4 << 21, 0);
-    var even = List<int>.filled(4 << 21, 0);
+    var odd = Uint32List(4 << 21);
+    var even = Uint32List(4 << 21);
     var statelist = List<Crypto1State>();
     var oddTail = 0;
     var evenTail = 0;
@@ -325,7 +327,7 @@ class Crapto1 extends Crypto1
     }
 
     _in = (_in >> 16 & 0xff) | (_in << 16) | (_in & 0xff00);
-    _recover(Span<int>(odd), oddTail, oks, Span<int>(even), evenTail, eks, 11, statelist, _in << 1);
+    _recover(Span(odd), oddTail, oks, Span(even), evenTail, eks, 11, statelist, _in << 1);
 
     return statelist;
   }
@@ -359,12 +361,12 @@ class Crapto1 extends Crypto1
   static const List<int> _C2 = const <int>[ 0x1A822E0, 0x21A822E0, 0x21A822E0 ];
 
   static List<Crypto1State> lfsrRecovery64(int ks2, int ks3) {
-    var oks = List<int>.filled(32, 0);
-    var eks = List<int>.filled(32, 0);
-    var hi = List<int>.filled(32, 0);
+    var oks = Uint8List(32);
+    var eks = Uint8List(32);
+    var hi = Uint8List(32);
     var low = 0;
     var win = 0;
-    var table =  List<int>.filled(1 << 16, 0);
+    var table = Uint32List(1 << 16);
     var statelist = List<Crypto1State>();
 
     for (var i = 30; i >= 0; i -= 2) {
@@ -443,41 +445,46 @@ class Nonce
 
 String mfKey32(int uid, Iterable<Nonce> nonces)
 {
-  var nonce = nonces.take(1).toList()[0];
-  nonces = nonces.skip(1).take(1).toList();
+  var nonce = nonces.first;
+  nonces = nonces.skip(1).toList();
   var p640 = prngSuccessor(nonce.nt, 64);
   var list = Crapto1.lfsrRecovery32(nonce.ar ^ p640, 0);
   var keys = List<String>();
-  list.forEach((s) {
-    var crapto1 = Crapto1(s);
+  var crapto1 = Crapto1();
+  var crypto1 = Crypto1(Crypto1State());
+  for (var s in list) {
+    crapto1.state = s;
     crapto1.lfsrRollbackWord();
     crapto1.lfsrRollbackWord(nonce.nr, true);
     crapto1.lfsrRollbackWord(uid ^ nonce.nt);
-    var crypto1 = Crypto1(Crypto1State());
-    var allPass = nonces.every((n) {
+    var allPass = true;
+    for (var n in nonces) {
       crypto1.state.odd = s.odd;
       crypto1.state.even = s.even;
       crypto1.crypto1Word(uid ^ n.nt);
       crypto1.crypto1Word(n.nr, true);
       var p641 = prngSuccessor(n.nt, 64);
-      return n.ar == (crypto1.crypto1Word() ^ p641);
-    });
+      if (n.ar != (crypto1.crypto1Word() ^ p641)) {
+        allPass = false;
+        break;
+      }
+    }
     if (allPass)
       keys.add(s.lfsr);
-  });
+  }
   return keys.length == 1 ? keys[0] : null;
 }
 
 String mfKey64(int uid, int nt, int nr, int ar, int at)
 {
-    // Extract the keystream from the messages
-    var ks2 = ar ^ prngSuccessor(nt, 64); // keystream used to encrypt reader response
-    var ks3 = at ^ prngSuccessor(nt, 96); // keystream used to encrypt tag response
-    var revstate = Crapto1.lfsrRecovery64(ks2, ks3)[0];
-    var crapto1 = Crapto1(revstate);
-    crapto1.lfsrRollbackWord();
-    crapto1.lfsrRollbackWord();
-    crapto1.lfsrRollbackWord(nr, true);
-    crapto1.lfsrRollbackWord(uid ^ nt);
-    return crapto1.state.lfsr;
+  // Extract the keystream from the messages
+  var ks2 = ar ^ prngSuccessor(nt, 64); // keystream used to encrypt reader response
+  var ks3 = at ^ prngSuccessor(nt, 96); // keystream used to encrypt tag response
+  var revstate = Crapto1.lfsrRecovery64(ks2, ks3)[0];
+  var crapto1 = Crapto1(revstate);
+  crapto1.lfsrRollbackWord();
+  crapto1.lfsrRollbackWord();
+  crapto1.lfsrRollbackWord(nr, true);
+  crapto1.lfsrRollbackWord(uid ^ nt);
+  return crapto1.state.lfsr;
 }
