@@ -133,11 +133,6 @@ int prngSuccessor(int x, int n) {
     return swapEndian(x);
 }
 
-class Ref<T> {
-  T value;
-  Ref(this.value);
-}
-
 class Span<T> {
   List<T> list;
   int offset;
@@ -441,11 +436,8 @@ class Crapto1 extends Crypto1
 class Nonce
 {
   int sector, block, type;
-  
   int nt;
-
   int nr;
-
   int ar;
 }
 
