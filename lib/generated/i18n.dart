@@ -20,6 +20,7 @@ class S implements WidgetsLocalizations {
   TextDirection get textDirection => TextDirection.ltr;
 
   String get apply => "Apply";
+  String get attacking => "Attacking";
   String get button => "Button";
   String get chameleonMiniApp => "Chameleon Mini App";
   String get download => "Download";
@@ -30,6 +31,7 @@ class S implements WidgetsLocalizations {
   String get language => "Language";
   String get longPressButton => "Long Press Button";
   String get memorySize => "Memory Size";
+  String get mfkey32 => "mfkey32";
   String get mode => "Mode";
   String get notAvailable => "N/A";
   String get refresh => "Refresh";
@@ -70,6 +72,10 @@ class $zh_TW extends S {
   String get language => "語言";
   @override
   String get slot => "槽位";
+  @override
+  String get mfkey32 => "解密";
+  @override
+  String get attacking => "解密中";
   @override
   String get notAvailable => "不可用";
   @override

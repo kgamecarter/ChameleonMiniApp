@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:isolate';
 
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +8,10 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:simple_permissions/simple_permissions.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:queries/collections.dart';
 
 import '../../services/chameleonClient.dart';
+import '../../services/crapto1.dart';
 import '../../generated/i18n.dart';
 
 class SlotView extends StatefulWidget {
@@ -90,6 +93,138 @@ class _SlotViewState extends State<SlotView> {
       final snackBar = SnackBar(content: Text('Upload MCT file success.'));
       Scaffold.of(context).showSnackBar(snackBar);
     }
+  }
+
+  Future<void> _mfkey32() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        child: Container(
+          padding: EdgeInsets.all(16),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              Container(
+                padding: EdgeInsets.only(left: 16),
+                child: Text(S.of(context).attacking),
+              ),
+            ],
+          ),
+        ),
+      )
+    );
+    List<String> list;
+    try {
+      var client = widget.client;
+      var slot = widget.slot;
+
+      await client.active(slot.index);
+      var data = await client.getDetection();
+      if (data == null || data.length == 0) {
+        final snackBar = SnackBar(content: Text('No data found on device.'));
+        Scaffold.of(context).showSnackBar(snackBar);
+        return;
+      }
+      ChameleonClient.decryptData(data, 123321, 208);
+      if (!Crc.checkCrc14443(Crc.CRC16_14443_A, data, 210)) {
+        final snackBar = SnackBar(content: Text('Data failed CRC check.'));
+        Scaffold.of(context).showSnackBar(snackBar);
+        return;
+      }
+      var uid = _toUint32(data, 0);
+      var nonces = Collection<Nonce>();
+      for (int i = 0; i < 12; i++)
+      {
+        var nonce = new Nonce()
+          ..type = data[(i + 1) * 16]
+          ..block = data[(i + 1) * 16 + 1]                 
+          ..nt = _toUint32(data, (i + 1) * 16 + 4)
+          ..nr = _toUint32(data, (i + 1) * 16 + 8)
+          ..ar = _toUint32(data, (i + 1) * 16 + 12);
+        nonce.sector = _toSector(nonce.block);
+        if (nonce.block < 40)
+          nonces.add(nonce);
+      }
+      var receivePort = ReceivePort();
+      await Isolate.spawn(keyWork, receivePort.sendPort);
+      SendPort sendPort = await receivePort.first;
+      receivePort = ReceivePort();
+      sendPort.send([receivePort.sendPort, uid, nonces]);
+      list = await receivePort.first;
+      if (list.length == 0) {
+        final snackBar = SnackBar(content: Text('mfkey32 attack failed, no keys found.'));
+        Scaffold.of(context).showSnackBar(snackBar);
+        return;
+      }
+    } finally {
+      Navigator.pop(context);
+    }
+    if (list != null) {
+      final result = list.join('\n');
+      var thisContext = context;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text("mfkey32 result"),
+            content: new Text(result),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text("Copy and Close"),
+                onPressed: () {
+                  Clipboard.setData(new ClipboardData(text: result));
+                  Navigator.pop(context);
+                  final snackBar = SnackBar(content: Text('Copied to clipboard.'), duration: Duration(seconds: 3),);
+                  Scaffold.of(thisContext).showSnackBar(snackBar);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  static void keyWork(SendPort sendPort) async {
+    var receivePort = new ReceivePort();
+    sendPort.send(receivePort.sendPort);
+    List<dynamic> msg = await receivePort.first;
+    sendPort = msg[0];
+    int uid = msg[1];
+    Collection<Nonce> nonces = msg[2];
+
+    var list = nonces
+      .groupBy((n) => 'Sec${n.sector} Key${n.type == 0x60 ? 'A': 'B'}')
+      .select((g) {
+        var ns = g.toList();
+        if (ns.length < 2)
+          return null;
+        var key = mfKey32(uid, ns);
+        if (key != null)
+          return '${g.key} $key';
+        return null;
+      }).where((str) => str != null)
+      .toList();
+
+    sendPort.send(list);
+  }
+
+
+  int _toUint32(Uint8List data, int offset) {
+    var v = 0;
+    for (var i = 0; i < 4; i++)
+      v = v << 8 | data[offset + i];
+    return v;
+  }
+
+  int _toSector(int block)
+  {
+    if (block < 128)
+      return  block ~/ 4;
+    return 32 + (block - 128) ~/ 16;
   }
 
   String bytesToString(Iterable<int> bytes) {
@@ -306,6 +441,22 @@ class _SlotViewState extends State<SlotView> {
                       disabledColor: Colors.grey,
                       child: Text(S.of(context).download),
                       onPressed: widget.client.connected ? _download : null,
+                    ),
+                  ),
+                ],
+              )
+            ),
+            Container(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    child: FlatButton(
+                      color: Colors.lime,
+                      disabledColor: Colors.grey,
+                      child: Text(S.of(context).mfkey32),
+                      onPressed: widget.client.connected ? _mfkey32 : null,
                     ),
                   ),
                 ],

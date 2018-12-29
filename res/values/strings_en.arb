@@ -1,5 +1,6 @@
 {
   "apply": "Apply",
+  "attacking": "Attacking",
   "button": "Button",
   "download": "Download",
   "downloading": "Downloading",
@@ -10,6 +11,7 @@
   "language": "Language",
   "longPressButton": "Long Press Button",
   "memorySize": "Memory Size",
+  "mfkey32": "mfkey32",
   "mode": "Mode",
   "notAvailable": "N/A",
   "refresh": "Refresh",

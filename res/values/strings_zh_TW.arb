@@ -1,5 +1,6 @@
 {
   "apply": "應用",
+  "attacking": "解密中",
   "button": "按鈕",
   "download": "下載",
   "downloading": "下載中",
@@ -9,6 +10,7 @@
   "language": "語言",
   "longPressButton": "長按按鈕",
   "memorySize": "記憶體大小",
+  "mfkey32": "解密",
   "mode": "模式",
   "notAvailable": "不可用",
   "refresh": "刷新",

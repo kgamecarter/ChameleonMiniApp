@@ -162,4 +162,47 @@ class ChameleonClient {
     slot.memorySize = await getMemorySize();
     return slot;
   }
+
+  static void decryptData(Uint8List arr, int key, int size)
+  {
+    for (int i = 0; i < size; i++)
+      arr[i] = size + key + i - size ~/ key ^ arr[i];
+  }
+}
+
+class Crc
+{
+  static const CRC16_14443_A = 0x6363;
+  static const CRC16_14443_B = 0xFFFF;
+
+  static int _updateCrc14443(int b, int crc)
+  {
+    int ch = b ^ (crc & 0x00ff);
+    ch = (ch ^ (ch << 4)) & 0xFF;
+    return ((crc >> 8) ^ (ch << 8) ^ (ch << 3) ^ (ch >> 4)) & 0xFFFF;
+  }
+
+  static int _computeCrc14443(int crcType, Uint8List bytes, int len)
+  {
+    if (len < 2)
+      return -1;
+    var res = crcType;
+
+    for (int i = 0; i < len; i++)
+      res = _updateCrc14443(bytes[i], res);
+
+    if (crcType == CRC16_14443_B)
+      res = ~res & 0xFFFF;                /* ISO/IEC 13239 (formerly ISO/IEC 3309) */
+    return res;
+  }
+
+  static bool checkCrc14443(int crcType, Uint8List bytes, int len)
+  {
+    if (len < 3) return false;
+
+    var res = _computeCrc14443(crcType, bytes, len - 2);
+    if (res == (bytes[len - 2] | bytes[len - 1] << 8))
+      return true;
+    return false;
+  }
 }

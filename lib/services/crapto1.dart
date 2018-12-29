@@ -440,7 +440,7 @@ class Crapto1 extends Crypto1
 
 class Nonce
 {
-  int block, type;
+  int sector, block, type;
   
   int nt;
 
@@ -452,7 +452,7 @@ class Nonce
 String mfKey32(int uid, Iterable<Nonce> nonces)
 {
   var nonce = nonces.take(1).toList()[0];
-  nonces = nonces.skip(1);
+  nonces = nonces.skip(1).take(1).toList();
   var p640 = prngSuccessor(nonce.nt, 64);
   var list = Crapto1.lfsrRecovery32(nonce.ar ^ p640, 0);
   var keys = List<String>();
