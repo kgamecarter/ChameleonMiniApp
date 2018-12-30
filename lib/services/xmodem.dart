@@ -49,38 +49,38 @@ class Xmodem {
     }
 
     while ((nbytes = read()) > 0) {
-        // less 128, padding 0xFF
-        if (nbytes < SECTOR_SIZE) {
-            for (int i = nbytes; i < SECTOR_SIZE; i++) {
-                buffer[i] = 0xFF;
-            }
+      // less 128, padding 0xFF
+      if (nbytes < SECTOR_SIZE) {
+        for (int i = nbytes; i < SECTOR_SIZE; i++) {
+          buffer[i] = 0xFF;
         }
+      }
 
-        errorCount = 0;
-        while (errorCount < MAX_ERRORS) {
-            putData(SOH);
-            putData(blockNumber);
-            putData(~blockNumber & 0xFF);
-            output(buffer);
-            checkSum = buffer.reduce((v, e) => v + e);
-            putData(checkSum);
+      errorCount = 0;
+      while (errorCount < MAX_ERRORS) {
+        putData(SOH);
+        putData(blockNumber);
+        putData(~blockNumber & 0xFF);
+        output(buffer);
+        checkSum = buffer.reduce((v, e) => v + e);
+        putData(checkSum);
 
-            // get ACK
-            var data = await getData();
-            if (data == ACK) {
-                break;
-            } else {
-                ++errorCount;
-            }
+        // get ACK
+        var data = await getData();
+        if (data == ACK) {
+          break;
+        } else {
+          ++errorCount;
         }
-        blockNumber = (blockNumber + 1) & 0xFF;
+      }
+      blockNumber = (blockNumber + 1) & 0xFF;
     }
 
     // 所有数据发送完成后，发送结束标识
     var isAck = false;
     while (!isAck) {
-        putData(EOT);
-        isAck = await getData() == ACK;
+      putData(EOT);
+      isAck = await getData() == ACK;
     }
     subcription.cancel();
   }
@@ -111,60 +111,60 @@ class Xmodem {
     putData(NAK);
 
     while (true) {
-        if (errorCount > MAX_ERRORS) {
-            return null;
+      if (errorCount > MAX_ERRORS) {
+        return null;
+      }
+
+      data = await getData();
+      if (data != EOT) {
+        try {
+          if (data != SOH) {
+            errorCount++;
+            continue;
+          }
+
+          // block number
+          data = await getData();
+          // check block number
+          if (data != (blockNumber & 0xFF)) {
+            errorCount++;
+            continue;
+          }
+
+          // check ~blockNumber
+          int _blockNumber = await getData();
+          if (data + _blockNumber != 255) {
+            errorCount++;
+            continue;
+          }
+
+          var sum = 0;
+          // get data
+          for (var i = 0; i < SECTOR_SIZE; i++) {
+            buffer[i] = await getData();
+            sum += buffer[i];
+          }
+
+          int checksum = await getData();
+          if (sum & 0xFF != checksum) {
+            errorCount++;
+            continue;
+          }
+
+          putData(ACK);
+          blockNumber = (blockNumber + 1) & 0xFF;
+          output.addAll(buffer);
+          errorCount = 0;
+        } catch (e) {
+          print(e);
+        } finally {
+          if (errorCount != 0) {
+            putData(NAK);
+          }
         }
-
-        data = await getData();
-        if (data != EOT) {
-            try {
-                if (data != SOH) {
-                    errorCount++;
-                    continue;
-                }
-
-                // block number
-                data = await getData();
-                // check block number
-                if (data != (blockNumber & 0xFF)) {
-                    errorCount++;
-                    continue;
-                }
-
-                // check ~blockNumber
-                int _blockNumber = await getData();
-                if (data + _blockNumber != 255) {
-                    errorCount++;
-                    continue;
-                }
-
-                var sum = 0;
-                // get data
-                for (var i = 0; i < SECTOR_SIZE; i++) {
-                    buffer[i] = await getData();
-                    sum += buffer[i];
-                }
-
-                int checksum = await getData();
-                if (sum & 0xFF != checksum) {
-                    errorCount++;
-                    continue;
-                }
-
-                putData(ACK);
-                blockNumber = (blockNumber + 1) & 0xFF;
-                output.addAll(buffer);
-                errorCount = 0;
-            } catch (e) {
-                print(e);
-            } finally {
-              if (errorCount != 0) {
-                  putData(NAK);
-              }
-            }
-        } else {
-            break;
-        }
+      } else {
+        break;
+      }
     }
     putData(ACK);
     subcription.cancel();
