@@ -322,7 +322,7 @@ class _SlotViewState extends State<SlotView> {
       print(response);
       if (response != null) {
         setState(() {
-          widget.slot.uid = response.substring(2); 
+          widget.slot.uid = response.substring(2).toUpperCase(); 
         });
       }
       Scaffold.of(context).hideCurrentSnackBar();
