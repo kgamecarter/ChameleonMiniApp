@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:simple_permissions/simple_permissions.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:queries/collections.dart';
+import 'package:flutter_nfc_reader/flutter_nfc_reader.dart';
 
 import '../../services/chameleonClient.dart';
 import '../../services/crapto1.dart';
@@ -303,6 +304,35 @@ class _SlotViewState extends State<SlotView> {
     }
   }
 
+  Future<void> _nfc() async {
+    String response;
+    try {
+      final snackBar = SnackBar(
+        content: Text('Start scan card.'),
+        duration: Duration(hours: 1),
+        action: SnackBarAction(
+          label: 'Cancel',
+          onPressed: () async {
+            await FlutterNfcReader.stop;
+          },
+        ),
+      );
+      Scaffold.of(context).showSnackBar(snackBar);
+      response = await FlutterNfcReader.read;
+      print(response);
+      if (response != null) {
+        setState(() {
+          widget.slot.uid = response.substring(2); 
+        });
+      }
+      Scaffold.of(context).hideCurrentSnackBar();
+      await Future.delayed(Duration(seconds: 1));
+      await FlutterNfcReader.stop;
+    } on PlatformException {
+      response = '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return new SafeArea(
@@ -340,6 +370,10 @@ class _SlotViewState extends State<SlotView> {
               decoration: InputDecoration(
                 icon: const Icon(Icons.fingerprint),
                 labelText: S.of(context).uid,
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.nfc),
+                  onPressed: _nfc,
+                )
               ),
               keyboardType: TextInputType.text,
               inputFormatters: <TextInputFormatter>[
