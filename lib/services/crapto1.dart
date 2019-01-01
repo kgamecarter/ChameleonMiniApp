@@ -1,4 +1,7 @@
 import 'dart:typed_data';
+import 'dart:isolate';
+
+import 'package:queries/collections.dart';
 
 class Crypto1State {
   int odd = 0;
@@ -487,4 +490,26 @@ String mfKey64(int uid, int nt, int nr, int ar, int at)
   crapto1.lfsrRollbackWord(nr, true);
   crapto1.lfsrRollbackWord(uid ^ nt);
   return crapto1.state.lfsr;
+}
+
+class KeyWorkMessage {
+  SendPort sendPort;
+  int uid;
+  Collection<Nonce> nonces;
+}
+
+void keyWork(KeyWorkMessage msg) async {
+  var list = msg.nonces
+    .groupBy((n) => 'Sec${n.sector} Key${n.type == 0x60 ? 'A': 'B'}')
+    .select((g) {
+      var ns = g.toList();
+      if (ns.length < 2)
+        return null;
+      var key = mfKey32(msg.uid, ns);
+      if (key != null)
+        return '${g.key} $key';
+      return null;
+    }).where((str) => str != null)
+    .toList();
+  msg.sendPort.send(list);
 }

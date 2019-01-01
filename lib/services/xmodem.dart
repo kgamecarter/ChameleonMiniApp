@@ -58,9 +58,11 @@ class Xmodem {
 
       errorCount = 0;
       while (errorCount < MAX_ERRORS) {
-        putData(SOH);
-        putData(blockNumber);
-        putData(~blockNumber & 0xFF);
+        output(Uint8List.fromList(<int>[
+          SOH,
+          blockNumber,
+          ~blockNumber & 0xFF
+        ]));
         output(buffer);
         checkSum = buffer.reduce((v, e) => v + e);
         putData(checkSum);
@@ -172,8 +174,6 @@ class Xmodem {
   }
 
   void putData(int data) {
-    var list = <int>[];
-    list.add(data);
-    output(Uint8List.fromList(list));
+    output(Uint8List.fromList(<int>[data]));
   }
 }

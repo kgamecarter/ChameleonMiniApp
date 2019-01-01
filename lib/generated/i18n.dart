@@ -23,6 +23,7 @@ class S implements WidgetsLocalizations {
   String get attacking => "Attacking";
   String get button => "Button";
   String get chameleonMiniApp => "Chameleon Mini App";
+  String get clear => "Clear";
   String get download => "Download";
   String get downloading => "Downloading";
   String get effectiveAfterRestartingTheApp => "Effective after restarting app";
@@ -55,27 +56,15 @@ class $zh_TW extends S {
   @override
   String get usbDeviceNotFound => "找不到 USB 裝置";
   @override
-  String get selectLanguage => "選擇語言";
-  @override
-  String get settings => "設定";
-  @override
   String get traditionalChinese => "正體中文";
-  @override
-  String get apply => "應用";
   @override
   String get upload => "上傳";
   @override
   String get effectiveAfterRestartingTheApp => "重啟App後生效";
   @override
-  String get refresh => "刷新";
-  @override
   String get language => "語言";
   @override
   String get slot => "槽位";
-  @override
-  String get mfkey32 => "解密";
-  @override
-  String get attacking => "解密中";
   @override
   String get notAvailable => "不可用";
   @override
@@ -85,19 +74,33 @@ class $zh_TW extends S {
   @override
   String get systemDefault => "系統預設";
   @override
-  String get longPressButton => "長按按鈕";
-  @override
   String get uid => "UID";
   @override
   String get download => "下載";
-  @override
-  String get memorySize => "記憶體大小";
   @override
   String get downloading => "下載中";
   @override
   String get english => "英文";
   @override
   String get usbDisconnected => "USB 已斷線";
+  @override
+  String get selectLanguage => "選擇語言";
+  @override
+  String get settings => "設定";
+  @override
+  String get apply => "應用";
+  @override
+  String get clear => "清除";
+  @override
+  String get refresh => "刷新";
+  @override
+  String get mfkey32 => "解密";
+  @override
+  String get attacking => "解密中";
+  @override
+  String get longPressButton => "長按按鈕";
+  @override
+  String get memorySize => "記憶體大小";
   @override
   String get generalSetting => "一般設定";
 }

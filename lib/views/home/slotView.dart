@@ -152,10 +152,13 @@ class _SlotViewState extends State<SlotView> {
           nonces.add(nonce);
       }
       var receivePort = ReceivePort();
-      await Isolate.spawn(keyWork, receivePort.sendPort);
-      SendPort sendPort = await receivePort.first;
-      receivePort = ReceivePort();
-      sendPort.send([receivePort.sendPort, uid, nonces]);
+      await Isolate.spawn(
+        keyWork,
+        KeyWorkMessage()
+          ..sendPort=receivePort.sendPort
+          ..uid=uid
+          ..nonces=nonces,
+      );
       list = await receivePort.first;
       if (list.length == 0) {
         final snackBar = SnackBar(content: Text('mfkey32 attack failed, no keys found.'));
@@ -191,31 +194,6 @@ class _SlotViewState extends State<SlotView> {
       );
     }
   }
-
-  static void keyWork(SendPort sendPort) async {
-    var receivePort = new ReceivePort();
-    sendPort.send(receivePort.sendPort);
-    List<dynamic> msg = await receivePort.first;
-    sendPort = msg[0];
-    int uid = msg[1];
-    Collection<Nonce> nonces = msg[2];
-
-    var list = nonces
-      .groupBy((n) => 'Sec${n.sector} Key${n.type == 0x60 ? 'A': 'B'}')
-      .select((g) {
-        var ns = g.toList();
-        if (ns.length < 2)
-          return null;
-        var key = mfKey32(uid, ns);
-        if (key != null)
-          return '${g.key} $key';
-        return null;
-      }).where((str) => str != null)
-      .toList();
-
-    sendPort.send(list);
-  }
-
 
   int _toUint32(Uint8List data, int offset) {
     var v = 0;
@@ -337,6 +315,14 @@ class _SlotViewState extends State<SlotView> {
     } on PlatformException {
       response = '';
     }
+  }
+  
+  Future<void> _clear() async {
+    var client = widget.client;
+    var slot = widget.slot;
+    await client.active(slot.index);
+    await client.clear();
+    await _refresh();
   }
 
   @override
@@ -492,6 +478,16 @@ class _SlotViewState extends State<SlotView> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Container(
+                    padding: const EdgeInsets.only(right: 20.0),
+                    child: FlatButton(
+                      color: Colors.lime,
+                      disabledColor: Colors.grey,
+                      child: Text(S.of(context).clear),
+                      onPressed: widget.client.connected ? _clear : null,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(left: 20.0),
                     child: FlatButton(
                       color: Colors.lime,
                       disabledColor: Colors.grey,
