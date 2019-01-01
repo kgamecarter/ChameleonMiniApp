@@ -14,9 +14,9 @@ class Xmodem {
   static const PADDING_BYTE = 26;
 
   void Function(Uint8List) output;
-  Stream<Uint8List> intput;
+  Stream<Uint8List> input;
 
-  Xmodem(this.intput, this.output);
+  Xmodem(this.input, this.output);
 
   Future<void> send(Uint8List data) async {
     int errorCount;
@@ -35,7 +35,7 @@ class Xmodem {
 
     var inputQueue = Queue<int>();
     Completer c = new Completer();
-    var subcription = intput.listen((bytes) {
+    var subcription = input.listen((bytes) {
       inputQueue.addAll(bytes);
       c.complete();
       c = new Completer();
@@ -91,7 +91,7 @@ class Xmodem {
     var output = <int>[];
     var queue = Queue<int>();
     Completer c = new Completer();
-    var subcription = intput.listen((bytes) {
+    var subcription = input.listen((bytes) {
       queue.addAll(bytes);
       c.complete();
       c = new Completer();
