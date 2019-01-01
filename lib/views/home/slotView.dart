@@ -100,18 +100,21 @@ class _SlotViewState extends State<SlotView> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => Dialog(
-        child: Container(
-          padding: EdgeInsets.all(16),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(),
-              Container(
-                padding: EdgeInsets.only(left: 16),
-                child: Text(S.of(context).attacking),
-              ),
-            ],
+      builder: (context) => WillPopScope(
+        onWillPop: () async => false,
+        child: Dialog(
+          child: Container(
+            padding: EdgeInsets.all(16),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                Container(
+                  padding: EdgeInsets.only(left: 16),
+                  child: Text(S.of(context).attacking),
+                ),
+              ],
+            ),
           ),
         ),
       )
@@ -262,18 +265,21 @@ class _SlotViewState extends State<SlotView> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => Dialog(
-        child: Container(
-          padding: EdgeInsets.all(16),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(),
-              Container(
-                padding: EdgeInsets.only(left: 16),
-                child: Text(S.of(context).downloading),
-              ),
-            ],
+      builder: (context) => WillPopScope(
+        onWillPop: () async => false,
+        child: Dialog(
+          child: Container(
+            padding: EdgeInsets.all(16),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                Container(
+                  padding: EdgeInsets.only(left: 16),
+                  child: Text(S.of(context).downloading),
+                ),
+              ],
+            ),
           ),
         ),
       )
