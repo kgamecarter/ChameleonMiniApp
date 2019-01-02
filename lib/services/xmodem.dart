@@ -2,6 +2,33 @@ import 'dart:typed_data';
 import 'dart:async';
 import 'dart:collection';
 
+class _ByteReader {
+  Queue<int> _queue;
+  Stream<Uint8List> _sream;
+  StreamSubscription _subscription;
+  Completer<void> _c;
+
+  _ByteReader(this._sream) {
+    _queue = Queue();
+    _c = Completer();
+    _subscription = _sream.listen(_onData);
+  }
+
+  void _onData(Uint8List data) {
+    _queue.addAll(data);
+    _c.complete();
+    _c = Completer();
+  }
+
+  Future<int> get read async {
+    if (_queue.length == 0)
+      await _c.future;
+    return _queue.removeFirst();
+  }
+
+  Future<dynamic> cancel() => _subscription.cancel();
+}
+
 class Xmodem {
   static const SOH = 0x01;
   static const EOT = 0x04;
@@ -11,10 +38,9 @@ class Xmodem {
 
   static const SECTOR_SIZE = 128;
   static const MAX_ERRORS = 10;
-  static const PADDING_BYTE = 26;
 
-  void Function(Uint8List) output;
-  Stream<Uint8List> input;
+  final void Function(Uint8List) output;
+  final Stream<Uint8List> input;
 
   Xmodem(this.input, this.output);
 
@@ -33,20 +59,7 @@ class Xmodem {
       return len;
     }
 
-    var inputQueue = Queue<int>();
-    Completer c = new Completer();
-    var subcription = input.listen((bytes) {
-      inputQueue.addAll(bytes);
-      c.complete();
-      c = new Completer();
-    });
-
-    Future<int> getData() async {
-      if (inputQueue.length == 0) {
-        await c.future;
-      }
-      return inputQueue.removeFirst();
-    }
+    var reader = _ByteReader(input);
 
     while ((nbytes = read()) > 0) {
       // less 128, padding 0xFF
@@ -68,7 +81,7 @@ class Xmodem {
         putData(checkSum);
 
         // get ACK
-        var data = await getData();
+        var data = await reader.read;
         if (data == ACK) {
           break;
         } else {
@@ -82,27 +95,14 @@ class Xmodem {
     var isAck = false;
     while (!isAck) {
       putData(EOT);
-      isAck = await getData() == ACK;
+      isAck = await reader.read == ACK;
     }
-    subcription.cancel();
+    reader.cancel();
   }
 
   Future<Uint8List> receive() async {
     var output = <int>[];
-    var queue = Queue<int>();
-    Completer c = new Completer();
-    var subcription = input.listen((bytes) {
-      queue.addAll(bytes);
-      c.complete();
-      c = new Completer();
-    });
-
-    Future<int> getData() async {
-      if (queue.length == 0) {
-        await c.future;
-      }
-      return queue.removeFirst();
-    }
+    var reader = _ByteReader(input);
 
     int errorCount = 0;
     var blockNumber = 1;
@@ -117,7 +117,7 @@ class Xmodem {
         return null;
       }
 
-      data = await getData();
+      data = await reader.read;
       if (data != EOT) {
         try {
           if (data != SOH) {
@@ -126,7 +126,7 @@ class Xmodem {
           }
 
           // block number
-          data = await getData();
+          data = await reader.read;
           // check block number
           if (data != (blockNumber & 0xFF)) {
             errorCount++;
@@ -134,7 +134,7 @@ class Xmodem {
           }
 
           // check ~blockNumber
-          int _blockNumber = await getData();
+          int _blockNumber = await reader.read;
           if (data + _blockNumber != 255) {
             errorCount++;
             continue;
@@ -143,11 +143,11 @@ class Xmodem {
           var sum = 0;
           // get data
           for (var i = 0; i < SECTOR_SIZE; i++) {
-            buffer[i] = await getData();
+            buffer[i] = await reader.read;
             sum += buffer[i];
           }
 
-          int checksum = await getData();
+          int checksum = await reader.read;
           if (sum & 0xFF != checksum) {
             errorCount++;
             continue;
@@ -169,7 +169,7 @@ class Xmodem {
       }
     }
     putData(ACK);
-    subcription.cancel();
+    reader.cancel();
     return Uint8List.fromList(output);
   }
 
