@@ -139,14 +139,15 @@ class _SlotViewState extends State<SlotView> {
       }
       var uid = _toUint32(data, 0);
       var nonces = Collection<Nonce>();
-      for (int i = 0; i < 12; i++)
+      for (var i = 1; i <= 12; i++)
       {
+        var offset = i * 16;
         var nonce = new Nonce()
-          ..type = data[(i + 1) * 16]
-          ..block = data[(i + 1) * 16 + 1]                 
-          ..nt = _toUint32(data, (i + 1) * 16 + 4)
-          ..nr = _toUint32(data, (i + 1) * 16 + 8)
-          ..ar = _toUint32(data, (i + 1) * 16 + 12);
+          ..type = data[offset]
+          ..block = data[offset + 1]                 
+          ..nt = _toUint32(data, offset + 4)
+          ..nr = _toUint32(data, offset + 8)
+          ..ar = _toUint32(data, offset + 12);
         nonce.sector = _toSector(nonce.block);
         if (nonce.block < 40)
           nonces.add(nonce);
