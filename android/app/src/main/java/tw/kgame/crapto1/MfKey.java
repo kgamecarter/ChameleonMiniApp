@@ -1,6 +1,11 @@
 package tw.kgame.crapto1;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import java8.util.Spliterator;
+import java8.util.Spliterators;
+import java8.util.stream.*;
 
 public class MfKey {
     static long swapEndian(long x) {
@@ -25,15 +30,15 @@ public class MfKey {
         System.out.println(Long.toHexString(p640));
         List<Crypto1State> list = Crapto1.lfsrRecovery32(nonce.ar ^ p640, 0);
         System.out.println(list.size());
-        List<Long> keys = new ArrayList<>();
-        Crapto1 crapto1 = new Crapto1();
-        Crypto1 crypto1 = new Crypto1(new Crypto1State(0, 0));
-        for (Crypto1State s : list) {
-            crapto1.state = s;
+        List<Long> keys = new CopyOnWriteArrayList<>();
+        Spliterator<Crypto1State> sp = Spliterators.spliterator(list, Spliterator.CONCURRENT);
+        StreamSupport.stream(sp, true).forEach(s -> {
+            Crapto1 crapto1 = new Crapto1(s);
             crapto1.lfsrRollbackWord(0, false);
             crapto1.lfsrRollbackWord(nonce.nr, true);
             crapto1.lfsrRollbackWord(uid ^ nonce.nt, false);
             boolean allPass = true;
+            Crypto1 crypto1 = new Crypto1(new Crypto1State(0, 0));
             for (Nonce n : nonces) {
                 crypto1.state.odd = s.odd;
                 crypto1.state.even = s.even;
@@ -47,7 +52,7 @@ public class MfKey {
             }
             if (allPass)
                 keys.add(s.getLfsr());
-        }
+        });
         return keys.size() == 1 ? keys.get(0) : -1;
     }
 }

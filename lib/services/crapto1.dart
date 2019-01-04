@@ -527,11 +527,20 @@ Future<List<String>> keyWorkn(KeyWorkMessage msg) async {
       return ns;
     }).where((v) => v != null)
     .toList();
+    var s = Stopwatch();
+    s.start();
     var r = List<String>();
-    for (var ns in list) {
-      var k = await mfkey32n(msg.uid, ns);
-      if (k != null)
-        r.add('Sec${ns[0].sector} Key${ns[0].type == 0x60 ? 'A': 'B'} $k');
+    var fs = list
+      .map((ns) => mfkey32n(msg.uid, ns))
+      .toList();
+    var keys = await Future.wait(fs);
+    s.stop();
+    print('${s.elapsedMilliseconds}ms');
+    for (var i = 0; i < list.length; i++) {
+      if (keys[i] == null)
+        continue;
+      var ns = list[i];
+      r.add('Sec${ns[0].sector} Key${ns[0].type == 0x60 ? 'A': 'B'} ${keys[i]}');
     }
   return r;
 }
