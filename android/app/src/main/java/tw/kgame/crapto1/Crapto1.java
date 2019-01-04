@@ -7,8 +7,7 @@ public class Crapto1 extends Crypto1 {
 
     public Crapto1(Crypto1State state)  { super(state); }
     
-    public byte lfsrRollbackBit(byte _in, boolean isEncrypted)
-    {
+    public byte lfsrRollbackBit(byte _in, boolean isEncrypted) {
         long _out;
         byte ret;
 
@@ -27,24 +26,21 @@ public class Crapto1 extends Crypto1 {
         return ret;
     }
 
-    public short lfsrRollbackByte(short _in, boolean isEncrypted)
-    {
+    public short lfsrRollbackByte(short _in, boolean isEncrypted) {
         short ret = 0;
         for (int i = 7; i >= 0; --i)
             ret |= (short)(lfsrRollbackBit(bit(_in, i), isEncrypted) << i);
         return (short)(ret & 0xFF);
     }
 
-    public long lfsrRollbackWord(long _in, boolean isEncrypted)
-    {
+    public long lfsrRollbackWord(long _in, boolean isEncrypted) {
         long ret = 0;
         for (int i = 31; i >= 0; --i)
             ret |= (long)lfsrRollbackBit(beBit(_in, i), isEncrypted) << (i ^ 24);
         return ret;
     }
 
-    private static long updateContribution(long item, long mask1, long mask2)
-    {
+    private static long updateContribution(long item, long mask1, long mask2) {
         long p = item >> 25;
         p = p << 1 | evenParity32(item & mask1);
         p = p << 1 | evenParity32(item & mask2);
@@ -77,8 +73,7 @@ public class Crapto1 extends Crypto1 {
         return end;
     }
 
-    static int extendTableSimple(long[] tbl, int end, long bit)
-    {
+    static int extendTableSimple(long[] tbl, int end, long bit) {
         int i = 0;
         for (tbl[i] <<= 1; i <= end; tbl[++i] <<= 1)
         {
@@ -99,26 +94,21 @@ public class Crapto1 extends Crypto1 {
         return end;
     }
 
-    static void recover(Span odd, int oddTail, long oks, Span even, int evenTail, long eks, int rem, List<Crypto1State> sl, long _in)
-    {
+    static void recover(Span odd, int oddTail, long oks, Span even, int evenTail, long eks, int rem, List<Crypto1State> sl, long _in) {
         int o = 0;
         int e = 0;
 
-        if (rem == -1)
-        {
-            for (e = 0; e <= evenTail; e++)
-            {
+        if (rem == -1) {
+            for (e = 0; e <= evenTail; e++) {
                 even.set(e, even.get(e) << 1 ^ evenParity32(even.get(e) & Crypto1.LF_POLY_EVEN) ^ ((_in & 4) != 0 ? 1 : 0));
-                for (o = 0; o <= oddTail; o++)
-                {
+                for (o = 0; o <= oddTail; o++) {
                     sl.add(new Crypto1State(even.get(e) ^ evenParity32(odd.get(o) & Crypto1.LF_POLY_ODD), odd.get(o)));
                 }
             }
             return ;
         }
 
-        for (int i = 0; i < 4 && rem-- != 0; i++)
-        {
+        for (int i = 0; i < 4 && rem-- != 0; i++) {
             oks >>= 1;
             eks >>= 1;
             _in >>= 2;
@@ -135,8 +125,7 @@ public class Crapto1 extends Crypto1 {
         even.slice(0, evenTail + 1).sort();
 
         while (oddTail >= 0 && evenTail >= 0)
-            if (((odd.get(oddTail) ^ even.get(evenTail)) >> 24) == 0)
-            {
+            if (((odd.get(oddTail) ^ even.get(evenTail)) >> 24) == 0) {
                 oddTail = odd.slice(0, (o = oddTail) + 1).binarySearch();
                 evenTail = even.slice(0, (e = evenTail) + 1).binarySearch();
                 recover(odd.slice(oddTail), o - oddTail, oks, even.slice(evenTail), e - evenTail, eks, rem, sl, _in);
@@ -148,8 +137,7 @@ public class Crapto1 extends Crypto1 {
                 evenTail = even.slice(0, evenTail + 1).binarySearch() - 1;
     }
 
-    public static List<Crypto1State> lfsrRecovery32(long ks2, long _in)
-    {
+    public static List<Crypto1State> lfsrRecovery32(long ks2, long _in) {
         long oks = 0;
         long eks = 0;
 
@@ -164,16 +152,14 @@ public class Crapto1 extends Crypto1 {
         int oddTail = 0;
         int evenTail = 0;
 
-        for (int i = 1 << 20; i >= 0; --i)
-        {
+        for (int i = 1 << 20; i >= 0; --i) {
             if (filter(i) == (oks & 1))
                 odd[++oddTail] = i;
             if (filter(i) == (eks & 1))
                 even[++evenTail] = i;
         }
 
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             oddTail = extendTableSimple(odd, oddTail, (oks >>= 1) & 1);
             evenTail = extendTableSimple(even, evenTail, (eks >>= 1) & 1);
         }
