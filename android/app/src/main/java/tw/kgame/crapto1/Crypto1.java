@@ -1,8 +1,8 @@
 package tw.kgame.crapto1;
 
 public class Crypto1 {
-    public static final int LF_POLY_ODD = 0x29CE5C;
-    public static final int LF_POLY_EVEN = 0x870804;
+    public static final long LF_POLY_ODD = 0x29CE5CL;
+    public static final long LF_POLY_EVEN = 0x870804L;
 
     public Crypto1State state;
 
@@ -21,39 +21,39 @@ public class Crypto1 {
     public byte crypto1Bit(byte _in, boolean isEncrypted) {
         byte ret = filter(state.odd);
 
-        int feedin = ret & (isEncrypted ? 1 : 0);
+        long feedin = ret & (isEncrypted ? 1 : 0);
         feedin ^= _in != 0 ? 1 : 0;
         feedin ^= LF_POLY_ODD & state.odd;
         feedin ^= LF_POLY_EVEN & state.even;
         state.even = state.even << 1 | evenParity32(feedin);
 
-        int x = state.odd;
+        long x = state.odd;
         state.odd = state.even;
         state.even = x;
 
         return ret;
     }
 
-    public byte crypto1Byte(byte _in, boolean isEncrypted) {
-        byte ret = 0;
+    public short crypto1Byte(short _in, boolean isEncrypted) {
+        short ret = 0;
 
         for (int i = 0; i < 8; ++i)
-            ret |= (byte)(crypto1Bit(bit(_in, i), isEncrypted) << i);
+            ret |= (short)(crypto1Bit(bit(_in, i), isEncrypted) << i);
 
-        return ret;
+        return (short)(ret & 0xFF);
     }
 
-    public int crypto1Word(int _in, boolean isEncrypted) {
-        int ret = 0;
+    public long crypto1Word(long _in, boolean isEncrypted) {
+        long ret = 0;
 
         for (int i = 0; i < 32; ++i)
-            ret |= (int)crypto1Bit(beBit(_in, i), isEncrypted) << (i ^ 24);
+            ret |= (long)crypto1Bit(beBit(_in, i), isEncrypted) << (i ^ 24);
 
-        return ret;
+        return ret & 0xFFFFFFFFL;
     }
 
-    protected static byte filter(int x) {
-        int f;
+    protected static byte filter(long x) {
+        long f;
         f = 0xf22c0 >> (x & 0xf) & 16;
         f |= 0x6c9c0 >> (x >> 4 & 0xf) & 8;
         f |= 0x3c8b0 >> (x >> 8 & 0xf) & 4;
@@ -81,13 +81,13 @@ public class Crypto1 {
          1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1
      };
 
-    protected static byte oddParity8(byte x) { return _oddintParity[x]; }
+    protected static byte oddParity8(short x) { return _oddintParity[x & 0xFF]; }
 
-    protected static byte evenParity8(byte x) { return (byte)(_oddintParity[x] ^ 1); }
+    protected static byte evenParity8(short x) { return (byte)(_oddintParity[x & 0xFF] ^ 1); }
 
-    protected static byte evenParity32(int x) {
+    protected static byte evenParity32(long x) {
         x ^= x >> 16;
         x ^= x >> 8;
-        return evenParity8((byte)x);
+        return evenParity8((short)(x & 0xFF));
     }
 }

@@ -9,11 +9,11 @@ public class Crapto1 extends Crypto1 {
     
     public byte lfsrRollbackBit(byte _in, boolean isEncrypted)
     {
-        int _out;
+        long _out;
         byte ret;
 
         state.odd &= 0xffffff;
-        int t = state.odd;
+        long t = state.odd;
         state.odd = state.even;
         state.even = t;
 
@@ -23,36 +23,36 @@ public class Crapto1 extends Crypto1 {
         _out ^= _in != 0 ? 1 : 0;
         _out ^= (ret = filter(state.odd)) & (isEncrypted ? 1 : 0);
 
-        state.even |= (int)evenParity32(_out) << 23;
+        state.even |= (long)evenParity32(_out) << 23;
         return ret;
     }
 
-    public byte lfsrRollbackByte(byte _in, boolean isEncrypted)
+    public short lfsrRollbackByte(short _in, boolean isEncrypted)
     {
-        byte ret = 0;
+        short ret = 0;
         for (int i = 7; i >= 0; --i)
-            ret |= (byte)(lfsrRollbackBit(bit(_in, i), isEncrypted) << i);
-        return ret;
+            ret |= (short)(lfsrRollbackBit(bit(_in, i), isEncrypted) << i);
+        return (short)(ret & 0xFF);
     }
 
-    public int lfsrRollbackWord(int _in, boolean isEncrypted)
+    public long lfsrRollbackWord(long _in, boolean isEncrypted)
     {
-        int ret = 0;
+        long ret = 0;
         for (int i = 31; i >= 0; --i)
-            ret |= (int)lfsrRollbackBit(beBit(_in, i), isEncrypted) << (i ^ 24);
+            ret |= (long)lfsrRollbackBit(beBit(_in, i), isEncrypted) << (i ^ 24);
         return ret;
     }
 
-    private static int updateContribution(int item, int mask1, int mask2)
+    private static long updateContribution(long item, long mask1, long mask2)
     {
-        int p = item >> 25;
+        long p = item >> 25;
         p = p << 1 | evenParity32(item & mask1);
         p = p << 1 | evenParity32(item & mask2);
         item = p << 24 | (item & 0xffffff);
-        return  item;
+        return item & 0xFFFFFFFFL;
     }
     
-    static int extendTable(Span tbl, int end, int bit, int m1, int m2, int _in) {
+    static int extendTable(Span tbl, int end, long bit, long m1, long m2, long _in) {
         _in <<= 24;
         int i = 0;
         for (tbl.set(i, tbl.get(i) << 1); i <= end; ++i, tbl.set(i, tbl.get(i) << 1))
@@ -77,7 +77,7 @@ public class Crapto1 extends Crypto1 {
         return end;
     }
 
-    static int extendTableSimple(int[] tbl, int end, int bit)
+    static int extendTableSimple(long[] tbl, int end, long bit)
     {
         int i = 0;
         for (tbl[i] <<= 1; i <= end; tbl[++i] <<= 1)
@@ -99,7 +99,7 @@ public class Crapto1 extends Crypto1 {
         return end;
     }
 
-    static void recover(Span odd, int oddTail, int oks, Span even, int evenTail, int eks, int rem, List<Crypto1State> sl, int _in)
+    static void recover(Span odd, int oddTail, long oks, Span even, int evenTail, long eks, int rem, List<Crypto1State> sl, long _in)
     {
         int o = 0;
         int e = 0;
@@ -111,7 +111,7 @@ public class Crapto1 extends Crypto1 {
                 even.set(e, even.get(e) << 1 ^ evenParity32(even.get(e) & Crypto1.LF_POLY_EVEN) ^ ((_in & 4) != 0 ? 1 : 0));
                 for (o = 0; o <= oddTail; o++)
                 {
-                    sl.add(new Crypto1State(odd.get(o), even.get(e) ^ evenParity32(odd.get(o) & Crypto1.LF_POLY_ODD)));
+                    sl.add(new Crypto1State(even.get(e) ^ evenParity32(odd.get(o) & Crypto1.LF_POLY_ODD), odd.get(o)));
                 }
             }
             return ;
@@ -148,18 +148,18 @@ public class Crapto1 extends Crypto1 {
                 evenTail = even.slice(0, evenTail + 1).binarySearch() - 1;
     }
 
-    public static List<Crypto1State> lfsrRecovery32(int ks2, int _in)
+    public static List<Crypto1State> lfsrRecovery32(long ks2, long _in)
     {
-        int oks = 0;
-        int eks = 0;
+        long oks = 0;
+        long eks = 0;
 
         for (int i = 31; i >= 0; i -= 2)
             oks = oks << 1 | beBit(ks2, i);
         for (int i = 30; i >= 0; i -= 2)
             eks = eks << 1 | beBit(ks2, i);
 
-        int[] odd = new int[4 << 21];
-        int[] even = new int[4 << 21];
+        long[] odd = new long[4 << 21];
+        long[] even = new long[4 << 21];
         List<Crypto1State> statelist = new ArrayList<>(1 << 18);
         int oddTail = 0;
         int evenTail = 0;

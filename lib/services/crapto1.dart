@@ -1,7 +1,11 @@
 import 'dart:typed_data';
 import 'dart:isolate';
 
+import 'package:flutter/services.dart';
 import 'package:queries/collections.dart';
+
+
+const _platform = const MethodChannel('tw.kgame.crapto1/mfkey');
 
 class Crypto1State {
   int odd = 0;
@@ -438,20 +442,20 @@ class Crapto1 extends Crypto1
   }
 }
 
-class Nonce
-{
+class Nonce {
   int sector, block, type;
   int nt;
   int nr;
   int ar;
 }
 
-String mfKey32(int uid, Iterable<Nonce> nonces)
-{
+String mfKey32(int uid, Iterable<Nonce> nonces) {
   var nonce = nonces.first;
   nonces = nonces.skip(1).toList();
   var p640 = prngSuccessor(nonce.nt, 64);
+  print(p640.toRadixString(16));
   var list = Crapto1.lfsrRecovery32(nonce.ar ^ p640, 0);
+  print(list.length);
   var keys = List<String>();
   var crapto1 = Crapto1();
   var crypto1 = Crypto1(Crypto1State());
@@ -478,8 +482,7 @@ String mfKey32(int uid, Iterable<Nonce> nonces)
   return keys.length == 1 ? keys[0] : null;
 }
 
-String mfKey64(int uid, int nt, int nr, int ar, int at)
-{
+String mfKey64(int uid, int nt, int nr, int ar, int at) {
   // Extract the keystream from the messages
   var ks2 = ar ^ prngSuccessor(nt, 64); // keystream used to encrypt reader response
   var ks3 = at ^ prngSuccessor(nt, 96); // keystream used to encrypt tag response
@@ -512,4 +515,37 @@ void keyWork(KeyWorkMessage msg) async {
     }).where((str) => str != null)
     .toList();
   msg.sendPort.send(list);
+}
+
+Future<List<String>> keyWorkn(KeyWorkMessage msg) async {
+  var list = msg.nonces
+    .groupBy((n) => 'Sec${n.sector} Key${n.type == 0x60 ? 'A': 'B'}')
+    .select((g) {
+      var ns = g.toList();
+      if (ns.length < 2)
+        return null;
+      return ns;
+    }).where((v) => v != null)
+    .toList();
+    var r = List<String>();
+    for (var ns in list) {
+      var k = await mfkey32n(msg.uid, ns);
+      if (k != null)
+        r.add('Sec${ns[0].sector} Key${ns[0].type == 0x60 ? 'A': 'B'} $k');
+    }
+  return r;
+}
+
+Future<String> mfkey32n(int uid, List<Nonce> nonces) async {
+   var map = Map<String, dynamic>();
+   map['uid'] = uid;
+   map['nonces'] = nonces.map<Map<String, int>>((n) {
+    var map = Map<String, int>();
+    map['nt'] = n.nt;
+    map['nr'] = n.nr;
+    map['ar'] = n.ar;
+    return map;
+   }).toList();
+  int result = await _platform.invokeMethod('mfkey32', map);
+  return result?.toRadixString(16)?.toUpperCase()?.padLeft(12, '0');
 }

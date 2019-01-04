@@ -1,8 +1,8 @@
 package tw.kgame.crapto1;
 
 public class Crypto1State {
-    public int odd;
-    public int even;
+    public long odd;
+    public long even;
 
     byte bit(long v, int n) {
         return (byte)(v >> n & 1);
@@ -12,7 +12,7 @@ public class Crypto1State {
         return bit(v, n ^ 24);
     }
 
-    public Crypto1State(int odd, int even) {
+    public Crypto1State(long odd, long even) {
         this.odd = odd;
         this.even = even;
     }

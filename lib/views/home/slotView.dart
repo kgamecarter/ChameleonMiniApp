@@ -152,7 +152,7 @@ class _SlotViewState extends State<SlotView> {
         if (nonce.block < 40)
           nonces.add(nonce);
       }
-      var receivePort = ReceivePort();
+      /*var receivePort = ReceivePort();
       await Isolate.spawn(
         keyWork,
         KeyWorkMessage()
@@ -160,7 +160,12 @@ class _SlotViewState extends State<SlotView> {
           ..uid=uid
           ..nonces=nonces,
       );
-      list = await receivePort.first;
+      list = await receivePort.first;*/
+      list = await keyWorkn(
+        KeyWorkMessage()
+          ..uid=uid
+          ..nonces=nonces
+      );
       if (list.length == 0) {
         final snackBar = SnackBar(content: Text('mfkey32 attack failed, no keys found.'));
         Scaffold.of(context).showSnackBar(snackBar);
