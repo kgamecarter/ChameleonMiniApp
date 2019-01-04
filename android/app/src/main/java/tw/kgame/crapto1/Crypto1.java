@@ -6,6 +6,10 @@ public class Crypto1 {
 
     public Crypto1State state;
 
+    public Crypto1() { }
+
+    public Crypto1(Crypto1State state) { this.state = state; }
+
     byte bit(long v, int n) {
         return (byte)(v >> n & 1);
     }
@@ -48,7 +52,7 @@ public class Crypto1 {
         return ret;
     }
 
-    byte filter(int x) {
+    protected byte filter(int x) {
         int f;
         f = 0xf22c0 >> (x & 0xf) & 16;
         f |= 0x6c9c0 >> (x >> 4 & 0xf) & 8;
@@ -77,11 +81,11 @@ public class Crypto1 {
          1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1
      };
 
-    byte oddParity8(byte x) { return _oddintParity[x]; }
+    protected byte oddParity8(byte x) { return _oddintParity[x]; }
 
-    byte evenParity8(byte x) { return (byte)(_oddintParity[x] ^ 1); }
+    protected byte evenParity8(byte x) { return (byte)(_oddintParity[x] ^ 1); }
 
-    byte evenParity32(int x) {
+    protected byte evenParity32(int x) {
         x ^= x >> 16;
         x ^= x >> 8;
         return evenParity8((byte)x);
