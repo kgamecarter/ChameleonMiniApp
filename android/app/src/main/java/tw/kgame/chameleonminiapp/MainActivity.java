@@ -24,9 +24,11 @@ public class MainActivity extends FlutterActivity {
         new MethodChannel(getFlutterView(), CHANNEL).setMethodCallHandler(
             (call, result) -> {
                 System.out.println(call.method);
+                @SuppressWarnings("unchecked")
                 Map<String, Object> map = (Map<String, Object>)call.arguments;
                 Object obj = map.get("uid");
                 long uid = obj instanceof Long ? (long)obj : (long)(int)obj;
+                @SuppressWarnings("unchecked")
                 List<Map<String, Long>> ns = (List<Map<String, Long>>)map.get("nonces");
                 List<Nonce> nonces = new ArrayList<>();
                 for (Map<String, Long> n: ns) {
