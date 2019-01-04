@@ -3,25 +3,25 @@ package tw.kgame.crapto1;
 import java.util.Arrays;
 
 public class Span {
-    byte[] array;
+    int[] array;
     int offset;
     int length;
 
-    public Span(byte[] array) {
+    public Span(int[] array) {
         this(array, 0, array.length);
     }
 
-    public Span(byte[] array, int offset, int length) {
+    public Span(int[] array, int offset, int length) {
         this.array = array;
         this.offset = offset;
         this.length = length;
     }
 
-    public byte get(int i) {
+    public int get(int i) {
         return array[i + offset];
     }
 
-    public void set(int i, byte v) {
+    public void set(int i, int v) {
         array[i + offset] = v;
     }
 
