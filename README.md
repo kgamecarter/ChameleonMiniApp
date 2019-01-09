@@ -11,4 +11,5 @@ A Android GUI for the ChameleonMini device.
 * USB OTG cable
 
 ## Screenshots
-![1](https://lh3.googleusercontent.com/Q3kwYzpHBLzzG3UYf4XYKDz8ckjWJ3YFQka28MGNJ0brzFylUSWQV5dh7ZEsLjQtee4=w1440-h620-rw) ![2](https://lh3.googleusercontent.com/yivFjwSivicw9c94URe6WCBCJVAiXvIxWRSceV7i7iaWz0ShD1Jq5ZkdrCQ_0IKFnA=w1440-h620-rw)
+![1](https://lh3.googleusercontent.com/oNf-5xB5Wljd4djUl1dxC2osHZqO588JDIZbdUlnpS7mxFH_4X1jhVKthCYR6-pJH-w=w1440-h620-rw) ![2](https://lh3.googleusercontent.com/WWI59xq7yiwfioDavACOhPKoRg3rdUfD-g7TLnvwXXgpV6ubmk0RppVQe0DaNfPlcA=w1440-h620-rw)
+![3](https://lh3.googleusercontent.com/Vew9KLMw9SFsscQY0ur3QA8uDQjO0bjbH53y6vHTs9MZp_LiKuDQ1dOufqmcbvmdyNG2=w1440-h620-rw)
