@@ -35,7 +35,7 @@ public class Span {
 
     public int binarySearch() {
         int start = 0, stop = this.length - 1, mid;
-        long val = this.get(stop) & 0xff000000;
+        long val = this.get(stop) & 0xff000000L;
         while (start != stop)
             if (this.get(start + (mid = (stop - start) >> 1)) > val)
                 stop = start + mid;
