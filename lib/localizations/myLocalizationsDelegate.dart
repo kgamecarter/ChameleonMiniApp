@@ -12,8 +12,11 @@ class MyLocalizationsDelegate extends LocalizationsDelegate<S> {
 
   List<Locale> get supportedLocales {
     return const <Locale>[
+      Locale.fromSubtags(languageCode: "zh", scriptCode: "Hant", countryCode: "TW"),
       Locale("zh", "TW"),
-      Locale("en", ""),
+      Locale.fromSubtags(languageCode: "zh", scriptCode: "Hant"),
+      Locale("zh"),
+      Locale("en"),
     ];
   }
 
@@ -40,11 +43,15 @@ class MyLocalizationsDelegate extends LocalizationsDelegate<S> {
     if (supported.contains(locale)) // maybe languageCode-scriptCode-countryCode
       return locale;
 
-    var superLocale = Locale(locale.languageCode, locale.countryCode); // languageCode-countryCode
+    var superLocale = Locale.fromSubtags(languageCode: locale.languageCode, scriptCode: locale.scriptCode); // languageCode-scriptCode
     if (supported.contains(superLocale))
       return superLocale;
 
-    superLocale = Locale(locale.languageCode, "");  // languageCode
+    superLocale = Locale(locale.languageCode, locale.countryCode); // languageCode-countryCode
+    if (supported.contains(superLocale))
+      return superLocale;
+
+    superLocale = Locale(locale.languageCode);  // languageCode
     if (supported.contains(superLocale))
       return superLocale;
 
@@ -53,10 +60,13 @@ class MyLocalizationsDelegate extends LocalizationsDelegate<S> {
 
   @override
   Future<S> load(Locale locale) {
-    final String lang = getLang(locale);
+    final String lang = locale.toString();
     if (lang != null) {
       switch (lang) {
+        case "zh_Hant_TW":
         case "zh_TW":
+        case "zh_Hant":
+        case "zh":
           return SynchronousFuture<S>(const $zh_TW());
         case "en":
           return SynchronousFuture<S>(const $en());

@@ -17,8 +17,10 @@ class Settings {
     String str = _prefs.getString('locale');
     if (str == 'en_')
       locale = Locale('en');
-    if (str == 'zh_TW')
-      locale = Locale('zh', 'TW');
+    else if (str == 'zh_Hant_TW')
+      locale = Locale.fromSubtags(languageCode: "zh", scriptCode: "Hant", countryCode: "TW");
+    else
+      locale = null;
   }
 
   save() async {

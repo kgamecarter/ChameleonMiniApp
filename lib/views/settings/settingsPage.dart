@@ -33,7 +33,7 @@ class _SettingsPageState extends State<SettingsPage> {
     if (locale.languageCode == 'en')
       return S.of(context).english;
     if (locale.languageCode == 'zh') {
-      if (locale.countryCode == 'TW')
+      if (locale.scriptCode == 'Hant')
         return S.of(context).traditionalChinese;
     }
     return null;

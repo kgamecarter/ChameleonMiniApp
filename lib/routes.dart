@@ -24,7 +24,7 @@ class Routes {
         GlobalWidgetsLocalizations.delegate,
       ],
       supportedLocales: MyLocalizationsDelegate.delegate.supportedLocales,
-      localeResolutionCallback: MyLocalizationsDelegate.delegate.resolution(fallback: Locale('en', '')),
+      localeResolutionCallback: MyLocalizationsDelegate.delegate.resolution(fallback: Locale('en')),
       title: 'Chameleon Mini App',
       theme: ThemeData(
         primarySwatch: Colors.lime,

@@ -27,12 +27,12 @@ class _LanguagePageState extends State<LanguagePage> {
           ListTile(
             title: Text(S.of(context).english),
             subtitle: Text('en'),
-            onTap: () => Navigator.of(context).pop(Locale('en', '')),
+            onTap: () => Navigator.of(context).pop(Locale('en')),
           ),
           ListTile(
             title: Text(S.of(context).traditionalChinese),
-            subtitle: Text('zh-TW'),
-            onTap: () => Navigator.of(context).pop(Locale('zh', 'TW')),
+            subtitle: Text('zh-Hant-TW'),
+            onTap: () => Navigator.of(context).pop(Locale.fromSubtags(languageCode: "zh", scriptCode: "Hant", countryCode: "TW")),
           ),
         ],
       )
