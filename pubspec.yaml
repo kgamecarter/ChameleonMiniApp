@@ -22,10 +22,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   http: ^0.12.0
-  usb_serial:
-    git:
-      url: git://github.com/kgamecarter/usbserial.git
-      ref: master
+  usb_serial: ^0.1.1
   shared_preferences: ^0.4.3
   path_provider: ^0.4.1
   simple_permissions: ^0.1.9
