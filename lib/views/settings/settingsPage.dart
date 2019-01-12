@@ -42,6 +42,24 @@ class _SettingsPageState extends State<SettingsPage> {
     return null;
   }
 
+  void _pushLanguagePage() {
+    Navigator.of(context).pushNamed(LanguagePage.name).then((value) {
+      if (value == null)
+        return;
+      if (value == 'default')
+        value = null;
+      S.delegate.load(value).then((trans) {
+        scaffoldState.currentState.showSnackBar(SnackBar(
+          content: Text(trans.effectiveAfterRestartingTheApp),
+        ));
+      });
+      setState(() {
+        settings.locale = value;
+        settings.save();
+      });
+    });
+  }
+
   Widget bodyData() {
     return SingleChildScrollView(
       child: Theme(
@@ -66,30 +84,14 @@ class _SettingsPageState extends State<SettingsPage> {
               child: Column(
                 children: <Widget>[
                   ListTile(
-                    leading: Icon(
+                    leading: const Icon(
                       Icons.language,
                       color: Colors.grey,
                     ),
                     title: Text(S.of(context).language),
                     subtitle: Text(_localToString(settings.locale)),
-                    trailing: Icon(Icons.arrow_right),
-                    onTap: () {
-                      Navigator.of(context).pushNamed(LanguagePage.name).then((value) {
-                        if (value == null)
-                          return;
-                        if (value == 'default')
-                          value = null;
-                        S.delegate.load(value).then((trans) {
-                          scaffoldState.currentState.showSnackBar(SnackBar(
-                            content: Text(trans.effectiveAfterRestartingTheApp),
-                          ));
-                        });
-                        setState(() {
-                          settings.locale = value;
-                          settings.save();
-                        });
-                      });
-                    },
+                    trailing: const Icon(Icons.arrow_right),
+                    onTap: _pushLanguagePage,
                   ),
                 ],
               ),
