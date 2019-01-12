@@ -369,7 +369,7 @@ class _SlotViewState extends State<SlotView> {
                 icon: const Icon(Icons.fingerprint),
                 labelText: S.of(context).uid,
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.nfc),
+                  icon: const Icon(Icons.nfc),
                   onPressed: _nfc,
                 )
               ),
