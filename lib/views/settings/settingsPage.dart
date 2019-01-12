@@ -15,16 +15,16 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
 
-  GlobalKey<ScaffoldState> scaffoldState = new GlobalKey<ScaffoldState>();
+  GlobalKey<ScaffoldState> scaffoldState = GlobalKey<ScaffoldState>();
 
   final Settings settings = Settings();
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
       key: scaffoldState,
-      appBar: new AppBar(
-        title: new Text(S.of(context).settings),
+      appBar: AppBar(
+        title: Text(S.of(context).settings),
       ),
       body: bodyData(),
     );
@@ -94,7 +94,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
             ),
-
           ],
         ),
       ),

@@ -27,7 +27,7 @@ class SlotView extends StatefulWidget {
 }
 
 class _SlotViewState extends State<SlotView> {
-  final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   FocusNode uidFocusNode = FocusNode();
   _uidChanged(String str) => widget.slot.uid = str;
   _uidEditingComplete() {
@@ -142,7 +142,7 @@ class _SlotViewState extends State<SlotView> {
       for (var i = 1; i <= 12; i++)
       {
         var offset = i * 16;
-        var nonce = new Nonce()
+        var nonce = Nonce()
           ..type = data[offset]
           ..block = data[offset + 1]                 
           ..nt = _toUint32(data, offset + 4)
@@ -182,13 +182,13 @@ class _SlotViewState extends State<SlotView> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: new Text("mfkey32 result"),
-            content: new Text(result),
+            title: Text("mfkey32 result"),
+            content: Text(result),
             actions: <Widget>[
-              new FlatButton(
-                child: new Text("Copy and Close"),
+              FlatButton(
+                child: Text("Copy and Close"),
                 onPressed: () {
-                  Clipboard.setData(new ClipboardData(text: result));
+                  Clipboard.setData(ClipboardData(text: result));
                   Navigator.pop(context);
                   final snackBar = SnackBar(content: Text('Copied to clipboard.'), duration: Duration(seconds: 3),);
                   Scaffold.of(thisContext).showSnackBar(snackBar);
@@ -282,8 +282,8 @@ class _SlotViewState extends State<SlotView> {
         if (!await d.exists())
           await d.create(recursive: true);
               
-        var now = new DateTime.now();
-        var formatter = new DateFormat('yyyy-MM-dd_HH-mm-ss');
+        var now = DateTime.now();
+        var formatter = DateFormat('yyyy-MM-dd_HH-mm-ss');
         var f = File('${(await getExternalStorageDirectory()).path}/MifareClassicTool/dump-files/UID_${uid}_${formatter.format(now)}');
         await f.writeAsString(mctFormat);
         final snackBar = SnackBar(content: Text('Saved to MCT folder.'));
@@ -333,7 +333,7 @@ class _SlotViewState extends State<SlotView> {
 
   @override
   Widget build(BuildContext context) {
-    return new SafeArea(
+    return SafeArea(
       top: false,
       bottom: false,
       child: Form(

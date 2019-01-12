@@ -16,7 +16,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  GlobalKey<ScaffoldState> scaffoldState = new GlobalKey<ScaffoldState>();
+  GlobalKey<ScaffoldState> scaffoldState = GlobalKey<ScaffoldState>();
 
   final ChameleonClient client = ChameleonClient();
   List<Slot> slots = <Slot>[
@@ -136,43 +136,43 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-        length: slots.length,
-        child: Scaffold(
-          key: scaffoldState,
-          appBar: AppBar(
-            title: Text(S.of(context).chameleonMiniApp),
-            bottom: TabBar(
-              isScrollable: true,
-              tabs: slots.map((Slot slot) {
-                return Tab(
-                  icon: slotIcons[slot.index],
-                  text: '${S.of(context).slot} ${slot.index + 1}',
-                );
-              }).toList(),
-            ),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.usb, color: client.connected ? Colors.blue : Colors.black,),
-                onPressed: _connect,
-              ),
-              IconButton(
-                icon: Icon(Icons.settings),
-                onPressed: _pushSettings,
-              ),
-            ],
-          ),
-          body: TabBarView(
-            children: slots.map((Slot slot) {
-              return SlotView(
-                slot: slot,
-                client: client,
-                modes: modes,
-                buttonModes: buttonModes,
-                longPressButtonModes: longPressButtonModes,
+      length: slots.length,
+      child: Scaffold(
+        key: scaffoldState,
+        appBar: AppBar(
+          title: Text(S.of(context).chameleonMiniApp),
+          bottom: TabBar(
+            isScrollable: true,
+            tabs: slots.map((Slot slot) {
+              return Tab(
+                icon: slotIcons[slot.index],
+                text: '${S.of(context).slot} ${slot.index + 1}',
               );
             }).toList(),
           ),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.usb, color: client.connected ? Colors.blue : Colors.black,),
+              onPressed: _connect,
+            ),
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: _pushSettings,
+            ),
+          ],
         ),
-      );
+        body: TabBarView(
+          children: slots.map((Slot slot) {
+            return SlotView(
+              slot: slot,
+              client: client,
+              modes: modes,
+              buttonModes: buttonModes,
+              longPressButtonModes: longPressButtonModes,
+            );
+          }).toList(),
+        ),
+      ),
+    );
   }
 }
