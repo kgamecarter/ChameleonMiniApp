@@ -13,7 +13,8 @@ class Settings {
   Settings._internal();
 
   load() async {
-    _prefs = await SharedPreferences.getInstance();
+    if (_prefs == null)
+      _prefs = await SharedPreferences.getInstance();
     String str = _prefs.getString('locale');
     if (str == 'en_')
       locale = Locale('en');

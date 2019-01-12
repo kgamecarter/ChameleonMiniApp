@@ -5,7 +5,7 @@ import 'dart:collection';
 class _ByteReader {
   Queue<int> _queue;
   Stream<Uint8List> _sream;
-  StreamSubscription _subscription;
+  StreamSubscription<Uint8List> _subscription;
   Completer<void> _c;
 
   _ByteReader(this._sream) {

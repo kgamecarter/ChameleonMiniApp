@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:usb_serial/usb_serial.dart';
 
@@ -107,12 +108,13 @@ class _HomePageState extends State<HomePage> {
 
   String version;
   List<String> commands, modes, buttonModes, longPressButtonModes;
+  StreamSubscription<UsbEvent> usbEventStreamSubscription;
 
   @override
   void initState() {
     super.initState();
 
-    UsbSerial.usbEventStream.listen((UsbEvent msg) {
+    usbEventStreamSubscription = UsbSerial.usbEventStream.listen((UsbEvent msg) {
       print("Usb Event $msg");
       if (msg.event == UsbEvent.ACTION_USB_ATTACHED) {
         _connect();
@@ -122,6 +124,12 @@ class _HomePageState extends State<HomePage> {
       }
     });
     _connect();
+  }
+
+  @override
+  void dispose() {
+    usbEventStreamSubscription?.cancel();
+    super.dispose();
   }
 
   @override
