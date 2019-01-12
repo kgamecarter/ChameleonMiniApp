@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../services/settings.dart';
 import '../../generated/i18n.dart';
+import 'languagePage.dart';
 
 class SettingsPage extends StatefulWidget {
+  static const String name = '/Settings/Language';
+
   SettingsPage({Key key}) : super(key: key);
 
   @override
@@ -71,7 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     subtitle: Text(_localToString(settings.locale)),
                     trailing: Icon(Icons.arrow_right),
                     onTap: () {
-                      Navigator.of(context).pushNamed('/Settings/Language').then((value) {
+                      Navigator.of(context).pushNamed(LanguagePage.name).then((value) {
                         if (value == null)
                           return;
                         if (value == 'default')

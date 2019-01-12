@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'generated/i18n.dart';
 import 'localizations/myLocalizationsDelegate.dart';
 import 'services/settings.dart';
 import 'views/home/homePage.dart';
@@ -11,9 +10,9 @@ import 'views/settings/languagePage.dart';
 class Routes {
   final Settings settings = Settings();
 
-  var routes = <String, WidgetBuilder>{
-    '/Settings': (BuildContext context) => new SettingsPage(),
-    '/Settings/Language': (BuildContext context) => new LanguagePage(),
+  final routes = <String, WidgetBuilder>{
+    SettingsPage.name: (BuildContext context) => new SettingsPage(),
+    LanguagePage.name: (BuildContext context) => new LanguagePage(),
   };
 
   Routes() {

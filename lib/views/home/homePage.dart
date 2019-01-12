@@ -5,6 +5,7 @@ import 'package:usb_serial/usb_serial.dart';
 import '../../services/chameleonClient.dart';
 import 'slotView.dart';
 import '../../generated/i18n.dart';
+import '../settings/settingsPage.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -40,7 +41,7 @@ class _HomePageState extends State<HomePage> {
   ];
 
   void _pushSettings() {
-    Navigator.of(context).pushNamed('/Settings');
+    Navigator.of(context).pushNamed(SettingsPage.name);
   }
 
   Future<void> _disconnected() async {

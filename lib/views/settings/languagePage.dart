@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../generated/i18n.dart';
 
 class LanguagePage extends StatefulWidget {
+  static const String name = '/Settings';
+
   LanguagePage({Key key}) : super(key: key);
 
   @override
