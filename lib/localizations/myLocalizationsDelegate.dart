@@ -43,11 +43,11 @@ class MyLocalizationsDelegate extends LocalizationsDelegate<S> {
     if (supported.contains(locale)) // maybe languageCode-scriptCode-countryCode
       return locale;
 
-    var superLocale = Locale.fromSubtags(languageCode: locale.languageCode, scriptCode: locale.scriptCode); // languageCode-scriptCode
+    var superLocale = Locale(locale.languageCode, locale.countryCode); // languageCode-countryCode
     if (supported.contains(superLocale))
       return superLocale;
 
-    superLocale = Locale(locale.languageCode, locale.countryCode); // languageCode-countryCode
+    superLocale = Locale.fromSubtags(languageCode: locale.languageCode, scriptCode: locale.scriptCode); // languageCode-scriptCode
     if (supported.contains(superLocale))
       return superLocale;
 
