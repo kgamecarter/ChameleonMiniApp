@@ -13,6 +13,10 @@ class LanguagePage extends StatefulWidget {
 
 class _LanguagePageState extends State<LanguagePage> {
 
+  Function _pop(Object value) {
+    return () => Navigator.of(context).pop(value);
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -23,18 +27,18 @@ class _LanguagePageState extends State<LanguagePage> {
         children: <Widget>[
           ListTile(
             title: Text(S.of(context).systemDefault),
-            subtitle: Text('default'),
-            onTap: () => Navigator.of(context).pop('default'),
+            subtitle: const Text('default'),
+            onTap: _pop('default'),
           ),
           ListTile(
             title: Text(S.of(context).english),
-            subtitle: Text('en'),
-            onTap: () => Navigator.of(context).pop(Locale('en')),
+            subtitle: const Text('en'),
+            onTap: _pop(const Locale('en')),
           ),
           ListTile(
             title: Text(S.of(context).traditionalChinese),
-            subtitle: Text('zh-Hant-TW'),
-            onTap: () => Navigator.of(context).pop(Locale.fromSubtags(languageCode: "zh", scriptCode: "Hant", countryCode: "TW")),
+            subtitle: const Text('zh-Hant-TW'),
+            onTap: _pop(const Locale.fromSubtags(languageCode: "zh", scriptCode: "Hant", countryCode: "TW")),
           ),
         ],
       )

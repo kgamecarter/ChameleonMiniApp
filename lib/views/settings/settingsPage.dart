@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../services/settings.dart';
 import '../../generated/i18n.dart';
+import '../../localizations/myLocalizationsDelegate.dart';
 import 'languagePage.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -48,7 +49,7 @@ class _SettingsPageState extends State<SettingsPage> {
         return;
       if (value == 'default')
         value = null;
-      S.delegate.load(value).then((trans) {
+      MyLocalizationsDelegate.delegate.load(value).then((trans) {
         scaffoldState.currentState.showSnackBar(SnackBar(
           content: Text(trans.effectiveAfterRestartingTheApp),
         ));

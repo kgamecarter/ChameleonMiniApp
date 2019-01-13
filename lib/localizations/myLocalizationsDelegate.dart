@@ -12,21 +12,19 @@ class MyLocalizationsDelegate extends LocalizationsDelegate<S> {
 
   List<Locale> get supportedLocales {
     return const <Locale>[
-      Locale.fromSubtags(languageCode: "zh", scriptCode: "Hant", countryCode: "TW"),
-      Locale("zh", "TW"),
-      Locale.fromSubtags(languageCode: "zh", scriptCode: "Hant"),
-      Locale("zh"),
-      Locale("en"),
+      const Locale.fromSubtags(languageCode: "zh", scriptCode: "Hant", countryCode: "TW"),
+      const Locale("zh", "TW"),
+      const Locale.fromSubtags(languageCode: "zh", scriptCode: "Hant"),
+      const Locale("zh"),
+      const Locale("en"),
     ];
   }
 
   LocaleListResolutionCallback listResolution({Locale fallback}) {
     return (List<Locale> locales, Iterable<Locale> supported) {
-      if (locales == null || locales.isEmpty) {
+      if (locales == null || locales.isEmpty)
         return fallback ?? supported.first;
-      } else {
-        return _resolve(locales.first, fallback, supported);
-      }
+      return _resolve(locales.first, fallback, supported);
     };
   }
 
@@ -55,7 +53,7 @@ class MyLocalizationsDelegate extends LocalizationsDelegate<S> {
     if (supported.contains(superLocale))
       return superLocale;
 
-    return fallback ?? supported.first;
+    return fallback;
   }
 
   @override
