@@ -91,7 +91,7 @@ class _SlotViewState extends State<SlotView> {
       await client.active(slot.index);
       await client.upload(data);
       await _refresh();
-      final snackBar = SnackBar(content: Text('Upload MCT file success.'));
+      final snackBar = const SnackBar(content: const Text('Upload MCT file success.'));
       Scaffold.of(context).showSnackBar(snackBar);
     }
   }
@@ -104,13 +104,13 @@ class _SlotViewState extends State<SlotView> {
         onWillPop: () async => false,
         child: Dialog(
           child: Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircularProgressIndicator(),
+                const CircularProgressIndicator(),
                 Container(
-                  padding: EdgeInsets.only(left: 16),
+                  padding: const EdgeInsets.only(left: 16),
                   child: Text(S.of(context).attacking),
                 ),
               ],
@@ -127,13 +127,13 @@ class _SlotViewState extends State<SlotView> {
       await client.active(slot.index);
       var data = await client.getDetection();
       if (data == null || data.length == 0) {
-        final snackBar = SnackBar(content: Text('No data found on device.'));
+        final snackBar = const SnackBar(content: const Text('No data found on device.'));
         Scaffold.of(context).showSnackBar(snackBar);
         return;
       }
       ChameleonClient.decryptData(data, 123321, 208);
       if (!Crc.checkCrc14443(Crc.CRC16_14443_A, data, 210)) {
-        final snackBar = SnackBar(content: Text('Data failed CRC check.'));
+        final snackBar = const SnackBar(content: const Text('Data failed CRC check.'));
         Scaffold.of(context).showSnackBar(snackBar);
         return;
       }
@@ -167,7 +167,7 @@ class _SlotViewState extends State<SlotView> {
           ..nonces=nonces
       );
       if (list.length == 0) {
-        final snackBar = SnackBar(content: Text('mfkey32 attack failed, no keys found.'));
+        final snackBar = const SnackBar(content: const Text('mfkey32 attack failed, no keys found.'));
         Scaffold.of(context).showSnackBar(snackBar);
         return;
       }
@@ -182,15 +182,15 @@ class _SlotViewState extends State<SlotView> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("mfkey32 result"),
+            title: const Text("mfkey32 result"),
             content: Text(result),
             actions: <Widget>[
               FlatButton(
-                child: Text("Copy and Close"),
+                child: const Text("Copy and Close"),
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: result));
                   Navigator.pop(context);
-                  final snackBar = SnackBar(content: Text('Copied to clipboard.'), duration: Duration(seconds: 3),);
+                  final snackBar = const SnackBar(content: const Text('Copied to clipboard.'), duration: Duration(seconds: 3),);
                   Scaffold.of(thisContext).showSnackBar(snackBar);
                 },
               ),
@@ -253,13 +253,13 @@ class _SlotViewState extends State<SlotView> {
         onWillPop: () async => false,
         child: Dialog(
           child: Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircularProgressIndicator(),
+                const CircularProgressIndicator(),
                 Container(
-                  padding: EdgeInsets.only(left: 16),
+                  padding: const EdgeInsets.only(left: 16),
                   child: Text(S.of(context).downloading),
                 ),
               ],
@@ -286,7 +286,7 @@ class _SlotViewState extends State<SlotView> {
         var formatter = DateFormat('yyyy-MM-dd_HH-mm-ss');
         var f = File('${(await getExternalStorageDirectory()).path}/MifareClassicTool/dump-files/UID_${uid}_${formatter.format(now)}');
         await f.writeAsString(mctFormat);
-        final snackBar = SnackBar(content: Text('Saved to MCT folder.'));
+        final snackBar = const SnackBar(content: const Text('Saved to MCT folder.'));
         Scaffold.of(context).showSnackBar(snackBar);
       }
     } finally {
@@ -298,8 +298,8 @@ class _SlotViewState extends State<SlotView> {
     String response;
     try {
       final snackBar = SnackBar(
-        content: Text('Start scan card.'),
-        duration: Duration(hours: 1),
+        content: const Text('Start scan card.'),
+        duration: const Duration(hours: 1),
         action: SnackBarAction(
           label: 'Cancel',
           onPressed: () async {
@@ -316,7 +316,7 @@ class _SlotViewState extends State<SlotView> {
         });
       }
       Scaffold.of(context).hideCurrentSnackBar();
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
       await FlutterNfcReader.stop;
     } on PlatformException {
       response = '';
