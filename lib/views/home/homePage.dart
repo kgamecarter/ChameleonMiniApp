@@ -156,7 +156,7 @@ class _HomePageState extends State<HomePage> {
               onPressed: _connect,
             ),
             IconButton(
-              icon: Icon(Icons.settings),
+              icon: const Icon(Icons.settings),
               onPressed: _pushSettings,
             ),
           ],
