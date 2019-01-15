@@ -517,8 +517,8 @@ void keyWork(KeyWorkMessage msg) async {
   msg.sendPort.send(list);
 }
 
-Future<List<String>> keyWorkn(KeyWorkMessage msg) async {
-  var list = msg.nonces
+Future<List<String>> keyWorkJava(int uid, Collection<Nonce> nonces) async {
+  var list = nonces
     .groupBy((n) => 'Sec${n.sector} Key${n.type == 0x60 ? 'A': 'B'}')
     .select((g) {
       var ns = g.toList();
@@ -531,7 +531,7 @@ Future<List<String>> keyWorkn(KeyWorkMessage msg) async {
   s.start();
   var r = List<String>();
   var fs = list
-    .map((ns) => mfkey32n(msg.uid, ns))
+    .map((ns) => mfkey32Java(uid, ns))
     .toList();
   var keys = await Future.wait(fs);
   s.stop();
@@ -545,7 +545,7 @@ Future<List<String>> keyWorkn(KeyWorkMessage msg) async {
   return r;
 }
 
-Future<String> mfkey32n(int uid, List<Nonce> nonces) async {
+Future<String> mfkey32Java(int uid, List<Nonce> nonces) async {
    var map = Map<String, dynamic>();
    map['uid'] = uid;
    map['nonces'] = nonces.map<Map<String, int>>((n) {

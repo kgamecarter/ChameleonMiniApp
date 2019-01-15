@@ -161,11 +161,7 @@ class _SlotViewState extends State<SlotView> {
           ..nonces=nonces,
       );
       list = await receivePort.first;*/
-      list = await keyWorkn(
-        KeyWorkMessage()
-          ..uid=uid
-          ..nonces=nonces
-      );
+      list = await keyWorkJava(uid, nonces);
       if (list.length == 0) {
         final snackBar = const SnackBar(content: const Text('mfkey32 attack failed, no keys found.'));
         Scaffold.of(context).showSnackBar(snackBar);
