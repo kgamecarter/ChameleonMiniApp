@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'generated/i18n.dart';
 import 'localizations/myLocalizationsDelegate.dart';
 import 'services/settings.dart';
 import 'views/home/homePage.dart';
@@ -25,6 +26,7 @@ class Routes {
       supportedLocales: MyLocalizationsDelegate.delegate.supportedLocales,
       localeResolutionCallback: MyLocalizationsDelegate.delegate.resolution(fallback: Locale('en')),
       title: 'Chameleon Mini App',
+      onGenerateTitle: (context) => S.of(context).chameleonMiniApp,
       theme: ThemeData(
         primarySwatch: Colors.lime,
       ),
