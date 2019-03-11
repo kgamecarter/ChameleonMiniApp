@@ -16,7 +16,38 @@ class Slot {
   String longPressButton;
 }
 
+class ChameleonCommands {
+  static var v1_0 = ChameleonCommands();
+
+  String get version => 'VERSIONMY?';
+  String get active => 'SETTINGMY=';
+  String get getActive => 'SETTINGMY?';
+  String get getCommands => 'HELPMY';
+  String get getModes => 'CONFIGMY';
+  String get getButtonModes => 'BUTTONMY';
+  String get getLongPressButtonModes => 'BUTTON_LONGMY?';
+  String get getMemorySize => 'MEMSIZEMY?';
+  String get getUidSize => 'UIDSIZEMY?';
+  String get getUid => 'UIDMY?';
+  String get setUid => 'UIDMY=';
+  String get getMode => 'CONFIGMY?';
+  String get setMode => 'CONFIGMY=';
+  String get getButton => 'BUTTONMY?';
+  String get setButton => 'BUTTONMY=';
+  String get getLongPressButton => 'BUTTON_LONGMY?';
+  String get setLongPressButton => 'BUTTON_LONGMY=';
+  String get getReadOnly => 'READONLYMY?';
+  String get setReadOnly => 'READONLYMY=';
+  String get getDetection => 'DETECTIONMY?';
+  String get reset => 'RESETMY';
+  String get clear => 'CLEARMY';
+  String get getRssi => 'RSSIMY?';
+  String get download => 'DOWNLOADMY';
+  String get upload => 'UPLOADMY';
+}
+
 class ChameleonClient {
+  ChameleonCommands commands = ChameleonCommands.v1_0;
   final asciiCodec = AsciiCodec();
   UsbPort port;
   StreamSubscription<Uint8List> subcription;
@@ -67,74 +98,74 @@ class ChameleonClient {
 
   bool get connected => port != null;
 
-  Future<String> version() => sendCommand('VERSIONMY?');
+  Future<String> version() => sendCommand(commands.version);
 
-  Future<void> active(int index) async => await sendCommand('SETTINGMY=$index');
+  Future<void> active(int index) async => await sendCommand(commands.active + index.toString());
 
   Future<int> getActive() async {
-    var result = await sendCommand('SETTINGMY?');
+    var result = await sendCommand(commands.getActive);
     return int.parse(result[result.length - 1]);
   }
 
   Future<List<String>> getCommands() async {
-    var result = await sendCommand('HELPMY');
+    var result = await sendCommand(commands.getCommands);
     return result.split(',');
   }
 
   Future<List<String>> getModes() async {
-    var result = await sendCommand('CONFIGMY');
+    var result = await sendCommand(commands.getModes);
     return result.split(',');
   }
 
   Future<List<String>> getButtonModes() async {
-    var result = await sendCommand('BUTTONMY');
+    var result = await sendCommand(commands.getButtonModes);
     return result.split(',');
   }
 
   Future<List<String>> getLongPressButtonModes() async {
-    var result = await sendCommand('BUTTON_LONGMY');
+    var result = await sendCommand(commands.getLongPressButtonModes);
     return result.split(',');
   }
 
-  Future<int> getMemorySize() async => int.parse(await sendCommand('MEMSIZEMY?'));
+  Future<int> getMemorySize() async => int.parse(await sendCommand(commands.getMemorySize));
 
-  Future<int> getUidSize() async => int.parse(await sendCommand('UIDSIZEMY?'));
+  Future<int> getUidSize() async => int.parse(await sendCommand(commands.getUidSize));
 
-  Future<String> getUid() => sendCommand('UIDMY?');
+  Future<String> getUid() => sendCommand(commands.getUid);
 
-  Future<void> setUid(String uid) => sendCommand('UIDMY=$uid');
+  Future<void> setUid(String uid) => sendCommand(commands.setUid + uid);
 
-  Future<String> getMode() => sendCommand('CONFIGMY?');
+  Future<String> getMode() => sendCommand(commands.getMode);
 
-  Future<void> setMode(String mode) => sendCommand('CONFIGMY=$mode');
+  Future<void> setMode(String mode) => sendCommand(commands.setMode + mode);
 
-  Future<String> getButton() => sendCommand('BUTTONMY?');
+  Future<String> getButton() => sendCommand(commands.getButton);
 
-  Future<void> setButton(String mode) => sendCommand('BUTTONMY=$mode');
+  Future<void> setButton(String mode) => sendCommand(commands.setButton + mode);
 
-  Future<String> getLongPressButton() => sendCommand('BUTTON_LONGMY?');
+  Future<String> getLongPressButton() => sendCommand(commands.getLongPressButton);
 
-  Future<void> setLongPressButton(String mode) => sendCommand('BUTTON_LONGMY=$mode');
+  Future<void> setLongPressButton(String mode) => sendCommand(commands.setLongPressButton + mode);
 
-  Future<bool> getReadOnly() async => (await sendCommand('READONLYMY?') == '1' ? true : false);
+  Future<bool> getReadOnly() async => (await sendCommand(commands.getReadOnly) == '1' ? true : false);
 
-  Future<void> setReadOnly(bool state) => sendCommand('READONLYMY=${state ? 1 : 0}');
+  Future<void> setReadOnly(bool state) => sendCommand(commands.setReadOnly + (state ? '1' : '0'));
 
-  Future<Uint8List> getDetection() => sendCommandRaw('DETECTIONMY?');
+  Future<Uint8List> getDetection() => sendCommandRaw(commands.getDetection);
 
-  Future<void> reset() => sendCommand('RESETMY');
+  Future<void> reset() => sendCommand(commands.reset);
 
-  Future<void> clear() => sendCommand('CLEARMY');
+  Future<void> clear() => sendCommand(commands.clear);
 
-  Future<String> getRssi() => sendCommand('RSSIMY?');
+  Future<String> getRssi() => sendCommand(commands.getRssi);
 
   Future<Uint8List> download() async {
-    var xmodem = await sendCommandXmodem('DOWNLOADMY');
+    var xmodem = await sendCommandXmodem(commands.download);
     return await xmodem.receive();
   }
 
   Future<void> upload(Uint8List data) async {
-    var xmodem = await sendCommandXmodem('UPLOADMY');
+    var xmodem = await sendCommandXmodem(commands.upload);
     await xmodem.send(data);
   }
 
