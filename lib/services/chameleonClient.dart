@@ -19,7 +19,7 @@ class Slot {
 class ChameleonCommands {
   static var v1_0 = ChameleonCommands();
 
-  String get version => 'VERSIONMY?';
+  String get getVersion => 'VERSIONMY?';
   String get active => 'SETTINGMY=';
   String get getActive => 'SETTINGMY?';
   String get getCommands => 'HELPMY';
@@ -67,6 +67,12 @@ class ChameleonClient {
     return xmodem;
   }
 
+  void sendCommandWithoutWait(String cmd) {
+    print(cmd);
+    var data = asciiCodec.encode('$cmd\r\n');
+    port.write(data);
+  }
+
   Future<Uint8List> sendCommandRaw(String cmd) async {
     print(cmd);
     var data = asciiCodec.encode('$cmd\r\n');
@@ -98,7 +104,7 @@ class ChameleonClient {
 
   bool get connected => port != null;
 
-  Future<String> version() => sendCommand(commands.version);
+  Future<String> getVersion() => sendCommand(commands.getVersion);
 
   Future<void> active(int index) async => await sendCommand(commands.active + index.toString());
 
@@ -153,7 +159,7 @@ class ChameleonClient {
 
   Future<Uint8List> getDetection() => sendCommandRaw(commands.getDetection);
 
-  Future<void> reset() => sendCommand(commands.reset);
+  void reset() => sendCommandWithoutWait(commands.reset);
 
   Future<void> clear() => sendCommand(commands.clear);
 

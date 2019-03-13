@@ -24,6 +24,9 @@ class S implements WidgetsLocalizations {
   String get button => "Button";
   String get chameleonMiniApp => "Chameleon Mini App";
   String get clear => "Clear";
+  String get close => "Close";
+  String get deviceInfo => "Device Info";
+  String get disconnect => "Disconnect";
   String get download => "Download";
   String get downloading => "Downloading";
   String get effectiveAfterRestartingTheApp => "Effective after restarting app";
@@ -36,6 +39,7 @@ class S implements WidgetsLocalizations {
   String get mode => "Mode";
   String get notAvailable => "N/A";
   String get refresh => "Refresh";
+  String get reset => "Reset";
   String get selectLanguage => "Select Language";
   String get settings => "Settings";
   String get slot => "Slot";
@@ -55,6 +59,8 @@ class $zh_TW extends S {
 
   @override
   String get usbDeviceNotFound => "找不到 USB 裝置";
+  @override
+  String get disconnect => "斷線";
   @override
   String get traditionalChinese => "正體中文";
   @override
@@ -84,6 +90,8 @@ class $zh_TW extends S {
   @override
   String get usbDisconnected => "USB 已斷線";
   @override
+  String get close => "關閉";
+  @override
   String get selectLanguage => "選擇語言";
   @override
   String get settings => "設定";
@@ -98,9 +106,13 @@ class $zh_TW extends S {
   @override
   String get attacking => "解密中";
   @override
+  String get deviceInfo => "裝置資訊";
+  @override
   String get longPressButton => "長按按鈕";
   @override
   String get memorySize => "記憶體大小";
+  @override
+  String get reset => "重置";
   @override
   String get generalSetting => "一般設定";
 }

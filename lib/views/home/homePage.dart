@@ -4,6 +4,7 @@ import 'package:usb_serial/usb_serial.dart';
 
 import '../../services/chameleonClient.dart';
 import 'slotView.dart';
+import 'deviceInfoDialog.dart';
 import '../../generated/i18n.dart';
 import '../settings/settingsPage.dart';
 
@@ -68,7 +69,16 @@ class _HomePageState extends State<HomePage> {
 
    Future<void> _connect() async {
     if (client.connected) {
-      await _disconnected();
+      var rssi = await client.getRssi();
+      var result = await showDialog(
+        context: context,
+        builder: (_) => DeviceInfoDialog(version: version, rssi: rssi,),
+      );
+      if (result == 'disconnect') {
+        await _disconnected();
+      } else if (result == 'reset') {
+        client.reset();
+      }
       return;
     }
     List<UsbDevice> devices = await UsbSerial.listDevices();
@@ -96,7 +106,7 @@ class _HomePageState extends State<HomePage> {
       UsbPort.STOPBITS_1, UsbPort.PARITY_NONE);
 
     client.port = port;
-    version = await client.version();
+    version = await client.getVersion();
     commands = await client.getCommands();
     modes = await client.getModes();
     buttonModes = await client.getButtonModes();
