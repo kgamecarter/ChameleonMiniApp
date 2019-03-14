@@ -18,6 +18,7 @@ class Slot {
 
 class ChameleonCommands {
   static var v1_0 = ChameleonCommands();
+  static var v1_3 = ChameleonCommandsV1_3(); 
 
   String get getVersion => 'VERSIONMY?';
   String get active => 'SETTINGMY=';
@@ -44,6 +45,59 @@ class ChameleonCommands {
   String get getRssi => 'RSSIMY?';
   String get download => 'DOWNLOADMY';
   String get upload => 'UPLOADMY';
+}
+
+class ChameleonCommandsV1_3 extends ChameleonCommands {
+  @override
+  String get getVersion => 'VERSION?';
+  @override
+  String get active => 'SETTING=';
+  @override
+  String get getActive => 'SETTING?';
+  @override
+  String get getCommands => 'HELP';
+  @override
+  String get getModes => 'CONFIG';
+  @override
+  String get getButtonModes => 'BUTTON';
+  @override
+  String get getLongPressButtonModes => 'BUTTON_LONG?';
+  @override
+  String get getMemorySize => 'MEMSIZE?';
+  @override
+  String get getUidSize => 'UIDSIZE?';
+  @override
+  String get getUid => 'UID?';
+  @override
+  String get setUid => 'UID=';
+  @override
+  String get getMode => 'CONFIG?';
+  @override
+  String get setMode => 'CONFIG=';
+  @override
+  String get getButton => 'BUTTON?';
+  @override
+  String get setButton => 'BUTTON=';
+  @override
+  String get getLongPressButton => 'BUTTON_LONG?';
+  @override
+  String get setLongPressButton => 'BUTTON_LONG=';
+  @override
+  String get getReadOnly => 'READONLY?';
+  @override
+  String get setReadOnly => 'READONLY=';
+  @override
+  String get getDetection => 'DETECTION?';
+  @override
+  String get reset => 'RESET';
+  @override
+  String get clear => 'CLEAR';
+  @override
+  String get getRssi => 'RSSI?';
+  @override
+  String get download => 'DOWNLOAD';
+  @override
+  String get upload => 'UPLOAD';
 }
 
 class ChameleonClient {
