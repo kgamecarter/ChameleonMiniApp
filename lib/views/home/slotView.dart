@@ -84,15 +84,20 @@ class _SlotViewState extends State<SlotView> {
       if (filePath == null)
         return;
       var file = File(filePath);
-      var str = (await file.readAsLines())
-        .where((str) => str.length == 32)
-        .map((str) => str.replaceAll('-', 'F'))
-        .join();
-      var data = stringToBytes(str);
+      Uint8List data;
+      if (filePath.endsWith('.bin')) {
+        var str = (await file.readAsLines())
+          .where((str) => str.length == 32)
+          .map((str) => str.replaceAll('-', 'F'))
+          .join();
+        data = stringToBytes(str);
+      } else {
+        data = Uint8List.fromList(await file.readAsBytes());
+      }
       await client.active(slot.index);
       await client.upload(data);
       await _refresh();
-      final snackBar = const SnackBar(content: const Text('Upload MCT file success.'));
+      final snackBar = const SnackBar(content: const Text('Upload dump file success.'));
       Scaffold.of(context).showSnackBar(snackBar);
     }
   }
