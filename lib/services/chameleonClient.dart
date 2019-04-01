@@ -253,6 +253,15 @@ class ChameleonClient {
     slot.memorySize = await getMemorySize();
     return slot;
   }
+  
+  Future<void> checkCommand() async {
+    try {
+      this.commands = ChameleonCommands.v1_0;
+      await this.getVersion();
+    } catch (e) {
+      this.commands = ChameleonCommands.v1_3;
+    }
+  }
 
   static void decryptData(Uint8List arr, int key, int size)
   {

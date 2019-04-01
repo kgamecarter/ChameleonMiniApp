@@ -86,13 +86,13 @@ class _SlotViewState extends State<SlotView> {
       var file = File(filePath);
       Uint8List data;
       if (filePath.endsWith('.bin')) {
+        data = Uint8List.fromList(await file.readAsBytes());
+      } else {
         var str = (await file.readAsLines())
           .where((str) => str.length == 32)
           .map((str) => str.replaceAll('-', 'F'))
           .join();
         data = stringToBytes(str);
-      } else {
-        data = Uint8List.fromList(await file.readAsBytes());
       }
       await client.active(slot.index);
       await client.upload(data);

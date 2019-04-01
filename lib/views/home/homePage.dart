@@ -106,6 +106,7 @@ class _HomePageState extends State<HomePage> {
       UsbPort.STOPBITS_1, UsbPort.PARITY_NONE);
 
     client.port = port;
+    await client.checkCommand();
     version = await client.getVersion();
     commands = await client.getCommands();
     modes = await client.getModes();
