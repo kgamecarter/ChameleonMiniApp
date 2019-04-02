@@ -26,7 +26,7 @@ class ChameleonCommands {
   String get getCommands => 'HELPMY';
   String get getModes => 'CONFIGMY';
   String get getButtonModes => 'BUTTONMY';
-  String get getLongPressButtonModes => 'BUTTON_LONGMY?';
+  String get getLongPressButtonModes => 'BUTTON_LONGMY';
   String get getMemorySize => 'MEMSIZEMY?';
   String get getUidSize => 'UIDSIZEMY?';
   String get getUid => 'UIDMY?';
@@ -61,7 +61,7 @@ class ChameleonCommandsV1_3 extends ChameleonCommands {
   @override
   String get getButtonModes => 'BUTTON';
   @override
-  String get getLongPressButtonModes => 'BUTTON_LONG?';
+  String get getLongPressButtonModes => 'BUTTON_LONG';
   @override
   String get getMemorySize => 'MEMSIZE?';
   @override
