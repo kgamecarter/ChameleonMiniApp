@@ -15,8 +15,9 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
 
+  TabController _tabController;
   GlobalKey<ScaffoldState> scaffoldState = GlobalKey<ScaffoldState>();
 
   final ChameleonClient client = ChameleonClient();
@@ -125,6 +126,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: slots.length, vsync: this);
 
     usbEventStreamSubscription = UsbSerial.usbEventStream.listen((UsbEvent msg) {
       print("Usb Event $msg");
@@ -141,48 +143,48 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     usbEventStreamSubscription?.cancel();
+    _tabController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: slots.length,
-      child: Scaffold(
-        key: scaffoldState,
-        appBar: AppBar(
-          title: Text(S.of(context).chameleonMiniApp),
-          bottom: TabBar(
-            isScrollable: true,
-            tabs: slots.map((Slot slot) {
-              return Tab(
-                icon: slotIcons[slot.index],
-                text: '${S.of(context).slot} ${slot.index + 1}',
-              );
-            }).toList(),
-          ),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.usb, color: client.connected ? Colors.blue : Colors.black,),
-              onPressed: _connect,
-            ),
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: _pushSettings,
-            ),
-          ],
-        ),
-        body: TabBarView(
-          children: slots.map((Slot slot) {
-            return SlotView(
-              slot: slot,
-              client: client,
-              modes: modes,
-              buttonModes: buttonModes,
-              longPressButtonModes: longPressButtonModes,
+    return Scaffold(
+      key: scaffoldState,
+      appBar: AppBar(
+        title: Text(S.of(context).chameleonMiniApp),
+        bottom: TabBar(
+          controller: _tabController,
+          isScrollable: true,
+          tabs: slots.map((Slot slot) {
+            return Tab(
+              icon: slotIcons[slot.index],
+              text: '${S.of(context).slot} ${slot.index + 1}',
             );
           }).toList(),
         ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.usb, color: client.connected ? Colors.blue : Colors.black,),
+            onPressed: _connect,
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: _pushSettings,
+          ),
+        ],
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: slots.map((Slot slot) {
+          return SlotView(
+            slot: slot,
+            client: client,
+            modes: modes,
+            buttonModes: buttonModes,
+            longPressButtonModes: longPressButtonModes,
+          );
+        }).toList(),
       ),
     );
   }
