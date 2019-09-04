@@ -40,6 +40,7 @@ class ChameleonCommands {
   String get getReadOnly => 'READONLYMY?';
   String get setReadOnly => 'READONLYMY=';
   String get getDetection => 'DETECTIONMY?';
+  String get clearDetection => 'DETECTIONMY=';
   String get reset => 'RESETMY';
   String get clear => 'CLEARMY';
   String get getRssi => 'RSSIMY?';
@@ -88,6 +89,8 @@ class ChameleonCommandsV1_3 extends ChameleonCommands {
   String get setReadOnly => 'READONLY=';
   @override
   String get getDetection => 'DETECTION?';
+  @override
+  String get clearDetection => 'DETECTION=';
   @override
   String get reset => 'RESET';
   @override
@@ -212,6 +215,8 @@ class ChameleonClient {
   Future<void> setReadOnly(bool state) => sendCommand(commands.setReadOnly + (state ? '1' : '0'));
 
   Future<Uint8List> getDetection() => sendCommandRaw(commands.getDetection);
+
+  Future<void> clearDetection() => sendCommand(commands.clearDetection);
 
   void reset() => sendCommandWithoutWait(commands.reset);
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:isolate';
@@ -64,6 +65,8 @@ class _SlotViewState extends State<SlotView> {
       await client.setLongPressButton(slot.longPressButton);
     await client.setUid(slot.uid);
     await _refresh();
+    final snackBar = const SnackBar(content: const Text('Applied'));
+    Scaffold.of(context).showSnackBar(snackBar);
   }
 
   Uint8List stringToBytes(String data) {
@@ -280,13 +283,19 @@ class _SlotViewState extends State<SlotView> {
       var mctFormat = toMct(data);
       final permissionStatus = await SimplePermissions.requestPermission(Permission.WriteExternalStorage);
       if (permissionStatus == PermissionStatus.authorized) {
-        var d = Directory('${(await getExternalStorageDirectory()).path}/MifareClassicTool/dump-files');
+        var externalPath = (await getExternalStorageDirectory()).path;
+        var index = externalPath.indexOf('Android/data/tw');
+        if (index >= 0) {
+          externalPath = externalPath.substring(0, index);
+        }
+        log(externalPath);
+        var d = Directory('$externalPath/MifareClassicTool/dump-files');
         if (!await d.exists())
           await d.create(recursive: true);
               
         var now = DateTime.now();
         var formatter = DateFormat('yyyy-MM-dd_HH-mm-ss');
-        var f = File('${(await getExternalStorageDirectory()).path}/MifareClassicTool/dump-files/UID_${uid}_${formatter.format(now)}');
+        var f = File('$externalPath/MifareClassicTool/dump-files/UID_${uid}_${formatter.format(now)}');
         await f.writeAsString(mctFormat);
         final snackBar = const SnackBar(content: const Text('Saved to MCT folder.'));
         Scaffold.of(context).showSnackBar(snackBar);
@@ -329,8 +338,14 @@ class _SlotViewState extends State<SlotView> {
     var client = widget.client;
     var slot = widget.slot;
     await client.active(slot.index);
-    await client.clear();
+    if (await client.getMode() == 'MF_DETECTION') {
+      await client.clearDetection();
+    } else {
+      await client.clear();
+    }
     await _refresh();
+    final snackBar = const SnackBar(content: const Text('Cleared'));
+    Scaffold.of(context).showSnackBar(snackBar);
   }
 
   @override
