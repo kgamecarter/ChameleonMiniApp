@@ -16,7 +16,7 @@ class Settings {
     if (_prefs == null)
       _prefs = await SharedPreferences.getInstance();
     String str = _prefs.getString('locale');
-    if (str == 'en_')
+    if (str == 'en')
       locale = Locale('en');
     else if (str == 'zh_Hant_TW')
       locale = Locale.fromSubtags(languageCode: "zh", scriptCode: "Hant", countryCode: "TW");
