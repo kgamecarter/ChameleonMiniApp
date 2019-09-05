@@ -129,6 +129,7 @@ class _SlotViewState extends State<SlotView> {
       )
     );
     List<String> list;
+    String errorMessage;
     try {
       var client = widget.client;
       var slot = widget.slot;
@@ -136,15 +137,11 @@ class _SlotViewState extends State<SlotView> {
       await client.active(slot.index);
       var data = await client.getDetection();
       if (data == null || data.length == 0) {
-        final snackBar = const SnackBar(content: const Text('No data found on device.'));
-        Scaffold.of(context).showSnackBar(snackBar);
-        return;
+        throw new Mfkey32Exception('No data found on device.');
       }
       ChameleonClient.decryptData(data, 123321, 208);
       if (!Crc.checkCrc14443(Crc.CRC16_14443_A, data, 210)) {
-        final snackBar = const SnackBar(content: const Text('Data failed CRC check.'));
-        Scaffold.of(context).showSnackBar(snackBar);
-        return;
+        throw new Mfkey32Exception('Data failed CRC check.');
       }
       var uid = _toUint32(data, 0);
       var nonces = Collection<Nonce>();
@@ -172,14 +169,34 @@ class _SlotViewState extends State<SlotView> {
       list = await receivePort.first;*/
       list = await keyWorkJava(uid, nonces);
       if (list.length == 0) {
-        final snackBar = const SnackBar(content: const Text('mfkey32 attack failed, no keys found.'));
-        Scaffold.of(context).showSnackBar(snackBar);
-        return;
+        throw new Mfkey32Exception('mfkey32 attack failed, no keys found.');
       }
+    } on Mfkey32Exception catch (e) {
+      errorMessage = e.cause;
     } finally {
       Navigator.pop(context);
     }
-    if (list != null) {
+    if (errorMessage != null) {
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("mfkey32 result"),
+            content: Text(errorMessage),
+            actions: <Widget>[
+              FlatButton(
+                child: const Text("Close"),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+    if (list != null && list.length > 0) {
       final result = list.join('\n');
       var thisContext = context;
       showDialog(
@@ -526,4 +543,9 @@ class _SlotViewState extends State<SlotView> {
       ),
     );
   }
+}
+
+class Mfkey32Exception implements Exception {
+  String cause;
+  Mfkey32Exception(this.cause);
 }
