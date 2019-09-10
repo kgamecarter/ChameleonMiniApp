@@ -41,15 +41,12 @@ public class MainActivity extends FlutterActivity {
                     nonce.ar = obj instanceof Long ? (long)obj : (long)(int)obj;
                     nonces.add(nonce);
                 }
-                Thread t = new Thread(() -> {
-                    try {
-                        long k = MfKey.mfKey32(uid, nonces);
-                        result.success(k == -1 ? null : k);
-                    } catch (Exception ex) {
-                        result.success(-1);
-                    }
-                });
-                t.start();
+                try {
+                    long k = MfKey.mfKey32(uid, nonces);
+                    result.success(k == -1 ? null : k);
+                } catch (Exception ex) {
+                    result.success(-1);
+                }
             }
         );
     }

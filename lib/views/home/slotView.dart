@@ -158,7 +158,7 @@ class _SlotViewState extends State<SlotView> {
         if (nonce.block < 40)
           nonces.add(nonce);
       }
-      /*var receivePort = ReceivePort();
+      var receivePort = ReceivePort();
       await Isolate.spawn(
         keyWork,
         KeyWorkMessage()
@@ -166,8 +166,8 @@ class _SlotViewState extends State<SlotView> {
           ..uid=uid
           ..nonces=nonces,
       );
-      list = await receivePort.first;*/
-      list = await keyWorkJava(uid, nonces);
+      list = await receivePort.first;
+      //list = await keyWorkJava(uid, nonces);
       if (list.length == 0) {
         throw new Mfkey32Exception('mfkey32 attack failed, no keys found.');
       }
