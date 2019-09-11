@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
-import 'dart:isolate';
 
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -157,17 +157,18 @@ class _SlotViewState extends State<SlotView> {
         nonce.sector = _toSector(nonce.block);
         if (nonce.block < 40)
           nonces.add(nonce);
-      }
-      var receivePort = ReceivePort();
-      await Isolate.spawn(
+      }/*
+      list = await compute(
         keyWork,
         KeyWorkMessage()
-          ..sendPort=receivePort.sendPort
+          ..mfkey32=mfKey32
           ..uid=uid
           ..nonces=nonces,
-      );
-      list = await receivePort.first;
-      //list = await keyWorkJava(uid, nonces);
+      );*/
+      list = await keyWork(KeyWorkMessage()
+        ..mfkey32=mfKey32Java
+        ..uid=uid
+        ..nonces=nonces,);
       if (list.length == 0) {
         throw new Mfkey32Exception('mfkey32 attack failed, no keys found.');
       }

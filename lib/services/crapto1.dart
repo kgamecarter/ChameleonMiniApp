@@ -450,7 +450,7 @@ class Nonce {
   int ar;
 }
 
-String mfKey32(int uid, Iterable<Nonce> nonces) {
+Future<String> mfKey32(int uid, Iterable<Nonce> nonces) {
   var nonce = nonces.first;
   nonces = nonces.skip(1).toList();
   var p640 = prngSuccessor(nonce.nt, 64);
@@ -480,7 +480,7 @@ String mfKey32(int uid, Iterable<Nonce> nonces) {
     if (allPass)
       keys.add(s.lfsr);
   }
-  return keys.length == 1 ? keys[0] : null;
+  return Future<String>.value(keys.length == 1 ? keys[0] : null);
 }
 
 String mfKey64(int uid, int nt, int nr, int ar, int at) {
@@ -496,30 +496,16 @@ String mfKey64(int uid, int nt, int nr, int ar, int at) {
   return crapto1.state.lfsr;
 }
 
+typedef Future<String> MfKey32Function(int uid, List<Nonce> nonces);
+
 class KeyWorkMessage {
-  SendPort sendPort;
+  MfKey32Function mfkey32;
   int uid;
   Collection<Nonce> nonces;
 }
 
-void keyWork(KeyWorkMessage msg) async {
+Future<List<String>> keyWork(KeyWorkMessage msg) async {  
   var list = msg.nonces
-    .groupBy((n) => 'Sec${n.sector} Key${n.type == 0x60 ? 'A': 'B'}')
-    .select((g) {
-      var ns = g.toList();
-      if (ns.length < 2)
-        return null;
-      var key = mfKey32(msg.uid, ns);
-      if (key != null)
-        return '${g.key} $key';
-      return null;
-    }).where((str) => str != null)
-    .toList();
-  msg.sendPort.send(list);
-}
-
-Future<List<String>> keyWorkJava(int uid, Collection<Nonce> nonces) async {
-  var list = nonces
     .groupBy((n) => 'Sec${n.sector} Key${n.type == 0x60 ? 'A': 'B'}')
     .select((g) {
       var ns = g.toList();
@@ -532,7 +518,7 @@ Future<List<String>> keyWorkJava(int uid, Collection<Nonce> nonces) async {
   s.start();
   var r = List<String>();
   var fs = list
-    .map((ns) => mfkey32Java(uid, ns))
+    .map((ns) => msg.mfkey32(msg.uid, ns))
     .toList();
   var keys = await Future.wait(fs);
   s.stop();
@@ -546,16 +532,32 @@ Future<List<String>> keyWorkJava(int uid, Collection<Nonce> nonces) async {
   return r;
 }
 
-Future<String> mfkey32Java(int uid, List<Nonce> nonces) async {
-   var map = Map<String, dynamic>();
-   map['uid'] = uid;
-   map['nonces'] = nonces.map<Map<String, int>>((n) {
+bool _init = false;
+Map<int, Completer<String>> _tasks = Map<int, Completer<String>>();
+Future<String> mfKey32Java(int uid, List<Nonce> nonces) async {
+  if (!_init) {
+    _init = true;
+    _platform.setMethodCallHandler((call) async {
+      int id = call.arguments['id'];
+      int key = call.arguments['key'];
+      Completer<String> completer = _tasks[id];
+      completer.complete(key?.toRadixString(16)?.toUpperCase()?.padLeft(12, '0'));
+      _tasks.remove(id);
+      return null;
+    });
+  }
+  var map = Map<String, dynamic>();
+  map['uid'] = uid;
+  map['nonces'] = nonces.map<Map<String, int>>((n) {
     var map = Map<String, int>();
     map['nt'] = n.nt;
     map['nr'] = n.nr;
     map['ar'] = n.ar;
     return map;
   }).toList();
-  int result = await _platform.invokeMethod('mfkey32', map);
-  return result?.toRadixString(16)?.toUpperCase()?.padLeft(12, '0');
+  int id = await _platform.invokeMethod('mfkey32', map);
+  var completer = Completer<String>();
+  _tasks[id] = completer;
+  return completer.future;
+  //return result?.toRadixString(16)?.toUpperCase()?.padLeft(12, '0');
 }
