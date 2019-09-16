@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:usb_serial/usb_serial.dart';
 
 import '../../services/chameleonClient.dart';
@@ -19,6 +20,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   TabController _tabController;
   GlobalKey<ScaffoldState> scaffoldState = GlobalKey<ScaffoldState>();
+  final channel = const MethodChannel('tw.kgame.crapto1/main');
 
   final ChameleonClient client = ChameleonClient();
   List<Slot> slots = <Slot>[
@@ -128,11 +130,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.initState();
     _tabController = TabController(length: slots.length, vsync: this);
 
+    channel.setMethodCallHandler((call) async {
+      switch (call.method) {
+        case 'onNewIntent':
+          if (call.arguments == 'android.hardware.usb.action.USB_DEVICE_ATTACHED')
+            _connect();
+          break;
+        default:
+          break;
+      }
+    });
+
     usbEventStreamSubscription = UsbSerial.usbEventStream.listen((UsbEvent msg) {
       print("Usb Event $msg");
-      if (msg.event == UsbEvent.ACTION_USB_ATTACHED) {
-        _connect();
-      }
       if (msg.event == UsbEvent.ACTION_USB_DETACHED) {
         _disconnected();
       }

@@ -14,16 +14,19 @@ import tw.kgame.crapto1.Nonce;
 
 public class MainActivity extends FlutterActivity {
 
-    private static final String CHANNEL = "tw.kgame.crapto1/mfkey";
-    MethodChannel channel;
+    private static final String CHANNEL_MAIN = "tw.kgame.crapto1/main";
+    private static final String CHANNEL_MFKEY = "tw.kgame.crapto1/mfkey";
+    MethodChannel channelMfkey;
+    MethodChannel channelMain;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         GeneratedPluginRegistrant.registerWith(this);
 
-        channel = new MethodChannel(getFlutterView(), CHANNEL);
-        channel.setMethodCallHandler(
+        channelMain = new MethodChannel(getFlutterView(), CHANNEL_MAIN);
+        channelMfkey = new MethodChannel(getFlutterView(), CHANNEL_MFKEY);
+        channelMfkey.setMethodCallHandler(
             (call, result) -> {
                 System.out.println(call.method);
                 @SuppressWarnings("unchecked")
@@ -56,7 +59,7 @@ public class MainActivity extends FlutterActivity {
                     m.put("id", id);
                     m.put("key", k == -1 ? null : k);
                     runOnUiThread(() -> {
-                        channel.invokeMethod("mfKey32Result", m, new MethodChannel.Result() {
+                        channelMfkey.invokeMethod("mfKey32Result", m, new MethodChannel.Result() {
                             @Override
                             public void success(Object result) {
                             }
@@ -74,5 +77,23 @@ public class MainActivity extends FlutterActivity {
                 result.success(id);
             }
         );
+    }
+
+    @Override
+    public void onNewIntent(android.content.Intent intent) {
+        System.out.println(intent.getAction());
+        channelMain.invokeMethod("onNewIntent", intent.getAction(), new MethodChannel.Result() {
+            @Override
+            public void success(Object result) {
+            }
+
+            @Override
+            public void error(String errorCode, String errorMessage, Object errorDetails) {
+            }
+
+            @Override
+            public void notImplemented() {
+            }
+        });
     }
 }
