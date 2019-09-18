@@ -5,6 +5,7 @@ class Settings {
   SharedPreferences _prefs;
   static final Settings _settings = Settings._internal();
   Locale locale;
+  Crapto1Implementation crapto1Implementation;
 
   factory Settings() {
     return _settings;
@@ -22,9 +23,19 @@ class Settings {
       locale = Locale.fromSubtags(languageCode: "zh", scriptCode: "Hant", countryCode: "TW");
     else
       locale = null;
+    int v = _prefs.getInt('crapto1Implementation');
+    if (v == null)
+      v = 1;
+    crapto1Implementation = Crapto1Implementation.values[v];
   }
 
   save() async {
-    await _prefs.setString('locale', locale == null ? null : locale.toString());
+    await _prefs.setString('locale', locale?.toString());
+    await _prefs.setInt('crapto1Implementation', crapto1Implementation?.index);
   }
+}
+
+enum Crapto1Implementation {
+   Dart,
+   Java
 }

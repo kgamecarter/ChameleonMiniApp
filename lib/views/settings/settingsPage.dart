@@ -43,6 +43,15 @@ class _SettingsPageState extends State<SettingsPage> {
     return null;
   }
 
+  String _crapto1ImplementationToString(Crapto1Implementation crapto1implementation) {
+    switch (crapto1implementation) {
+      case Crapto1Implementation.Dart:
+        return 'Dart with Single-Thread';
+      case Crapto1Implementation.Java:
+        return 'Java with Multi-Thread';
+    }
+  }
+
   void _pushLanguagePage() {
     Navigator.of(context).pushNamed(LanguagePage.name).then((value) {
       if (value == null)
@@ -59,6 +68,39 @@ class _SettingsPageState extends State<SettingsPage> {
         settings.save();
       });
     });
+  }
+
+  void _showCrapto1ImplementationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => SimpleDialog(
+        title: Text('Select implementation'),
+        children: <Widget>[
+          RadioListTile(
+            selected: settings.crapto1Implementation == Crapto1Implementation.Dart,
+            groupValue: settings.crapto1Implementation,
+            value: Crapto1Implementation.Dart,
+            title: Text(_crapto1ImplementationToString(Crapto1Implementation.Dart)),
+            onChanged: _selectCrapto1Implementation,
+          ),
+          RadioListTile(
+            selected: settings.crapto1Implementation == Crapto1Implementation.Java,
+            groupValue: settings.crapto1Implementation,
+            value: Crapto1Implementation.Java,
+            title: Text(_crapto1ImplementationToString(Crapto1Implementation.Java)),
+            onChanged: _selectCrapto1Implementation,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _selectCrapto1Implementation(Crapto1Implementation value) {
+    setState(() {
+      settings.crapto1Implementation = value;
+      settings.save();
+    });
+    Navigator.pop(context);
   }
 
   Widget bodyData() {
@@ -93,6 +135,16 @@ class _SettingsPageState extends State<SettingsPage> {
                     subtitle: Text(_localToString(settings.locale)),
                     trailing: const Icon(Icons.arrow_right),
                     onTap: _pushLanguagePage,
+                  ),
+                  ListTile(
+                    leading: const Icon(
+                      Icons.functions,
+                      color: Colors.grey,
+                    ),
+                    title: Text('Crapto1 & mfkey32 implementation'),
+                    subtitle: Text(_crapto1ImplementationToString(settings.crapto1Implementation)),
+                    trailing: const Icon(Icons.arrow_right),
+                    onTap: _showCrapto1ImplementationDialog,
                   ),
                 ],
               ),

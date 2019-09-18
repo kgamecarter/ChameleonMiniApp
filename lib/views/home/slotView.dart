@@ -13,6 +13,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:queries/collections.dart';
 import 'package:flutter_nfc_reader/flutter_nfc_reader.dart';
 
+import '../../services/settings.dart';
 import '../../services/chameleonClient.dart';
 import '../../services/crapto1.dart';
 import '../../generated/i18n.dart';
@@ -157,19 +158,27 @@ class _SlotViewState extends State<SlotView> {
         nonce.sector = _toSector(nonce.block);
         if (nonce.block < 40)
           nonces.add(nonce);
-      }/*
-      list = await compute(
-        keyWork,
-        KeyWorkMessage()
-          ..mfkey32=mfKey32
-          ..uid=uid
-          ..nonces=nonces,
-      );*/
-      list = await keyWork(KeyWorkMessage()
-        ..mfkey32=mfKey32Java
-        ..uid=uid
-        ..nonces=nonces,);
-      if (list.length == 0) {
+      }
+      switch (Settings().crapto1Implementation) {
+        case Crapto1Implementation.Dart:
+          list = await compute(
+            keyWork,
+            KeyWorkMessage()
+              ..mfkey32=mfKey32
+              ..uid=uid
+              ..nonces=nonces,
+          );
+          break;
+        case Crapto1Implementation.Java:
+          list = await keyWork(KeyWorkMessage()
+            ..mfkey32=mfKey32Java
+            ..uid=uid
+            ..nonces=nonces,);
+          break;
+        default:
+          break;
+      }
+      if (list == null || list.length == 0) {
         throw new Mfkey32Exception('mfkey32 attack failed, no keys found.');
       }
     } on Mfkey32Exception catch (e) {
