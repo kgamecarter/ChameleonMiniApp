@@ -565,10 +565,8 @@ Future<String> mfKey32Java(int uid, List<Nonce> nonces) async {
     _platform.setMethodCallHandler((call) async {
       int id = call.arguments['id'];
       int key = call.arguments['key'];
-      Completer<String> completer = _tasks[id];
+      final completer = _tasks.remove(id);
       completer.complete(key?.toRadixString(16)?.toUpperCase()?.padLeft(12, '0'));
-      _tasks.remove(id);
-      return null;
     });
   }
   var map = Map<String, dynamic>();
@@ -584,5 +582,4 @@ Future<String> mfKey32Java(int uid, List<Nonce> nonces) async {
   var completer = Completer<String>();
   _tasks[id] = completer;
   return completer.future;
-  //return result?.toRadixString(16)?.toUpperCase()?.padLeft(12, '0');
 }
