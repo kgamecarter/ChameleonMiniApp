@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:isolate';
+import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:queries/collections.dart';
@@ -448,9 +448,31 @@ class Nonce {
   int nt;
   int nr;
   int ar;
+
+  Nonce();
+  
+  Nonce.fromJson(Map<String, dynamic> json)
+    : sector = json['sector'],
+      block = json['block'],
+      type = json['type'],
+      nt = json['nt'],
+      nr = json['nr'],
+      ar = json['ar'];
+
+  Map<String, dynamic> toJson() => <String, dynamic>{      
+    'sector': this.sector,
+    'block': this.block,
+    'type': this.type,
+    'nt': this.nt,
+    'nr': this.nr,
+    'ar': this.ar,
+  };
 }
 
 Future<String> mfKey32(int uid, Iterable<Nonce> nonces) {
+  print('Dart mfKey32');
+  print('UID: ${uid.toRadixString(16)}');
+  print('Nonces: ${jsonEncode(nonces)}');
   var nonce = nonces.first;
   nonces = nonces.skip(1).toList();
   var p640 = prngSuccessor(nonce.nt, 64);
@@ -535,6 +557,9 @@ Future<List<String>> keyWork(KeyWorkMessage msg) async {
 bool _init = false;
 Map<int, Completer<String>> _tasks = Map<int, Completer<String>>();
 Future<String> mfKey32Java(int uid, List<Nonce> nonces) async {
+  print('Java mfKey32');
+  print('UID: ${uid.toRadixString(16)}');
+  print('Nonces: ${jsonEncode(nonces)}');
   if (!_init) {
     _init = true;
     _platform.setMethodCallHandler((call) async {
