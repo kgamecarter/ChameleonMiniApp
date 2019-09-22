@@ -34,7 +34,10 @@ dependencies:
       url: git://github.com/kgamecarter/plugins_flutter_file_picker.git
       ref: master
   queries: ^0.1.12
-  flutter_nfc_reader: '<=0.0.21'
+  flutter_nfc_reader:
+    git:
+      url: git://github.com/kgamecarter/flutter-nfc-reader.git
+      ref: uidOnly
 
 dev_dependencies:
   flutter_test:
