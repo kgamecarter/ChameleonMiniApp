@@ -49,6 +49,8 @@ class _SettingsPageState extends State<SettingsPage> {
         return 'Dart with Single-Thread';
       case Crapto1Implementation.Java:
         return 'Java with Multi-Thread';
+      case Crapto1Implementation.Online:
+        return 'Online (Server maybe offline)';
     }
   }
 
@@ -88,6 +90,13 @@ class _SettingsPageState extends State<SettingsPage> {
             groupValue: settings.crapto1Implementation,
             value: Crapto1Implementation.Java,
             title: Text(_crapto1ImplementationToString(Crapto1Implementation.Java)),
+            onChanged: _selectCrapto1Implementation,
+          ),
+          RadioListTile(
+            selected: settings.crapto1Implementation == Crapto1Implementation.Online,
+            groupValue: settings.crapto1Implementation,
+            value: Crapto1Implementation.Online,
+            title: Text(_crapto1ImplementationToString(Crapto1Implementation.Online)),
             onChanged: _selectCrapto1Implementation,
           ),
         ],

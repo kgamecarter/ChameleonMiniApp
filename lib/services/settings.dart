@@ -37,5 +37,6 @@ class Settings {
 
 enum Crapto1Implementation {
    Dart,
-   Java
+   Java,
+   Online
 }

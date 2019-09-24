@@ -175,6 +175,12 @@ class _SlotViewState extends State<SlotView> {
             ..uid=uid
             ..nonces=nonces,);
           break;
+        case Crapto1Implementation.Online:
+          list = await keyWork(KeyWorkMessage()
+            ..mfkey32=mfKey32Online
+            ..uid=uid
+            ..nonces=nonces,);
+          break;
         default:
           break;
       }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:convert';
 
+import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
 import 'package:queries/collections.dart';
 
@@ -582,4 +583,22 @@ Future<String> mfKey32Java(int uid, List<Nonce> nonces) async {
   var completer = Completer<String>();
   _tasks[id] = completer;
   return completer.future;
+}
+
+Future<String> mfKey32Online(int uid, List<Nonce> nonces) async {
+  print('Online mfKey32');
+  print('UID: ${uid.toRadixString(16)}');
+  var json = jsonEncode(nonces);
+  print('Nonces: $json');
+  final response = await http.post('https://mfkeyonline.azurewebsites.net/Mfkey32?uid=$uid',
+    headers: {"Content-Type": "application/json"},
+    body: json,);
+  if (response.statusCode == 200) {
+    int key = int.parse(response.body);
+    if (key == -1)
+      return null;
+    return key.toRadixString(16)?.toUpperCase()?.padLeft(12, '0');
+  } else {
+    throw Exception('Failed to post');
+  }
 }
