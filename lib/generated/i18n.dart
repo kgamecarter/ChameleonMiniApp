@@ -96,7 +96,7 @@ class $zh_TW extends S {
   @override
   String get settings => "設定";
   @override
-  String get apply => "應用";
+  String get apply => "套用";
   @override
   String get clear => "清除";
   @override
