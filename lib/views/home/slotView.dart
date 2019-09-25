@@ -140,7 +140,11 @@ class _SlotViewState extends State<SlotView> {
       if (data == null || data.length == 0) {
         throw new Mfkey32Exception('No data found on device.');
       }
-      ChameleonClient.decryptData(data, 123321, 208);
+      // no encrypt in 1.4 firmware
+      int canary = _toUint64(data, 8);
+      if (canary != 0x5245564556312E34) {
+        ChameleonClient.decryptData(data, 123321, 208);
+      }
       if (!Crc.checkCrc14443(Crc.CRC16_14443_A, data, 210)) {
         throw new Mfkey32Exception('Data failed CRC check.');
       }
@@ -245,6 +249,13 @@ class _SlotViewState extends State<SlotView> {
   int _toUint32(Uint8List data, int offset) {
     var v = 0;
     for (var i = 0; i < 4; i++)
+      v = v << 8 | data[offset + i];
+    return v;
+  }
+
+  int _toUint64(Uint8List data, int offset) {
+    var v = 0;
+    for (var i = 0; i < 8; i++)
       v = v << 8 | data[offset + i];
     return v;
   }
