@@ -156,8 +156,11 @@ class _SlotViewState extends State<SlotView> {
           ..nr = _toUint32(data, offset + 8)
           ..ar = _toUint32(data, offset + 12);
         nonce.sector = _toSector(nonce.block);
-        if (nonce.block < 40)
+        if (nonce.type != 0xFF)
           nonces.add(nonce);
+      }
+      if (nonces.length == 0) {
+        throw new Mfkey32Exception('No nonces record.');
       }
       switch (Settings().crapto1Implementation) {
         case Crapto1Implementation.Dart:
