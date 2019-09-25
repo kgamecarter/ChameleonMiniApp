@@ -10,6 +10,11 @@ A Android GUI for the ChameleonMini device.
 * Android 4.1 or later
 * USB OTG cable
 
+## ChameleonMini Compatible Firmware
+
+* [Origin Firmware](https://github.com/kgamecarter/ChameleonMiniApp/files/3639628/20170729.zip) *recommended
+* [ChameleonMini-rebooted](https://github.com/iceman1001/ChameleonMini-rebooted)
+
 ## Video
 [![.](https://i.ytimg.com/vi/WoU58GzxsAY/mqdefault.jpg)](https://youtu.be/WoU58GzxsAY)
 
