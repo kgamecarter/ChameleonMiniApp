@@ -52,6 +52,7 @@ class _SettingsPageState extends State<SettingsPage> {
       case Crapto1Implementation.Online:
         return 'Online (Server maybe offline)';
     }
+    return null;
   }
 
   void _pushLanguagePage() {
