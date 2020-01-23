@@ -26,13 +26,10 @@ dependencies:
     git:
       url: git://github.com/kgamecarter/usbserial.git
       ref: master
-  shared_preferences: ^0.5.3+4
-  path_provider: ^1.2.0
+  shared_preferences: ^0.5.6
+  path_provider: ^1.5.1
   simple_permissions: ^0.1.9
-  file_picker:
-    git:
-      url: git://github.com/kgamecarter/plugins_flutter_file_picker.git
-      ref: master
+  file_picker: ^1.4.3+2
   queries: ^0.1.12
   flutter_nfc_reader:
     git:
