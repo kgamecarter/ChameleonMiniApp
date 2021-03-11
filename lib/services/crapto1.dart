@@ -4,7 +4,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
-import 'package:queries/collections.dart';
+import 'package:darq/darq.dart';
 
 
 const _platform = const MethodChannel('tw.kgame.crapto1/mfkey');
@@ -526,7 +526,7 @@ typedef Future<String?> MfKey32Function(int uid, List<Nonce> nonces);
 class KeyWorkMessage {
   MfKey32Function mfkey32;
   int uid;
-  Collection<Nonce> nonces;
+  List<Nonce> nonces;
 
   KeyWorkMessage(this.mfkey32, this.uid, this.nonces);
 }
@@ -534,7 +534,7 @@ class KeyWorkMessage {
 Future<List<String>> keyWork(KeyWorkMessage msg) async {  
   List<List<Nonce>?> list = msg.nonces
     .groupBy((n) => 'Sec${n.sector} Key${n.type == 0x60 ? 'A': 'B'}')
-    .select((g) {
+    .select((g, i) {
       var ns = g.toList();
       if (ns.length < 2)
         return null;
@@ -594,7 +594,7 @@ Future<String?> mfKey32Online(int uid, List<Nonce> nonces) async {
   print('UID: ${uid.toRadixString(16)}');
   var json = jsonEncode(nonces);
   print('Nonces: $json');
-  final response = await http.post('https://mfkeyonline.azurewebsites.net/Mfkey32?uid=$uid',
+  final response = await http.post(Uri.parse('https://mfkeyonline.azurewebsites.net/Mfkey32?uid=$uid'),
     headers: {"Content-Type": "application/json"},
     body: json,);
   if (response.statusCode == 200) {

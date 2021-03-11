@@ -10,7 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:queries/collections.dart';
 import 'package:flutter_nfc_reader/flutter_nfc_reader.dart';
 
 import '../../services/settings.dart';
@@ -149,7 +148,7 @@ class _SlotViewState extends State<SlotView> {
         throw new Mfkey32Exception('Data failed CRC check.');
       }
       var uid = _toUint32(data, 0);
-      var nonces = Collection<Nonce>();
+      List<Nonce> nonces = [];
       for (var i = 1; i <= 12; i++)
       {
         var offset = i * 16;
@@ -320,7 +319,7 @@ class _SlotViewState extends State<SlotView> {
       var data = result!.take(slot.memorySize!).toList();
       var mctFormat = toMct(data);
       if (await Permission.storage.request().isGranted) {
-        var externalPath = (await getExternalStorageDirectory()).path;
+        var externalPath = (await getExternalStorageDirectory())!.path;
         var index = externalPath.indexOf('Android/data/tw');
         if (index >= 0) {
           externalPath = externalPath.substring(0, index);
