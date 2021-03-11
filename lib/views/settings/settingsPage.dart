@@ -8,7 +8,7 @@ import 'languagePage.dart';
 class SettingsPage extends StatefulWidget {
   static const String name = '/Settings/Language';
 
-  SettingsPage({Key key}) : super(key: key);
+  SettingsPage({Key? key}) : super(key: key);
 
   @override
   _SettingsPageState createState() => _SettingsPageState();
@@ -16,7 +16,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
 
-  GlobalKey<ScaffoldState> scaffoldState = GlobalKey<ScaffoldState>();
+  GlobalKey<ScaffoldMessengerState> scaffoldState = GlobalKey<ScaffoldMessengerState>();
 
   final Settings settings = Settings();
 
@@ -31,16 +31,14 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  String _localToString(Locale locale) {
-    if (locale == null)
-      return S.of(context).systemDefault;
-    if (locale.languageCode == 'en')
+  String _localToString(Locale? locale) {
+    if (locale?.languageCode == 'en')
       return S.of(context).english;
-    if (locale.languageCode == 'zh') {
-      if (locale.scriptCode == 'Hant')
+    if (locale?.languageCode == 'zh') {
+      if (locale?.scriptCode == 'Hant')
         return S.of(context).traditionalChinese;
     }
-    return null;
+    return S.of(context).systemDefault;
   }
 
   String _crapto1ImplementationToString(Crapto1Implementation crapto1implementation) {
@@ -52,7 +50,6 @@ class _SettingsPageState extends State<SettingsPage> {
       case Crapto1Implementation.Online:
         return 'Online (Server maybe offline)';
     }
-    return null;
   }
 
   void _pushLanguagePage() {
@@ -61,13 +58,13 @@ class _SettingsPageState extends State<SettingsPage> {
         return;
       if (value == 'default')
         value = null;
-      MyLocalizationsDelegate.delegate.load(value).then((trans) {
-        scaffoldState.currentState.showSnackBar(SnackBar(
+      MyLocalizationsDelegate.delegate.load(value as Locale).then((trans) {
+        scaffoldState.currentState?.showSnackBar(SnackBar(
           content: Text(trans.effectiveAfterRestartingTheApp),
         ));
       });
       setState(() {
-        settings.locale = value;
+        settings.locale = value as Locale;
         settings.save();
       });
     });
@@ -105,9 +102,9 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  void _selectCrapto1Implementation(Crapto1Implementation value) {
+  void _selectCrapto1Implementation(Crapto1Implementation? value) {
     setState(() {
-      settings.crapto1Implementation = value;
+      settings.crapto1Implementation = value!;
       settings.save();
     });
     Navigator.pop(context);
@@ -152,7 +149,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       color: Colors.grey,
                     ),
                     title: Text('Crapto1 & mfkey32 implementation'),
-                    subtitle: Text(_crapto1ImplementationToString(settings.crapto1Implementation)),
+                    subtitle: Text(_crapto1ImplementationToString(settings.crapto1Implementation!)),
                     trailing: const Icon(Icons.arrow_right),
                     onTap: _showCrapto1ImplementationDialog,
                   ),

@@ -6,14 +6,14 @@ import 'package:usb_serial/usb_serial.dart';
 import 'xmodem.dart';
 
 class Slot {
-  Slot({this.index});
+  Slot(this.index);
 
   final int index;
-  String uid;
-  int memorySize;
-  String mode;
-  String button;
-  String longPressButton;
+  String? uid;
+  int? memorySize;
+  String? mode;
+  String? button;
+  String? longPressButton;
 }
 
 class ChameleonCommands {
@@ -106,8 +106,8 @@ class ChameleonCommandsV1_3 extends ChameleonCommands {
 class ChameleonClient {
   ChameleonCommands commands = ChameleonCommands.v1_0;
   final asciiCodec = AsciiCodec();
-  UsbPort port;
-  StreamSubscription<Uint8List> subcription;
+  UsbPort? port;
+  StreamSubscription<Uint8List>? subcription;
 
   ChameleonClient([this.port]);
 
@@ -119,7 +119,7 @@ class ChameleonClient {
   }
 
   Future<Xmodem> sendCommandXmodem(String cmd) async {
-    var xmodem = Xmodem(port.inputStream, port.write);
+    var xmodem = Xmodem(port!.inputStream, port!.write);
     await sendCommand(cmd);
     return xmodem;
   }
@@ -127,7 +127,7 @@ class ChameleonClient {
   void sendCommandWithoutWait(String cmd) {
     print(cmd);
     var data = asciiCodec.encode('$cmd\r\n');
-    port.write(data);
+    port!.write(data);
   }
 
   Future<Uint8List> sendCommandRaw(String cmd) async {
@@ -135,12 +135,12 @@ class ChameleonClient {
     var data = asciiCodec.encode('$cmd\r\n');
     var c = new Completer<Uint8List>();
     if (subcription == null)
-      subcription = port.inputStream.listen(null);
-    subcription.onData((bytes) {
+      subcription = port!.inputStream.listen(null);
+    subcription!.onData((bytes) {
       c.complete(bytes);
-      subcription.onData(null);
+      subcription!.onData(null);
     });
-    await port.write(data);
+    await port!.write(data);
     return await c.future;
   }
 
@@ -151,7 +151,7 @@ class ChameleonClient {
     var strs = str.split('\r\n').where((s) => s.isNotEmpty).toList();
     if (strs[0].startsWith('100:') || // 100:OK
         strs[0].startsWith('110:')) { // 110:WAITING FOR XMODEM
-      return null;
+      return '';
     } else if (strs[0].startsWith('101:')) { // 101:OK WITH TEXT
       return strs[strs.length - 1];
     } else {
@@ -224,7 +224,7 @@ class ChameleonClient {
 
   Future<String> getRssi() => sendCommand(commands.getRssi);
 
-  Future<Uint8List> download() async {
+  Future<Uint8List?> download() async {
     var xmodem = await sendCommandXmodem(commands.download);
     return await xmodem.receive();
   }
@@ -238,17 +238,17 @@ class ChameleonClient {
     var selectedSlot = await getActive();
     var slots = <Slot>[];
     for (int i = 0; i < 8; i++)
-      slots.add(await refresh(i));
+      slots.add((await refresh(i))!);
     await active(selectedSlot);
     return slots;
   }
 
-  Future<Slot> refresh(int i) async {
+  Future<Slot?> refresh(int i) async {
     await active(i);
     var selectedSlot = await getActive();
     if (selectedSlot != i)
       return null;
-    var slot = Slot(index: i);
+    var slot = Slot(i);
     slot.uid = await getUid();
     slot.mode = await getMode();
     slot.button = await getButton();

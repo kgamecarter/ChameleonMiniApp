@@ -13,7 +13,7 @@ class Crypto1State {
   int odd = 0;
   int even = 0;
 
-  Crypto1State({this.odd, this.even});
+  Crypto1State(this.odd, this.even);
 
   Crypto1State.fromKey(String key) {
     for (var i = 0; i < 6; i++) {
@@ -50,7 +50,7 @@ class Crypto1 {
 
   Crypto1State state;
 
-  Crypto1([this.state]);
+  Crypto1(this.state);
 
   int crypto1Bit([int _in = 0, bool isEncrypted = false]) {
     int feedin;
@@ -147,14 +147,16 @@ int prngSuccessor(int x, int n) {
 class Span {
   Uint32List list;
   int offset;
-  int length;
+  late int length;
 
-  Span(this.list, [this.offset = 0, this.length]) {
+  Span(this.list, [this.offset = 0, int? length]) {
     if (length == null)
-      length = list.length - offset;
+      this.length = list.length - offset;
+    else
+      this.length = length;
   }
 
-  Span slice(int start, [int len]) {
+  Span slice(int start, [int? len]) {
     return Span(list, offset + start, len != null ? len : length - start);
   }
 
@@ -182,7 +184,7 @@ class Span {
 
 class Crapto1 extends Crypto1
 {
-  Crapto1([Crypto1State state]) : super(state);
+  Crapto1(Crypto1State state) : super(state);
 
   int lfsrRollbackBit([int _in = 0, bool isEncrypted = false]) {
     int _out;
@@ -270,8 +272,8 @@ class Crapto1 extends Crypto1
         for (o = 0; o <= oddTail; o++) {
           sl.add(
             Crypto1State(
-              even: odd[o],
-              odd: even[e] ^ evenParity32(odd[o] & Crypto1.LF_POLY_ODD)
+              even[e] ^ evenParity32(odd[o] & Crypto1.LF_POLY_ODD),
+              odd[o],
             )
           );
         }
@@ -319,7 +321,7 @@ class Crapto1 extends Crypto1
 
     var odd = Uint32List(4 << 21);
     var even = Uint32List(4 << 21);
-    var statelist = List<Crypto1State>();
+    List<Crypto1State> statelist = [];
     var oddTail = 0;
     var evenTail = 0;
 
@@ -376,7 +378,7 @@ class Crapto1 extends Crypto1
     var low = 0;
     var win = 0;
     var table = Uint32List(1 << 16);
-    var statelist = List<Crypto1State>();
+    List<Crypto1State> statelist = [];
 
     for (var i = 30; i >= 0; i -= 2) {
       oks[i >> 1] = _beBit(ks2, i);
@@ -434,8 +436,8 @@ class Crapto1 extends Crypto1
         table[tail] = table[tail] << 1 | evenParity32(Crypto1.LF_POLY_EVEN & table[tail]);
         statelist.add(
           Crypto1State(
-            odd: table[tail] ^ evenParity32(Crypto1.LF_POLY_ODD & win),
-            even: win
+            table[tail] ^ evenParity32(Crypto1.LF_POLY_ODD & win),
+            win
           )
         );
       }
@@ -445,10 +447,10 @@ class Crapto1 extends Crypto1
 }
 
 class Nonce {
-  int sector, block, type;
-  int nt;
-  int nr;
-  int ar;
+  int sector = 0, block = 0, type = 0;
+  int nt = 0;
+  int nr = 0;
+  int ar = 0;
 
   Nonce();
   
@@ -480,9 +482,9 @@ Future<String> mfKey32(int uid, Iterable<Nonce> nonces) {
   print(p640.toRadixString(16));
   var list = Crapto1.lfsrRecovery32(nonce.ar ^ p640, 0);
   print(list.length);
-  var keys = List<String>();
-  var crapto1 = Crapto1();
-  var crypto1 = Crypto1(Crypto1State());
+  List<String> keys = [];
+  var crapto1 = Crapto1(Crypto1State(0, 0));
+  var crypto1 = Crypto1(Crypto1State(0, 0));
   for (var s in list) {
     crapto1.state = s;
     crapto1.lfsrRollbackWord();
@@ -519,12 +521,14 @@ String mfKey64(int uid, int nt, int nr, int ar, int at) {
   return crapto1.state.lfsr;
 }
 
-typedef Future<String> MfKey32Function(int uid, List<Nonce> nonces);
+typedef Future<String?> MfKey32Function(int uid, List<Nonce> nonces);
 
 class KeyWorkMessage {
   MfKey32Function mfkey32;
   int uid;
   Collection<Nonce> nonces;
+
+  KeyWorkMessage(this.mfkey32, this.uid, this.nonces);
 }
 
 Future<List<String>> keyWork(KeyWorkMessage msg) async {  
@@ -539,7 +543,7 @@ Future<List<String>> keyWork(KeyWorkMessage msg) async {
     .toList();
   var s = Stopwatch();
   s.start();
-  var r = List<String>();
+  List<String> r = [];
   var fs = list
     .map((ns) => msg.mfkey32(msg.uid, ns))
     .toList();
@@ -565,9 +569,9 @@ Future<String> mfKey32Java(int uid, List<Nonce> nonces) async {
     _init = true;
     _platform.setMethodCallHandler((call) async {
       int id = call.arguments['id'];
-      int key = call.arguments['key'];
+      int? key = call.arguments['key'];
       final completer = _tasks.remove(id);
-      completer.complete(key?.toRadixString(16)?.toUpperCase()?.padLeft(12, '0'));
+      completer?.complete(key?.toRadixString(16)?.toUpperCase()?.padLeft(12, '0'));
     });
   }
   var map = Map<String, dynamic>();
@@ -585,7 +589,7 @@ Future<String> mfKey32Java(int uid, List<Nonce> nonces) async {
   return completer.future;
 }
 
-Future<String> mfKey32Online(int uid, List<Nonce> nonces) async {
+Future<String?> mfKey32Online(int uid, List<Nonce> nonces) async {
   print('Online mfKey32');
   print('UID: ${uid.toRadixString(16)}');
   var json = jsonEncode(nonces);

@@ -10,7 +10,7 @@ import '../../generated/i18n.dart';
 import '../settings/settingsPage.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key}) : super(key: key);
+  HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -18,20 +18,20 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
 
-  TabController _tabController;
-  GlobalKey<ScaffoldState> scaffoldState = GlobalKey<ScaffoldState>();
+  TabController? _tabController;
+  GlobalKey<ScaffoldMessengerState> scaffoldState = GlobalKey<ScaffoldMessengerState>();
   final channel = const MethodChannel('tw.kgame.crapto1/main');
 
   final ChameleonClient client = ChameleonClient();
   List<Slot> slots = <Slot>[
-    Slot(index: 0),
-    Slot(index: 1),
-    Slot(index: 2),
-    Slot(index: 3),
-    Slot(index: 4),
-    Slot(index: 5),
-    Slot(index: 6),
-    Slot(index: 7),
+    Slot(0),
+    Slot(1),
+    Slot(2),
+    Slot(3),
+    Slot(4),
+    Slot(5),
+    Slot(6),
+    Slot(7),
   ];
   final List<Icon> slotIcons = const <Icon>[
     const Icon(Icons.filter_1),
@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         slot.longPressButton = null;
       }
     });
-    scaffoldState.currentState.showSnackBar(SnackBar(
+    scaffoldState.currentState?.showSnackBar(SnackBar(
       content: Text(S.of(context).usbDisconnected),
       duration: Duration(seconds: 10),
     ));
@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       var rssi = await client.getRssi();
       var result = await showDialog(
         context: context,
-        builder: (_) => DeviceInfoDialog(version: version, rssi: rssi,),
+        builder: (_) => DeviceInfoDialog(version!, rssi,),
       );
       if (result == 'disconnect') {
         await _disconnected();
@@ -88,7 +88,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     print(devices);
 
     if (devices.length == 0) {
-      scaffoldState.currentState.showSnackBar(SnackBar(
+      scaffoldState.currentState?.showSnackBar(SnackBar(
         content: Text(S.of(context).usbDeviceNotFound),
         duration: Duration(seconds: 3),
       ));
@@ -121,9 +121,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     setState(() => client.connected);
   }
 
-  String version;
-  List<String> commands, modes, buttonModes, longPressButtonModes;
-  StreamSubscription<UsbEvent> usbEventStreamSubscription;
+  String? version;
+  List<String>? commands, modes, buttonModes, longPressButtonModes;
+  StreamSubscription<UsbEvent>? usbEventStreamSubscription;
 
   @override
   void initState() {
@@ -153,7 +153,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void dispose() {
     usbEventStreamSubscription?.cancel();
-    _tabController.dispose();
+    _tabController?.dispose();
     super.dispose();
   }
 
@@ -188,8 +188,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         controller: _tabController,
         children: slots.map((Slot slot) {
           return SlotView(
-            slot: slot,
-            client: client,
+            slot,
+            client,
             modes: modes,
             buttonModes: buttonModes,
             longPressButtonModes: longPressButtonModes,

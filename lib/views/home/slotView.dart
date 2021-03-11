@@ -8,8 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:simple_permissions/simple_permissions.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:queries/collections.dart';
 import 'package:flutter_nfc_reader/flutter_nfc_reader.dart';
 
@@ -19,11 +19,11 @@ import '../../services/crapto1.dart';
 import '../../generated/i18n.dart';
 
 class SlotView extends StatefulWidget {
-  SlotView({Key key, this.slot, this.client, this.modes, this.buttonModes, this.longPressButtonModes}) : super(key: key);
+  SlotView(this.slot, this.client, {Key? key, this.modes, this.buttonModes, this.longPressButtonModes}) : super(key: key);
 
   final Slot slot;
   final ChameleonClient client;
-  final List<String> modes, buttonModes, longPressButtonModes;
+  final List<String>? modes, buttonModes, longPressButtonModes;
 
   @override
   _SlotViewState createState() => _SlotViewState();
@@ -37,15 +37,15 @@ class _SlotViewState extends State<SlotView> {
     uidFocusNode.unfocus();
     print(widget.slot.uid);
   }
-  _modeChanged(String str) => setState(() => widget.slot.mode = str);
-  _buttonModeChanged(String str) => setState(() => widget.slot.button = str);
-  _longPressButtonModeChanged(String str) => setState(() => widget.slot.longPressButton = str);
+  void _modeChanged(String? str) => setState(() => widget.slot.mode = str);
+  void _buttonModeChanged(String? str) => setState(() => widget.slot.button = str);
+  void _longPressButtonModeChanged(String? str) => setState(() => widget.slot.longPressButton = str);
 
   Future<void> _refresh() async {
     var s = await widget.client.refresh(widget.slot.index);
     var slot = widget.slot;
     setState(() {
-      slot.uid = s.uid;
+      slot.uid = s!.uid;
       slot.mode = s.mode;
       slot.button = s.button;
       slot.longPressButton = s.longPressButton;
@@ -60,14 +60,14 @@ class _SlotViewState extends State<SlotView> {
     var selectedSlot = await client.getActive();
     if (selectedSlot != slot.index)
       return;
-    await client.setMode(slot.mode);
-    await client.setButton(slot.button);
+    await client.setMode(slot.mode!);
+    await client.setButton(slot.button!);
     if (widget.longPressButtonModes != null)
-      await client.setLongPressButton(slot.longPressButton);
-    await client.setUid(slot.uid);
+      await client.setLongPressButton(slot.longPressButton!);
+    await client.setUid(slot.uid!);
     await _refresh();
     final snackBar = const SnackBar(content: const Text('Applied'));
-    Scaffold.of(context).showSnackBar(snackBar);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Uint8List stringToBytes(String data) {
@@ -82,11 +82,11 @@ class _SlotViewState extends State<SlotView> {
     var client = widget.client;
     var slot = widget.slot;
     
-    final permissionStatus = await SimplePermissions.requestPermission(Permission.WriteExternalStorage);
-    if (permissionStatus == PermissionStatus.authorized) {
-      var filePath = await FilePicker.getFilePath(type: FileType.ANY);
-      if (filePath == null)
+    if (await Permission.storage.request().isGranted) {
+      var fileResult = await FilePicker.platform.pickFiles(type: FileType.any);
+      if (fileResult == null || fileResult.count == 0)
         return;
+      var filePath = fileResult.files.single.path!;
       var file = File(filePath);
       Uint8List data;
       if (filePath.endsWith('.bin')) {
@@ -102,7 +102,7 @@ class _SlotViewState extends State<SlotView> {
       await client.upload(data);
       await _refresh();
       final snackBar = const SnackBar(content: const Text('Upload dump file success.'));
-      Scaffold.of(context).showSnackBar(snackBar);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 
@@ -129,15 +129,15 @@ class _SlotViewState extends State<SlotView> {
         ),
       )
     );
-    List<String> list;
-    String errorMessage;
+    List<String>? list;
+    String? errorMessage;
     try {
       var client = widget.client;
       var slot = widget.slot;
 
       await client.active(slot.index);
       var data = await client.getDetection();
-      if (data == null || data.length == 0) {
+      if (data.length == 0) {
         throw new Mfkey32Exception('No data found on device.');
       }
       // no encrypt in 1.4 firmware
@@ -170,23 +170,14 @@ class _SlotViewState extends State<SlotView> {
         case Crapto1Implementation.Dart:
           list = await compute(
             keyWork,
-            KeyWorkMessage()
-              ..mfkey32=mfKey32
-              ..uid=uid
-              ..nonces=nonces,
+            KeyWorkMessage(mfKey32, uid, nonces),
           );
           break;
         case Crapto1Implementation.Java:
-          list = await keyWork(KeyWorkMessage()
-            ..mfkey32=mfKey32Java
-            ..uid=uid
-            ..nonces=nonces,);
+          list = await keyWork(KeyWorkMessage(mfKey32Java, uid, nonces));
           break;
         case Crapto1Implementation.Online:
-          list = await keyWork(KeyWorkMessage()
-            ..mfkey32=mfKey32Online
-            ..uid=uid
-            ..nonces=nonces,);
+          list = await keyWork(KeyWorkMessage(mfKey32Online, uid, nonces));
           break;
         default:
           break;
@@ -206,7 +197,7 @@ class _SlotViewState extends State<SlotView> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text("mfkey32 result"),
-            content: Text(errorMessage),
+            content: Text(errorMessage!),
             actions: <Widget>[
               FlatButton(
                 child: const Text("Close"),
@@ -230,13 +221,13 @@ class _SlotViewState extends State<SlotView> {
             title: const Text("mfkey32 result"),
             content: Text(result),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                 child: const Text("Copy and Close"),
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: result));
                   Navigator.pop(context);
                   final snackBar = const SnackBar(content: const Text('Copied to clipboard.'), duration: Duration(seconds: 3),);
-                  Scaffold.of(thisContext).showSnackBar(snackBar);
+                  ScaffoldMessenger.of(thisContext).showSnackBar(snackBar);
                 },
               ),
             ],
@@ -326,10 +317,9 @@ class _SlotViewState extends State<SlotView> {
       await client.active(slot.index);
       var uid = await client.getUid();
       var result = await client.download();
-      var data = result.take(slot.memorySize).toList();
+      var data = result!.take(slot.memorySize!).toList();
       var mctFormat = toMct(data);
-      final permissionStatus = await SimplePermissions.requestPermission(Permission.WriteExternalStorage);
-      if (permissionStatus == PermissionStatus.authorized) {
+      if (await Permission.storage.request().isGranted) {
         var externalPath = (await getExternalStorageDirectory()).path;
         var index = externalPath.indexOf('Android/data/tw');
         if (index >= 0) {
@@ -345,7 +335,7 @@ class _SlotViewState extends State<SlotView> {
         var f = File('$externalPath/MifareClassicTool/dump-files/UID_${uid}_${formatter.format(now)}');
         await f.writeAsString(mctFormat);
         final snackBar = const SnackBar(content: const Text('Saved to MCT folder.'));
-        Scaffold.of(context).showSnackBar(snackBar);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
     } finally {
       Navigator.pop(context);
@@ -365,7 +355,7 @@ class _SlotViewState extends State<SlotView> {
           },
         ),
       );
-      Scaffold.of(context).showSnackBar(snackBar);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
       response = await FlutterNfcReader.read;
       print(response);
       if (response != null) {
@@ -373,7 +363,7 @@ class _SlotViewState extends State<SlotView> {
           widget.slot.uid = response.substring(2).toUpperCase(); 
         });
       }
-      Scaffold.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       await Future.delayed(const Duration(seconds: 1));
       await FlutterNfcReader.stop;
     } on PlatformException {
@@ -392,7 +382,7 @@ class _SlotViewState extends State<SlotView> {
     }
     await _refresh();
     final snackBar = const SnackBar(content: const Text('Cleared'));
-    Scaffold.of(context).showSnackBar(snackBar);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override
@@ -402,7 +392,7 @@ class _SlotViewState extends State<SlotView> {
       bottom: false,
       child: Form(
         key: _formKey,
-        autovalidate: true,
+        autovalidateMode: AutovalidateMode.always,
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           children: <Widget>[

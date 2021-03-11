@@ -5,7 +5,7 @@ import '../../generated/i18n.dart';
 class LanguagePage extends StatefulWidget {
   static const String name = '/Settings';
 
-  LanguagePage({Key key}) : super(key: key);
+  LanguagePage({Key? key}) : super(key: key);
 
   @override
   _LanguagePageState createState() => _LanguagePageState();
@@ -13,7 +13,7 @@ class LanguagePage extends StatefulWidget {
 
 class _LanguagePageState extends State<LanguagePage> {
 
-  Function _pop(Object value) {
+  Function() _pop(Object value) {
     return () => Navigator.of(context).pop(value);
   }
 

@@ -3,15 +3,15 @@ import 'dart:async';
 import 'dart:collection';
 
 class _ByteReader {
-  Queue<int> _queue;
   Stream<Uint8List> _sream;
-  StreamSubscription<Uint8List> _subscription;
-  Completer<void> _c;
+  late Queue<int> _queue;
+  late StreamSubscription<Uint8List> _subscription;
+  late Completer<void> _c;
 
   _ByteReader(this._sream) {
     _queue = Queue();
-    _c = Completer();
     _subscription = _sream.listen(_onData);
+    _c = Completer();
   }
 
   void _onData(Uint8List data) {
@@ -100,7 +100,7 @@ class Xmodem {
     reader.cancel();
   }
 
-  Future<Uint8List> receive() async {
+  Future<Uint8List?> receive() async {
     var output = <int>[];
     var reader = _ByteReader(input);
 

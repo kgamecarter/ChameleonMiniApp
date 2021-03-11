@@ -20,21 +20,21 @@ class MyLocalizationsDelegate extends LocalizationsDelegate<S> {
     ];
   }
 
-  LocaleListResolutionCallback listResolution({Locale fallback}) {
-    return (List<Locale> locales, Iterable<Locale> supported) {
+  LocaleListResolutionCallback listResolution({Locale? fallback}) {
+    return (List<Locale>? locales, Iterable<Locale> supported) {
       if (locales == null || locales.isEmpty)
         return fallback ?? supported.first;
       return _resolve(locales.first, fallback, supported);
     };
   }
 
-  LocaleResolutionCallback resolution({Locale fallback}) {
-    return (Locale locale, Iterable<Locale> supported) {
+  LocaleResolutionCallback resolution({Locale? fallback}) {
+    return (Locale? locale, Iterable<Locale> supported) {
       return _resolve(locale, fallback, supported);
     };
   }
 
-  Locale _resolve(Locale locale, Locale fallback, Iterable<Locale> supported) {
+  Locale? _resolve(Locale? locale, Locale? fallback, Iterable<Locale> supported) {
     if (locale == null)
       return fallback ?? supported.first;
 
@@ -77,7 +77,7 @@ class MyLocalizationsDelegate extends LocalizationsDelegate<S> {
 
   @override
   bool isSupported(Locale locale) =>
-    locale != null && _resolve(locale, null, supportedLocales) != null;
+    _resolve(locale, null, supportedLocales) != null;
 
   @override
   bool shouldReload(MyLocalizationsDelegate old) => false;
