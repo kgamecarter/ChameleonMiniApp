@@ -3,12 +3,11 @@ package tw.kgame.chameleonminiapp;
 import java.util.*;
 
 import android.os.Bundle;
-import io.flutter.app.FlutterActivity;
-import io.flutter.plugins.GeneratedPluginRegistrant;
-import io.flutter.plugin.common.MethodCall;
+import androidx.annotation.NonNull;
+import io.flutter.embedding.android.FlutterActivity;
+import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
-import io.flutter.plugin.common.MethodChannel.Result;
+import io.flutter.plugins.GeneratedPluginRegistrant;
 import tw.kgame.crapto1.MfKey;
 import tw.kgame.crapto1.Nonce;
 
@@ -20,10 +19,9 @@ public class MainActivity extends FlutterActivity {
     MethodChannel channelMain;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        GeneratedPluginRegistrant.registerWith(this);
-
+   public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+        GeneratedPluginRegistrant.registerWith(flutterEngine);
+        
         channelMain = new MethodChannel(getFlutterView(), CHANNEL_MAIN);
         channelMfkey = new MethodChannel(getFlutterView(), CHANNEL_MFKEY);
         channelMfkey.setMethodCallHandler(
@@ -77,7 +75,7 @@ public class MainActivity extends FlutterActivity {
                 result.success(id);
             }
         );
-    }
++    }
 
     @Override
     public void onNewIntent(android.content.Intent intent) {

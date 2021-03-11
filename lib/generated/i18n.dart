@@ -11,12 +11,12 @@ import 'package:flutter/material.dart';
 class S implements WidgetsLocalizations {
   const S();
 
-  static S? current;
+  static late S current;
 
   static const GeneratedLocalizationsDelegate delegate =
     GeneratedLocalizationsDelegate();
 
-  static S? of(BuildContext context) => Localizations.of<S>(context, S);
+  static S of(BuildContext context) => Localizations.of<S>(context, S) ?? current;
 
   @override
   TextDirection get textDirection => TextDirection.ltr;
@@ -152,20 +152,20 @@ class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {
   @override
   Future<S> load(Locale locale) {
     final String lang = getLang(locale);
-    if (lang != null) {
-      switch (lang) {
-        case "zh_TW":
-          S.current = const $zh_TW();
-          return SynchronousFuture<S>(S.current!);
-        case "en":
-          S.current = const $en();
-          return SynchronousFuture<S>(S.current!);
-        default:
-          // NO-OP.
-      }
+    S s;
+    switch (lang) {
+      case "zh_TW":
+        s = const $zh_TW();
+        break;
+      case "en":
+        s = const $en();
+        break;
+      default:
+        s = const S();
+        break;
     }
-    S.current = const S();
-    return SynchronousFuture<S>(S.current!);
+    S.current = s;
+    return SynchronousFuture<S>(s);
   }
 
   @override

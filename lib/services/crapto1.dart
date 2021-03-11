@@ -532,20 +532,20 @@ class KeyWorkMessage {
 }
 
 Future<List<String>> keyWork(KeyWorkMessage msg) async {  
-  var list = msg.nonces
+  List<List<Nonce>?> list = msg.nonces
     .groupBy((n) => 'Sec${n.sector} Key${n.type == 0x60 ? 'A': 'B'}')
     .select((g) {
       var ns = g.toList();
       if (ns.length < 2)
         return null;
       return ns;
-    }).where((v) => v != null)
+    }).where((List<Nonce>? v) => v != null)
     .toList();
   var s = Stopwatch();
   s.start();
   List<String> r = [];
   var fs = list
-    .map((ns) => msg.mfkey32(msg.uid, ns))
+    .map((List<Nonce>? ns) => msg.mfkey32(msg.uid, ns!))
     .toList();
   var keys = await Future.wait(fs);
   s.stop();
@@ -553,7 +553,7 @@ Future<List<String>> keyWork(KeyWorkMessage msg) async {
   for (var i = 0; i < list.length; i++) {
     if (keys[i] == null)
       continue;
-    var ns = list[i];
+    var ns = list[i]!;
     r.add('Sec${ns[0].sector} Key${ns[0].type == 0x60 ? 'A': 'B'} ${keys[i]}');
   }
   return r;
@@ -571,7 +571,7 @@ Future<String> mfKey32Java(int uid, List<Nonce> nonces) async {
       int id = call.arguments['id'];
       int? key = call.arguments['key'];
       final completer = _tasks.remove(id);
-      completer?.complete(key?.toRadixString(16)?.toUpperCase()?.padLeft(12, '0'));
+      completer?.complete(key?.toRadixString(16).toUpperCase().padLeft(12, '0'));
     });
   }
   var map = Map<String, dynamic>();
@@ -601,7 +601,7 @@ Future<String?> mfKey32Online(int uid, List<Nonce> nonces) async {
     int key = int.parse(response.body);
     if (key == -1)
       return null;
-    return key.toRadixString(16)?.toUpperCase()?.padLeft(12, '0');
+    return key.toRadixString(16).toUpperCase().padLeft(12, '0');
   } else {
     throw Exception('Failed to post');
   }
