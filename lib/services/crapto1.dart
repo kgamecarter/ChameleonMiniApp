@@ -4,7 +4,6 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
-import 'package:darq/darq.dart';
 
 
 const _platform = const MethodChannel('tw.kgame.crapto1/mfkey');
@@ -321,7 +320,7 @@ class Crapto1 extends Crypto1
 
     var odd = Uint32List(4 << 21);
     var even = Uint32List(4 << 21);
-    List<Crypto1State> statelist = [];
+    var statelist = <Crypto1State>[];
     var oddTail = 0;
     var evenTail = 0;
 
@@ -378,7 +377,7 @@ class Crapto1 extends Crypto1
     var low = 0;
     var win = 0;
     var table = Uint32List(1 << 16);
-    List<Crypto1State> statelist = [];
+    var statelist = <Crypto1State>[];
 
     for (var i = 30; i >= 0; i -= 2) {
       oks[i >> 1] = _beBit(ks2, i);
@@ -482,7 +481,7 @@ Future<String> mfKey32(int uid, Iterable<Nonce> nonces) {
   print(p640.toRadixString(16));
   var list = Crapto1.lfsrRecovery32(nonce.ar ^ p640, 0);
   print(list.length);
-  List<String> keys = [];
+  var keys = <String>[];
   var crapto1 = Crapto1(Crypto1State(0, 0));
   var crypto1 = Crypto1(Crypto1State(0, 0));
   for (var s in list) {
@@ -531,19 +530,25 @@ class KeyWorkMessage {
   KeyWorkMessage(this.mfkey32, this.uid, this.nonces);
 }
 
+extension Iterables<E> on Iterable<E> {
+  Map<K, List<E>> groupBy<K>(K Function(E) keyFunction) => fold(
+      <K, List<E>>{},
+      (Map<K, List<E>> map, E element) =>
+          map..putIfAbsent(keyFunction(element), () => <E>[]).add(element));
+}
+
 Future<List<String>> keyWork(KeyWorkMessage msg) async {  
-  List<List<Nonce>?> list = msg.nonces
+  var list = <List<Nonce>>[];
+  msg.nonces
     .groupBy((n) => 'Sec${n.sector} Key${n.type == 0x60 ? 'A': 'B'}')
-    .select((g, i) {
-      var ns = g.toList();
+    .forEach((key, ns) {
       if (ns.length < 2)
-        return null;
-      return ns;
-    }).where((List<Nonce>? v) => v != null)
-    .toList();
+        return;
+      list.add(ns);
+    });
   var s = Stopwatch();
   s.start();
-  List<String> r = [];
+  var r = <String>[];
   var fs = list
     .map((List<Nonce>? ns) => msg.mfkey32(msg.uid, ns!))
     .toList();
@@ -553,7 +558,7 @@ Future<List<String>> keyWork(KeyWorkMessage msg) async {
   for (var i = 0; i < list.length; i++) {
     if (keys[i] == null)
       continue;
-    var ns = list[i]!;
+    var ns = list[i];
     r.add('Sec${ns[0].sector} Key${ns[0].type == 0x60 ? 'A': 'B'} ${keys[i]}');
   }
   return r;

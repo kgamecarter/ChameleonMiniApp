@@ -95,9 +95,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       return;
     } 
     var port = await devices[0].create();
+
+    if (port == null) {
+      print("Failed to create");
+      return;
+    }
     
     bool openResult = await port.open();
-    if ( !openResult ) {
+    if (!openResult) {
       print("Failed to open");
       return;
     }
@@ -141,7 +146,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       }
     });
 
-    usbEventStreamSubscription = UsbSerial.usbEventStream.listen((UsbEvent msg) {
+    usbEventStreamSubscription = UsbSerial.usbEventStream?.listen((UsbEvent msg) {
       print("Usb Event $msg");
       if (msg.event == UsbEvent.ACTION_USB_DETACHED) {
         _disconnected();

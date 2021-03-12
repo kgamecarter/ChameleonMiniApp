@@ -148,7 +148,7 @@ class _SlotViewState extends State<SlotView> {
         throw new Mfkey32Exception('Data failed CRC check.');
       }
       var uid = _toUint32(data, 0);
-      List<Nonce> nonces = [];
+      var nonces = <Nonce>[];
       for (var i = 1; i <= 12; i++)
       {
         var offset = i * 16;
