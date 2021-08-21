@@ -22,8 +22,8 @@ public class MainActivity extends FlutterActivity {
    public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine);
         
-        channelMain = new MethodChannel(getFlutterView(), CHANNEL_MAIN);
-        channelMfkey = new MethodChannel(getFlutterView(), CHANNEL_MFKEY);
+        channelMain = new MethodChannel(getFlutterEngine().getDartExecutor().getBinaryMessenger(), CHANNEL_MAIN);
+        channelMfkey = new MethodChannel(getFlutterEngine().getDartExecutor().getBinaryMessenger(), CHANNEL_MFKEY);
         channelMfkey.setMethodCallHandler(
             (call, result) -> {
                 System.out.println(call.method);
@@ -75,7 +75,7 @@ public class MainActivity extends FlutterActivity {
                 result.success(id);
             }
         );
-+    }
+   }
 
     @Override
     public void onNewIntent(android.content.Intent intent) {
