@@ -342,7 +342,6 @@ class _SlotViewState extends State<SlotView> {
   }
 
   Future<void> _nfc() async {
-    String response;
     try {
       final snackBar = SnackBar(
         content: const Text('Start scan card.'),
@@ -350,23 +349,22 @@ class _SlotViewState extends State<SlotView> {
         action: SnackBarAction(
           label: 'Cancel',
           onPressed: () async {
-            await FlutterNfcReader.stop;
+            await FlutterNfcReader.stop();
           },
         ),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      response = await FlutterNfcReader.read;
-      print(response);
-      if (response != null) {
+      var response = await FlutterNfcReader.read();
+      print(response.id);
+      if (response.id != null) {
         setState(() {
-          widget.slot.uid = response.substring(2).toUpperCase(); 
+          widget.slot.uid = response.id; 
         });
       }
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       await Future.delayed(const Duration(seconds: 1));
-      await FlutterNfcReader.stop;
+      await FlutterNfcReader.stop();
     } on PlatformException {
-      response = '';
     }
   }
   
@@ -428,7 +426,7 @@ class _SlotViewState extends State<SlotView> {
               ),
               keyboardType: TextInputType.text,
               inputFormatters: <TextInputFormatter>[
-                WhitelistingTextInputFormatter(RegExp(r'^[0-9a-fA-F]{0,14}')),
+                FilteringTextInputFormatter.allow(RegExp(r'^[0-9a-fA-F]{0,14}')),
               ],
               onChanged: _uidChanged,
               onEditingComplete: _uidEditingComplete,

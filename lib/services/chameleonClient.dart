@@ -119,7 +119,7 @@ class ChameleonClient {
   }
 
   Future<Xmodem> sendCommandXmodem(String cmd) async {
-    var xmodem = Xmodem(port!.inputStream, port!.write);
+    var xmodem = Xmodem(port!.inputStream!, port!.write);
     await sendCommand(cmd);
     return xmodem;
   }
@@ -135,7 +135,7 @@ class ChameleonClient {
     var data = asciiCodec.encode('$cmd\r\n');
     var c = new Completer<Uint8List>();
     if (subcription == null)
-      subcription = port!.inputStream.listen(null);
+      subcription = port!.inputStream!.listen(null);
     subcription!.onData((bytes) {
       c.complete(bytes);
       subcription!.onData(null);

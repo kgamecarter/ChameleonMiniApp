@@ -11,12 +11,12 @@ import 'package:flutter/material.dart';
 class S implements WidgetsLocalizations {
   const S();
 
-  static late S current;
+  static S current = const $en();
 
   static const GeneratedLocalizationsDelegate delegate =
     GeneratedLocalizationsDelegate();
 
-  static S of(BuildContext context) => Localizations.of<S>(context, S) ?? current;
+  static S of(BuildContext context) => Localizations.of(context, S);
 
   @override
   TextDirection get textDirection => TextDirection.ltr;
@@ -151,21 +151,21 @@ class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {
 
   @override
   Future<S> load(Locale locale) {
-    final String lang = getLang(locale);
-    S s;
-    switch (lang) {
-      case "zh_TW":
-        s = const $zh_TW();
-        break;
-      case "en":
-        s = const $en();
-        break;
-      default:
-        s = const S();
-        break;
+    final String? lang = getLang(locale);
+    if (lang != null) {
+      switch (lang) {
+        case "zh_TW":
+          S.current = const $zh_TW();
+          return SynchronousFuture<S>(S.current);
+        case "en":
+          S.current = const $en();
+          return SynchronousFuture<S>(S.current);
+        default:
+          // NO-OP.
+      }
     }
-    S.current = s;
-    return SynchronousFuture<S>(s);
+    S.current = const S();
+    return SynchronousFuture<S>(S.current);
   }
 
   @override
@@ -196,7 +196,7 @@ class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {
   ///
   /// Returns true if the specified locale is supported, false otherwise.
   ///
-  bool _isSupported(Locale locale, bool withCountry) {
+  bool _isSupported(Locale? locale, bool withCountry) {
     if (locale != null) {
       for (Locale supportedLocale in supportedLocales) {
         // Language must always match both locales.
@@ -210,7 +210,7 @@ class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {
         }
 
         // If no country requirement is requested, check if this locale has no country.
-        if (true != withCountry && (supportedLocale.countryCode == null || supportedLocale.countryCode!.isEmpty)) {
+        if (true != withCountry && supportedLocale.countryCode?.isEmpty != false) {
           return true;
         }
       }
@@ -219,6 +219,8 @@ class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {
   }
 }
 
-String getLang(Locale l) => l.countryCode != null && l.countryCode!.isEmpty
+String? getLang(Locale? l) => l == null
+  ? null
+  : l.countryCode?.isEmpty != false
     ? l.languageCode
     : l.toString();
