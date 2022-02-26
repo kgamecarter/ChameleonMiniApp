@@ -1,0 +1,75 @@
+# main.yml
+# 自动构建 Apk
+name: Test, Build and Release apk
+
+# 工作流程触发的时机，这里是当一个版本标签推送到仓库时触发
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+  push:
+    branches:
+    - dev
+    - master
+  pull_request:
+    branches:
+    - dev
+    - master
+
+# 这个工作流程需要执行的任务
+jobs:
+  process:
+    name: all process
+    runs-on: ubuntu-latest
+    # 这个任务的步骤
+    steps:
+      # 拉取项目代码
+      - name: Checkout codebase
+        uses: actions/checkout@v2
+      # 建立 java 环境
+      - name: Setup Java JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11.x"
+      # 建立 Flutter 环境
+      - name: Flutter action
+        uses: subosito/flutter-action@v1
+        with:
+          channel: "stable"
+          flutter-version: "2.x"
+      # 下载项目依赖
+      - name: Get project dependencies
+        run: flutter pub get
+      - name: decode keystore.jks
+        run: echo $ENCODED_KEYSTORE | base64 -di > android/app/keystore.jks
+        env:
+          ENCODED_KEYSTORE: ${{ secrets.ENCODED_KEYSTORE }}
+      # 打包 APK
+      - name: Build debug
+        if: github.event_name != 'release'
+        run: flutter build apk --debug
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD}}
+      - name: Build release
+        if: github.event_name == 'release'
+        run: flutter build apk --release
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD}}
+      # 上传到 Artifacts
+      - name: Upload files to Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ChameleonMiniApp
+          path: |
+            build/app/outputs/flutter-apk/*.apk
+      # 发布到 Release
+      - name: Upload binaries to release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/app/outputs/flutter-apk/*.apk
+          token: ${{ secrets.RELEASE_TOKEN }}
