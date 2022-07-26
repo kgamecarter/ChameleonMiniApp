@@ -17,22 +17,28 @@ class Routes {
   };
 
   Routes() {
-    runApp(MaterialApp(
-      localizationsDelegates: [
-        MyLocalizationsDelegate.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
-      supportedLocales: MyLocalizationsDelegate.delegate.supportedLocales,
-      localeResolutionCallback: MyLocalizationsDelegate.delegate.resolution(fallback: Locale('en')),
-      title: 'Chameleon Mini App',
-      onGenerateTitle: (context) => S.of(context).chameleonMiniApp,
-      theme: ThemeData(
-        primarySwatch: Colors.lime,
+    runApp(
+      GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: MaterialApp(
+          localizationsDelegates: [
+            MyLocalizationsDelegate.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          supportedLocales: MyLocalizationsDelegate.delegate.supportedLocales,
+          localeResolutionCallback: MyLocalizationsDelegate.delegate
+              .resolution(fallback: Locale('en')),
+          title: 'Chameleon Mini App',
+          onGenerateTitle: (context) => S.of(context).chameleonMiniApp,
+          theme: ThemeData(
+            primarySwatch: Colors.lime,
+          ),
+          home: HomePage(),
+          routes: routes,
+          locale: settings.locale,
+        ),
       ),
-      home: HomePage(),
-      routes: routes,
-      locale: settings.locale,
-    ));
+    );
   }
 }
