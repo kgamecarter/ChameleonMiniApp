@@ -32,7 +32,8 @@ class Routes {
           title: 'Chameleon Mini App',
           onGenerateTitle: (context) => S.of(context).chameleonMiniApp,
           theme: ThemeData(
-            primarySwatch: Colors.lime,
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.lime),
+            useMaterial3: true,
           ),
           home: HomePage(),
           routes: routes,

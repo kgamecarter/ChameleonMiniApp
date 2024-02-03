@@ -15,8 +15,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-
-  GlobalKey<ScaffoldMessengerState> scaffoldState = GlobalKey<ScaffoldMessengerState>();
+  GlobalKey<ScaffoldMessengerState> scaffoldState =
+      GlobalKey<ScaffoldMessengerState>();
 
   final Settings settings = Settings();
 
@@ -32,16 +32,15 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   String _localToString(Locale? locale) {
-    if (locale?.languageCode == 'en')
-      return S.of(context).english;
+    if (locale?.languageCode == 'en') return S.of(context).english;
     if (locale?.languageCode == 'zh') {
-      if (locale?.scriptCode == 'Hant')
-        return S.of(context).traditionalChinese;
+      if (locale?.scriptCode == 'Hant') return S.of(context).traditionalChinese;
     }
     return S.of(context).systemDefault;
   }
 
-  String _crapto1ImplementationToString(Crapto1Implementation crapto1implementation) {
+  String _crapto1ImplementationToString(
+      Crapto1Implementation crapto1implementation) {
     switch (crapto1implementation) {
       case Crapto1Implementation.Dart:
         return 'Dart with Single-Thread';
@@ -54,10 +53,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _pushLanguagePage() {
     Navigator.of(context).pushNamed(LanguagePage.name).then((value) {
-      if (value == null)
-        return;
-      if (value == 'default')
-        value = null;
+      if (value == null) return;
+      if (value == 'default') value = null;
       MyLocalizationsDelegate.delegate.load(value as Locale).then((trans) {
         scaffoldState.currentState?.showSnackBar(SnackBar(
           content: Text(trans.effectiveAfterRestartingTheApp),
@@ -77,24 +74,30 @@ class _SettingsPageState extends State<SettingsPage> {
         title: Text('Select implementation'),
         children: <Widget>[
           RadioListTile(
-            selected: settings.crapto1Implementation == Crapto1Implementation.Dart,
+            selected:
+                settings.crapto1Implementation == Crapto1Implementation.Dart,
             groupValue: settings.crapto1Implementation,
             value: Crapto1Implementation.Dart,
-            title: Text(_crapto1ImplementationToString(Crapto1Implementation.Dart)),
+            title: Text(
+                _crapto1ImplementationToString(Crapto1Implementation.Dart)),
             onChanged: _selectCrapto1Implementation,
           ),
           RadioListTile(
-            selected: settings.crapto1Implementation == Crapto1Implementation.Java,
+            selected:
+                settings.crapto1Implementation == Crapto1Implementation.Java,
             groupValue: settings.crapto1Implementation,
             value: Crapto1Implementation.Java,
-            title: Text(_crapto1ImplementationToString(Crapto1Implementation.Java)),
+            title: Text(
+                _crapto1ImplementationToString(Crapto1Implementation.Java)),
             onChanged: _selectCrapto1Implementation,
           ),
           RadioListTile(
-            selected: settings.crapto1Implementation == Crapto1Implementation.Online,
+            selected:
+                settings.crapto1Implementation == Crapto1Implementation.Online,
             groupValue: settings.crapto1Implementation,
             value: Crapto1Implementation.Online,
-            title: Text(_crapto1ImplementationToString(Crapto1Implementation.Online)),
+            title: Text(
+                _crapto1ImplementationToString(Crapto1Implementation.Online)),
             onChanged: _selectCrapto1Implementation,
           ),
         ],
@@ -113,9 +116,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget bodyData() {
     return SingleChildScrollView(
       child: Theme(
-        data: ThemeData(
-          fontFamily: 'Raleway'
-        ),
+        data: ThemeData(fontFamily: 'Raleway'),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -125,18 +126,15 @@ class _SettingsPageState extends State<SettingsPage> {
               padding: const EdgeInsets.all(16.0),
               child: Text(
                 S.of(context).generalSetting,
-                style: TextStyle(color: Colors.grey.shade700),
               ),
             ),
             Card(
-              color: Colors.white,
               elevation: 2.0,
               child: Column(
                 children: <Widget>[
                   ListTile(
                     leading: const Icon(
                       Icons.language,
-                      color: Colors.grey,
                     ),
                     title: Text(S.of(context).language),
                     subtitle: Text(_localToString(settings.locale)),
@@ -146,10 +144,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   ListTile(
                     leading: const Icon(
                       Icons.functions,
-                      color: Colors.grey,
                     ),
                     title: Text('Crapto1 & mfkey32 implementation'),
-                    subtitle: Text(_crapto1ImplementationToString(settings.crapto1Implementation!)),
+                    subtitle: Text(_crapto1ImplementationToString(
+                        settings.crapto1Implementation!)),
                     trailing: const Icon(Icons.arrow_right),
                     onTap: _showCrapto1ImplementationDialog,
                   ),

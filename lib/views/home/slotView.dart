@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
@@ -10,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_nfc_reader/flutter_nfc_reader.dart';
+import 'package:nfc_manager/nfc_manager.dart';
 
 import '../../services/settings.dart';
 import '../../services/chameleonClient.dart';
@@ -18,7 +17,9 @@ import '../../services/crapto1.dart';
 import '../../generated/i18n.dart';
 
 class SlotView extends StatefulWidget {
-  SlotView(this.slot, this.client, {Key? key, this.modes, this.buttonModes, this.longPressButtonModes}) : super(key: key);
+  SlotView(this.slot, this.client,
+      {Key? key, this.modes, this.buttonModes, this.longPressButtonModes})
+      : super(key: key);
 
   final Slot slot;
   final ChameleonClient client;
@@ -36,9 +37,12 @@ class _SlotViewState extends State<SlotView> {
     uidFocusNode.unfocus();
     print(widget.slot.uid);
   }
+
   void _modeChanged(String? str) => setState(() => widget.slot.mode = str);
-  void _buttonModeChanged(String? str) => setState(() => widget.slot.button = str);
-  void _longPressButtonModeChanged(String? str) => setState(() => widget.slot.longPressButton = str);
+  void _buttonModeChanged(String? str) =>
+      setState(() => widget.slot.button = str);
+  void _longPressButtonModeChanged(String? str) =>
+      setState(() => widget.slot.longPressButton = str);
 
   Future<void> _refresh() async {
     var s = await widget.client.refresh(widget.slot.index);
@@ -51,14 +55,13 @@ class _SlotViewState extends State<SlotView> {
       slot.memorySize = s.memorySize;
     });
   }
-  
+
   Future<void> _apply() async {
     var client = widget.client;
     var slot = widget.slot;
     await client.active(slot.index);
     var selectedSlot = await client.getActive();
-    if (selectedSlot != slot.index)
-      return;
+    if (selectedSlot != slot.index) return;
     await client.setMode(slot.mode!);
     await client.setButton(slot.button!);
     if (widget.longPressButtonModes != null)
@@ -80,11 +83,10 @@ class _SlotViewState extends State<SlotView> {
   Future<void> _upload() async {
     var client = widget.client;
     var slot = widget.slot;
-    
+
     if (await Permission.storage.request().isGranted) {
       var fileResult = await FilePicker.platform.pickFiles(type: FileType.any);
-      if (fileResult == null || fileResult.count == 0)
-        return;
+      if (fileResult == null || fileResult.count == 0) return;
       var filePath = fileResult.files.single.path!;
       var file = File(filePath);
       Uint8List data;
@@ -92,42 +94,42 @@ class _SlotViewState extends State<SlotView> {
         data = Uint8List.fromList(await file.readAsBytes());
       } else {
         var str = (await file.readAsLines())
-          .where((str) => str.length == 32)
-          .map((str) => str.replaceAll('-', 'F'))
-          .join();
+            .where((str) => str.length == 32)
+            .map((str) => str.replaceAll('-', 'F'))
+            .join();
         data = stringToBytes(str);
       }
       await client.active(slot.index);
       await client.upload(data);
       await _refresh();
-      final snackBar = const SnackBar(content: const Text('Upload dump file success.'));
+      final snackBar =
+          const SnackBar(content: const Text('Upload dump file success.'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 
   Future<void> _mfkey32() async {
     showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => WillPopScope(
-        onWillPop: () async => false,
-        child: Dialog(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircularProgressIndicator(),
-                Container(
-                  padding: const EdgeInsets.only(left: 16),
-                  child: Text(S.of(context).attacking),
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => WillPopScope(
+              onWillPop: () async => false,
+              child: Dialog(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CircularProgressIndicator(),
+                      Container(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: Text(S.of(context).attacking),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ),
-        ),
-      )
-    );
+              ),
+            ));
     List<String>? list;
     String? errorMessage;
     try {
@@ -149,18 +151,16 @@ class _SlotViewState extends State<SlotView> {
       }
       var uid = _toUint32(data, 0);
       var nonces = <Nonce>[];
-      for (var i = 1; i <= 12; i++)
-      {
+      for (var i = 1; i <= 12; i++) {
         var offset = i * 16;
         var nonce = Nonce()
           ..type = data[offset]
-          ..block = data[offset + 1]                 
+          ..block = data[offset + 1]
           ..nt = _toUint32(data, offset + 4)
           ..nr = _toUint32(data, offset + 8)
           ..ar = _toUint32(data, offset + 12);
         nonce.sector = _toSector(nonce.block);
-        if (nonce.type != 0xFF)
-          nonces.add(nonce);
+        if (nonce.type != 0xFF) nonces.add(nonce);
       }
       if (nonces.length == 0) {
         throw new Mfkey32Exception('No nonces record.');
@@ -198,7 +198,7 @@ class _SlotViewState extends State<SlotView> {
             title: const Text("mfkey32 result"),
             content: Text(errorMessage!),
             actions: <Widget>[
-              FlatButton(
+              MaterialButton(
                 child: const Text("Close"),
                 onPressed: () {
                   Navigator.pop(context);
@@ -225,7 +225,10 @@ class _SlotViewState extends State<SlotView> {
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: result));
                   Navigator.pop(context);
-                  final snackBar = const SnackBar(content: const Text('Copied to clipboard.'), duration: Duration(seconds: 3),);
+                  final snackBar = const SnackBar(
+                    content: const Text('Copied to clipboard.'),
+                    duration: Duration(seconds: 3),
+                  );
                   ScaffoldMessenger.of(thisContext).showSnackBar(snackBar);
                 },
               ),
@@ -238,22 +241,18 @@ class _SlotViewState extends State<SlotView> {
 
   int _toUint32(Uint8List data, int offset) {
     var v = 0;
-    for (var i = 0; i < 4; i++)
-      v = v << 8 | data[offset + i];
+    for (var i = 0; i < 4; i++) v = v << 8 | data[offset + i];
     return v;
   }
 
   int _toUint64(Uint8List data, int offset) {
     var v = 0;
-    for (var i = 0; i < 8; i++)
-      v = v << 8 | data[offset + i];
+    for (var i = 0; i < 8; i++) v = v << 8 | data[offset + i];
     return v;
   }
 
-  int _toSector(int block)
-  {
-    if (block < 128)
-      return  block ~/ 4;
+  int _toSector(int block) {
+    if (block < 128) return block ~/ 4;
     return 32 + (block - 128) ~/ 16;
   }
 
@@ -289,27 +288,26 @@ class _SlotViewState extends State<SlotView> {
 
   Future<void> _download() async {
     showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => WillPopScope(
-        onWillPop: () async => false,
-        child: Dialog(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircularProgressIndicator(),
-                Container(
-                  padding: const EdgeInsets.only(left: 16),
-                  child: Text(S.of(context).downloading),
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => WillPopScope(
+              onWillPop: () async => false,
+              child: Dialog(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CircularProgressIndicator(),
+                      Container(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: Text(S.of(context).downloading),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ),
-        ),
-      )
-    );
+              ),
+            ));
     try {
       var client = widget.client;
       var slot = widget.slot;
@@ -326,14 +324,15 @@ class _SlotViewState extends State<SlotView> {
         }
         log(externalPath);
         var d = Directory('$externalPath/MifareClassicTool/dump-files');
-        if (!await d.exists())
-          await d.create(recursive: true);
-              
+        if (!await d.exists()) await d.create(recursive: true);
+
         var now = DateTime.now();
         var formatter = DateFormat('yyyy-MM-dd_HH-mm-ss');
-        var f = File('$externalPath/MifareClassicTool/dump-files/UID_${uid}_${formatter.format(now)}');
+        var f = File(
+            '$externalPath/MifareClassicTool/dump-files/UID_${uid}_${formatter.format(now)}');
         await f.writeAsString(mctFormat);
-        final snackBar = const SnackBar(content: const Text('Saved to MCT folder.'));
+        final snackBar =
+            const SnackBar(content: const Text('Saved to MCT folder.'));
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
     } finally {
@@ -349,25 +348,36 @@ class _SlotViewState extends State<SlotView> {
         action: SnackBarAction(
           label: 'Cancel',
           onPressed: () async {
-            await FlutterNfcReader.stop();
+            await NfcManager.instance.stopSession();
           },
         ),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      var response = await FlutterNfcReader.read();
-      print(response.id);
-      if (response.id != null) {
-        setState(() {
-          widget.slot.uid = response.id; 
-        });
-      }
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      await Future.delayed(const Duration(seconds: 1));
-      await FlutterNfcReader.stop();
-    } on PlatformException {
-    }
+      NfcManager.instance.startSession(
+        onDiscovered: (NfcTag tag) async {
+          print(tag.handle);
+          for (var key in tag.data.keys) {
+            print('$key: ${tag.data[key]}');
+          }
+          var nfca = tag.data['nfca'];
+          if (nfca?['identifier'] != null) {
+            print(nfca['identifier'].runtimeType);
+            var str = (nfca['identifier'] as List<int>)
+                .map((e) => e.toRadixString(16).toUpperCase().padLeft(2, '0'))
+                .join();
+            print(str);
+            setState(() {
+              widget.slot.uid = str;
+            });
+          }
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          await Future.delayed(const Duration(seconds: 1));
+          await NfcManager.instance.stopSession();
+        },
+      );
+    } on PlatformException {}
   }
-  
+
   Future<void> _clear() async {
     var client = widget.client;
     var slot = widget.slot;
@@ -405,7 +415,10 @@ class _SlotViewState extends State<SlotView> {
                       disabledHint: Text(S.of(context).notAvailable),
                       value: widget.slot.mode,
                       isDense: true,
-                      items: widget.modes?.map((str) => DropdownMenuItem(value: str, child: Text(str)))?.toList(),
+                      items: widget.modes
+                          ?.map((str) =>
+                              DropdownMenuItem(value: str, child: Text(str)))
+                          .toList(),
                       onChanged: _modeChanged,
                     ),
                   ),
@@ -417,16 +430,16 @@ class _SlotViewState extends State<SlotView> {
               focusNode: uidFocusNode,
               controller: TextEditingController(text: widget.slot.uid),
               decoration: InputDecoration(
-                icon: const Icon(Icons.fingerprint),
-                labelText: S.of(context).uid,
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.nfc),
-                  onPressed: _nfc,
-                )
-              ),
+                  icon: const Icon(Icons.fingerprint),
+                  labelText: S.of(context).uid,
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.nfc),
+                    onPressed: _nfc,
+                  )),
               keyboardType: TextInputType.text,
               inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.allow(RegExp(r'^[0-9a-fA-F]{0,14}')),
+                FilteringTextInputFormatter.allow(
+                    RegExp(r'^[0-9a-fA-F]{0,14}')),
               ],
               onChanged: _uidChanged,
               onEditingComplete: _uidEditingComplete,
@@ -443,7 +456,10 @@ class _SlotViewState extends State<SlotView> {
                       disabledHint: Text(S.of(context).notAvailable),
                       value: widget.slot.button,
                       isDense: true,
-                      items: widget.buttonModes?.map((str) => DropdownMenuItem(value: str, child: Text(str)))?.toList(),
+                      items: widget.buttonModes
+                          ?.map((str) =>
+                              DropdownMenuItem(value: str, child: Text(str)))
+                          .toList(),
                       onChanged: _buttonModeChanged,
                     ),
                   ),
@@ -462,7 +478,10 @@ class _SlotViewState extends State<SlotView> {
                       disabledHint: Text(S.of(context).notAvailable),
                       value: widget.slot.longPressButton,
                       isDense: true,
-                      items: widget.longPressButtonModes?.map((str) => DropdownMenuItem(value: str, child: Text(str)))?.toList(),
+                      items: widget.longPressButtonModes
+                          ?.map((str) =>
+                              DropdownMenuItem(value: str, child: Text(str)))
+                          .toList(),
                       onChanged: _longPressButtonModeChanged,
                     ),
                   ),
@@ -471,90 +490,76 @@ class _SlotViewState extends State<SlotView> {
             ),
             TextField(
               enabled: false,
-              controller: TextEditingController(text: widget.slot.memorySize?.toString()),
+              controller: TextEditingController(
+                  text: widget.slot.memorySize?.toString()),
               decoration: InputDecoration(
                 icon: const Icon(Icons.memory),
                 labelText: S.of(context).memorySize,
               ),
             ),
             Container(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    padding: const EdgeInsets.only(right: 20.0),
-                    child: FlatButton(
-                      color: Colors.lime,
-                      disabledColor: Colors.grey,
-                      child: Text(S.of(context).refresh),
-                      onPressed: widget.client.connected ? _refresh : null,
+                padding: const EdgeInsets.only(top: 20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      padding: const EdgeInsets.only(right: 20.0),
+                      child: FilledButton(
+                        child: Text(S.of(context).refresh),
+                        onPressed: widget.client.connected ? _refresh : null,
+                      ),
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 20.0),
-                    child: FlatButton(
-                      color: Colors.lime,
-                      disabledColor: Colors.grey,
-                      child: Text(S.of(context).apply),
-                      onPressed: widget.client.connected ? _apply : null,
+                    Container(
+                      padding: const EdgeInsets.only(left: 20.0),
+                      child: FilledButton(
+                        child: Text(S.of(context).apply),
+                        onPressed: widget.client.connected ? _apply : null,
+                      ),
                     ),
-                  ),
-                ],
-              )
-            ),
+                  ],
+                )),
             Container(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    padding: const EdgeInsets.only(right: 20.0),
-                    child: FlatButton(
-                      color: Colors.lime,
-                      disabledColor: Colors.grey,
-                      child: Text(S.of(context).upload),
-                      onPressed: widget.client.connected ? _upload : null,
+                padding: const EdgeInsets.only(top: 20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      padding: const EdgeInsets.only(right: 20.0),
+                      child: FilledButton(
+                        child: Text(S.of(context).upload),
+                        onPressed: widget.client.connected ? _upload : null,
+                      ),
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 20.0),
-                    child: FlatButton(
-                      color: Colors.lime,
-                      disabledColor: Colors.grey,
-                      child: Text(S.of(context).download),
-                      onPressed: widget.client.connected ? _download : null,
+                    Container(
+                      padding: const EdgeInsets.only(left: 20.0),
+                      child: FilledButton(
+                        child: Text(S.of(context).download),
+                        onPressed: widget.client.connected ? _download : null,
+                      ),
                     ),
-                  ),
-                ],
-              )
-            ),
+                  ],
+                )),
             Container(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    padding: const EdgeInsets.only(right: 20.0),
-                    child: FlatButton(
-                      color: Colors.lime,
-                      disabledColor: Colors.grey,
-                      child: Text(S.of(context).clear),
-                      onPressed: widget.client.connected ? _clear : null,
+                padding: const EdgeInsets.only(top: 20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      padding: const EdgeInsets.only(right: 20.0),
+                      child: FilledButton(
+                        child: Text(S.of(context).clear),
+                        onPressed: widget.client.connected ? _clear : null,
+                      ),
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 20.0),
-                    child: FlatButton(
-                      color: Colors.lime,
-                      disabledColor: Colors.grey,
-                      child: Text(S.of(context).mfkey32),
-                      onPressed: widget.client.connected ? _mfkey32 : null,
+                    Container(
+                      padding: const EdgeInsets.only(left: 20.0),
+                      child: FilledButton(
+                        child: Text(S.of(context).mfkey32),
+                        onPressed: widget.client.connected ? _mfkey32 : null,
+                      ),
                     ),
-                  ),
-                ],
-              )
-            ),
+                  ],
+                )),
           ],
         ),
       ),

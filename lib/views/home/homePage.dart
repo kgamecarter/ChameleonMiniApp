@@ -16,10 +16,11 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
-
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   TabController? _tabController;
-  GlobalKey<ScaffoldMessengerState> scaffoldState = GlobalKey<ScaffoldMessengerState>();
+  GlobalKey<ScaffoldMessengerState> scaffoldState =
+      GlobalKey<ScaffoldMessengerState>();
   final channel = const MethodChannel('tw.kgame.crapto1/main');
 
   final ChameleonClient client = ChameleonClient();
@@ -70,12 +71,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     ));
   }
 
-   Future<void> _connect() async {
+  Future<void> _connect() async {
     if (client.connected) {
       var rssi = await client.getRssi();
       var result = await showDialog(
         context: context,
-        builder: (_) => DeviceInfoDialog(version!, rssi,),
+        builder: (_) => DeviceInfoDialog(
+          version!,
+          rssi,
+        ),
       );
       if (result == 'disconnect') {
         await _disconnected();
@@ -93,25 +97,25 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         duration: Duration(seconds: 3),
       ));
       return;
-    } 
+    }
     var port = await devices[0].create();
 
     if (port == null) {
       print("Failed to create");
       return;
     }
-    
+
     bool openResult = await port.open();
     if (!openResult) {
       print("Failed to open");
       return;
     }
-    
+
     await port.setDTR(true);
     await port.setRTS(true);
 
-    port.setPortParameters(115200, UsbPort.DATABITS_8,
-      UsbPort.STOPBITS_1, UsbPort.PARITY_NONE);
+    port.setPortParameters(
+        115200, UsbPort.DATABITS_8, UsbPort.STOPBITS_1, UsbPort.PARITY_NONE);
 
     client.port = port;
     await client.checkCommand();
@@ -121,7 +125,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     buttonModes = await client.getButtonModes();
     try {
       longPressButtonModes = await client.getLongPressButtonModes();
-    } catch (e) { }
+    } catch (e) {}
     slots = await client.refreshAll();
     setState(() => client.connected);
   }
@@ -138,15 +142,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     channel.setMethodCallHandler((call) async {
       switch (call.method) {
         case 'onNewIntent':
-          if (call.arguments == 'android.hardware.usb.action.USB_DEVICE_ATTACHED')
-            _connect();
+          if (call.arguments ==
+              'android.hardware.usb.action.USB_DEVICE_ATTACHED') _connect();
           break;
         default:
           break;
       }
     });
 
-    usbEventStreamSubscription = UsbSerial.usbEventStream?.listen((UsbEvent msg) {
+    usbEventStreamSubscription =
+        UsbSerial.usbEventStream?.listen((UsbEvent msg) {
       print("Usb Event $msg");
       if (msg.event == UsbEvent.ACTION_USB_DETACHED) {
         _disconnected();
@@ -180,7 +185,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.usb, color: client.connected ? Colors.blue : Colors.black,),
+            icon: Icon(
+              Icons.usb,
+              color: client.connected ? Colors.blue : null,
+            ),
             onPressed: _connect,
           ),
           IconButton(

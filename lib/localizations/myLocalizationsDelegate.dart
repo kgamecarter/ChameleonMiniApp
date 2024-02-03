@@ -59,20 +59,18 @@ class MyLocalizationsDelegate extends LocalizationsDelegate<S> {
   @override
   Future<S> load(Locale locale) {
     final String lang = locale.toString();
-    if (lang != null) {
-      switch (lang) {
-        case "zh_Hant_TW":
-        case "zh_TW":
-        case "zh_Hant":
-        case "zh":
-          return SynchronousFuture<S>(const $zh_TW());
-        case "en":
-          return SynchronousFuture<S>(const $en());
-        default:
-          // NO-OP.
-      }
+    switch (lang) {
+      case "zh_Hant_TW":
+      case "zh_TW":
+      case "zh_Hant":
+      case "zh":
+        return SynchronousFuture<S>(const $zh_TW());
+      case "en":
+        return SynchronousFuture<S>(const $en());
+      default:
+        // NO-OP.
     }
-    return SynchronousFuture<S>(const S());
+      return SynchronousFuture<S>(const S());
   }
 
   @override
