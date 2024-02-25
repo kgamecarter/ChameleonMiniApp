@@ -19,8 +19,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
-  GlobalKey<ScaffoldMessengerState> scaffoldState =
-      GlobalKey<ScaffoldMessengerState>();
   final channel = const MethodChannel('tw.kgame.crapto1/main');
 
   final ChameleonClient client = ChameleonClient();
@@ -65,7 +63,7 @@ class _HomePageState extends State<HomePage>
         slot.longPressButton = null;
       }
     });
-    scaffoldState.currentState?.showSnackBar(SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(S.of(context).usbDisconnected),
       duration: Duration(seconds: 10),
     ));
@@ -92,7 +90,7 @@ class _HomePageState extends State<HomePage>
     print(devices);
 
     if (devices.length == 0) {
-      scaffoldState.currentState?.showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(S.of(context).usbDeviceNotFound),
         duration: Duration(seconds: 3),
       ));
@@ -170,7 +168,6 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: scaffoldState,
       appBar: AppBar(
         title: Text(S.of(context).chameleonMiniApp),
         bottom: TabBar(

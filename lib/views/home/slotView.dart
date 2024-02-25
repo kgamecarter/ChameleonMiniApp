@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:chameleon_mini_app/services/ffiService.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -110,26 +111,27 @@ class _SlotViewState extends State<SlotView> {
 
   Future<void> _mfkey32() async {
     showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => WillPopScope(
-              onWillPop: () async => false,
-              child: Dialog(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const CircularProgressIndicator(),
-                      Container(
-                        padding: const EdgeInsets.only(left: 16),
-                        child: Text(S.of(context).attacking),
-                      ),
-                    ],
-                  ),
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => PopScope(
+        canPop: false,
+        child: Dialog(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(),
+                Container(
+                  padding: const EdgeInsets.only(left: 16),
+                  child: Text(S.of(context).attacking),
                 ),
-              ),
-            ));
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
     List<String>? list;
     String? errorMessage;
     try {
@@ -177,6 +179,12 @@ class _SlotViewState extends State<SlotView> {
           break;
         case Crapto1Implementation.Online:
           list = await keyWork(KeyWorkMessage(mfKey32Online, uid, nonces));
+          break;
+        case Crapto1Implementation.Native:
+          list = await compute(
+            keyWork,
+            KeyWorkMessage(mfKey32Native, uid, nonces),
+          );
           break;
         default:
           break;
@@ -288,26 +296,27 @@ class _SlotViewState extends State<SlotView> {
 
   Future<void> _download() async {
     showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => WillPopScope(
-              onWillPop: () async => false,
-              child: Dialog(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const CircularProgressIndicator(),
-                      Container(
-                        padding: const EdgeInsets.only(left: 16),
-                        child: Text(S.of(context).downloading),
-                      ),
-                    ],
-                  ),
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => PopScope(
+        canPop: false,
+        child: Dialog(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(),
+                Container(
+                  padding: const EdgeInsets.only(left: 16),
+                  child: Text(S.of(context).downloading),
                 ),
-              ),
-            ));
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
     try {
       var client = widget.client;
       var slot = widget.slot;

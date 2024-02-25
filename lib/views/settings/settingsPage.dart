@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../services/settings.dart';
@@ -15,15 +17,11 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  GlobalKey<ScaffoldMessengerState> scaffoldState =
-      GlobalKey<ScaffoldMessengerState>();
-
   final Settings settings = Settings();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: scaffoldState,
       appBar: AppBar(
         title: Text(S.of(context).settings),
       ),
@@ -48,22 +46,23 @@ class _SettingsPageState extends State<SettingsPage> {
         return 'Java with Multi-Thread';
       case Crapto1Implementation.Online:
         return 'Online (Server maybe offline)';
+      case Crapto1Implementation.Native:
+        return '.NET8 NativeAOT (ARM64 only)';
     }
   }
 
-  void _pushLanguagePage() {
-    Navigator.of(context).pushNamed(LanguagePage.name).then((value) {
-      if (value == null) return;
-      if (value == 'default') value = null;
-      MyLocalizationsDelegate.delegate.load(value as Locale).then((trans) {
-        scaffoldState.currentState?.showSnackBar(SnackBar(
-          content: Text(trans.effectiveAfterRestartingTheApp),
-        ));
-      });
-      setState(() {
-        settings.locale = value as Locale;
-        settings.save();
-      });
+  void _pushLanguagePage() async {
+    var value = await Navigator.of(context).pushNamed(LanguagePage.name);
+    print(value);
+    if (value == null) return;
+    var trans = await MyLocalizationsDelegate.delegate
+        .load(value == 'default' ? null : value as Locale);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(trans.effectiveAfterRestartingTheApp),
+    ));
+    setState(() {
+      settings.locale = value == 'default' ? null : value as Locale;
+      settings.save();
     });
   }
 
@@ -93,13 +92,24 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           RadioListTile(
             selected:
-                settings.crapto1Implementation == Crapto1Implementation.Online,
+                settings.crapto1Implementation == Crapto1Implementation.Native,
             groupValue: settings.crapto1Implementation,
-            value: Crapto1Implementation.Online,
+            value: Crapto1Implementation.Native,
             title: Text(
-                _crapto1ImplementationToString(Crapto1Implementation.Online)),
-            onChanged: _selectCrapto1Implementation,
+                _crapto1ImplementationToString(Crapto1Implementation.Native)),
+            onChanged: Platform.version.contains('arm64')
+                ? _selectCrapto1Implementation
+                : null,
           ),
+          // RadioListTile(
+          //   selected:
+          //       settings.crapto1Implementation == Crapto1Implementation.Online,
+          //   groupValue: settings.crapto1Implementation,
+          //   value: Crapto1Implementation.Online,
+          //   title: Text(
+          //       _crapto1ImplementationToString(Crapto1Implementation.Online)),
+          //   onChanged: _selectCrapto1Implementation,
+          // ),
         ],
       ),
     );

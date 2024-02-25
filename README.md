@@ -7,7 +7,7 @@ A Android GUI for the ChameleonMini device.
 ## Requirement
 
 * ChameleonMini RevE
-* Android 4.1 or later
+* Android 4.4 or later
 * USB OTG cable
 
 ## ChameleonMini Compatible Firmware
