@@ -3,9 +3,9 @@ package tw.kgame.crapto1;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import java8.util.Spliterator;
-import java8.util.Spliterators;
-import java8.util.stream.*;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.*;
 
 public class MfKey {
     static long swapEndian(long x) {
