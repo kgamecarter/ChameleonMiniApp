@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:developer';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:chameleon_mini_app/services/ffiService.dart';
@@ -7,9 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 
 import '../../services/settings.dart';
@@ -85,28 +83,29 @@ class _SlotViewState extends State<SlotView> {
     var client = widget.client;
     var slot = widget.slot;
 
-    if (await Permission.storage.request().isGranted) {
-      var fileResult = await FilePicker.platform.pickFiles(type: FileType.any);
-      if (fileResult == null || fileResult.count == 0) return;
-      var filePath = fileResult.files.single.path!;
-      var file = File(filePath);
-      Uint8List data;
-      if (filePath.endsWith('.bin')) {
-        data = Uint8List.fromList(await file.readAsBytes());
-      } else {
-        var str = (await file.readAsLines())
-            .where((str) => str.length == 32)
-            .map((str) => str.replaceAll('-', 'F'))
-            .join();
-        data = stringToBytes(str);
-      }
-      await client.active(slot.index);
-      await client.upload(data);
-      await _refresh();
-      final snackBar =
-          const SnackBar(content: const Text('Upload dump file success.'));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    final params = OpenFileDialogParams(
+      dialogType: OpenFileDialogType.document,
+    );
+    final filePath = await FlutterFileDialog.pickFile(params: params);
+    print(filePath);
+    if (filePath == null) return;
+    var file = File(filePath);
+    Uint8List data;
+    if (filePath.endsWith('.bin')) {
+      data = Uint8List.fromList(await file.readAsBytes());
+    } else {
+      var str = (await file.readAsLines())
+          .where((str) => str.length == 32)
+          .map((str) => str.replaceAll('-', 'F'))
+          .join();
+      data = stringToBytes(str);
     }
+    await client.active(slot.index);
+    await client.upload(data);
+    await _refresh();
+    final snackBar =
+        const SnackBar(content: const Text('Upload dump file success.'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Future<void> _mfkey32() async {
@@ -175,10 +174,8 @@ class _SlotViewState extends State<SlotView> {
           );
           break;
         case Crapto1Implementation.Java:
-          list = await keyWork(KeyWorkMessage(mfKey32Java, uid, nonces));
-          break;
         case Crapto1Implementation.Online:
-          list = await keyWork(KeyWorkMessage(mfKey32Online, uid, nonces));
+          list = await keyWork(KeyWorkMessage(mfKey32Java, uid, nonces));
           break;
         case Crapto1Implementation.Native:
           list = await compute(
@@ -325,25 +322,19 @@ class _SlotViewState extends State<SlotView> {
       var result = await client.download();
       var data = result!.take(slot.memorySize!).toList();
       var mctFormat = toMct(data);
-      if (await Permission.storage.request().isGranted) {
-        var externalPath = (await getExternalStorageDirectory())!.path;
-        var index = externalPath.indexOf('Android/data/tw');
-        if (index >= 0) {
-          externalPath = externalPath.substring(0, index);
-        }
-        log(externalPath);
-        var d = Directory('$externalPath/MifareClassicTool/dump-files');
-        if (!await d.exists()) await d.create(recursive: true);
 
-        var now = DateTime.now();
-        var formatter = DateFormat('yyyy-MM-dd_HH-mm-ss');
-        var f = File(
-            '$externalPath/MifareClassicTool/dump-files/UID_${uid}_${formatter.format(now)}');
-        await f.writeAsString(mctFormat);
-        final snackBar =
-            const SnackBar(content: const Text('Saved to MCT folder.'));
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      }
+      var now = DateTime.now();
+      var formatter = DateFormat('yyyy-MM-dd_HH-mm-ss');
+      var fileName = 'UID_${uid}_${formatter.format(now)}.mct';
+      final params = SaveFileDialogParams(
+        fileName: fileName,
+        data: Uint8List.fromList(utf8.encode(mctFormat)),
+      );
+      final filePath = await FlutterFileDialog.saveFile(params: params);
+      print(filePath);
+      if (filePath == null) return;
+      final snackBar = const SnackBar(content: const Text('Saved'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     } finally {
       Navigator.pop(context);
     }
