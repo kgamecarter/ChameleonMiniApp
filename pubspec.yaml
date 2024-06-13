@@ -7,7 +7,7 @@ description: ChameleonMini RevE Android Client.
 # Both the version and the builder number may be overridden in flutter
 # build by specifying --build-name and --build-number, respectively.
 # Read more about versioning at semver.org.
-version: 0.4.1+31
+version: 0.4.2+32
 
 environment:
   sdk: ^3.3.0
@@ -20,11 +20,11 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.6
+  cupertino_icons: ^1.0.8
   usb_serial: ^0.5.1
-  shared_preferences: ^2.2.2
+  shared_preferences: ^2.2.3
   flutter_file_dialog: ^3.0.2
-  nfc_manager: ^3.3.0
+  nfc_manager: ^3.5.0
 
 dev_dependencies:
   flutter_test:
