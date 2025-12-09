@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:chameleon_mini_app/l10n/app_localizations.dart';
 
-import 'generated/i18n.dart';
-import 'localizations/myLocalizationsDelegate.dart';
 import 'services/settings.dart';
 import 'views/home/homePage.dart';
 import 'views/settings/settingsPage.dart';
@@ -21,16 +19,11 @@ class Routes {
       GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: MaterialApp(
-          localizationsDelegates: [
-            MyLocalizationsDelegate.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
-          supportedLocales: MyLocalizationsDelegate.delegate.supportedLocales,
-          localeResolutionCallback: MyLocalizationsDelegate.delegate
-              .resolution(fallback: Locale('en')),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           title: 'Chameleon Mini App',
-          onGenerateTitle: (context) => S.of(context).chameleonMiniApp,
+          onGenerateTitle: (context) =>
+              AppLocalizations.of(context)!.chameleonMiniApp,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.lime),
             useMaterial3: true,

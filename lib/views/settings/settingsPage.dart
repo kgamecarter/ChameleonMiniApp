@@ -1,10 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:chameleon_mini_app/l10n/app_localizations.dart';
 
 import '../../services/settings.dart';
-import '../../generated/i18n.dart';
-import '../../localizations/myLocalizationsDelegate.dart';
 import 'languagePage.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -23,18 +22,20 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.of(context).settings),
+        title: Text(AppLocalizations.of(context)!.settings),
       ),
       body: bodyData(),
     );
   }
 
   String _localToString(Locale? locale) {
-    if (locale?.languageCode == 'en') return S.of(context).english;
+    if (locale?.languageCode == 'en')
+      return AppLocalizations.of(context)!.english;
     if (locale?.languageCode == 'zh') {
-      if (locale?.scriptCode == 'Hant') return S.of(context).traditionalChinese;
+      if (locale?.scriptCode == 'Hant')
+        return AppLocalizations.of(context)!.traditionalChinese;
     }
-    return S.of(context).systemDefault;
+    return AppLocalizations.of(context)!.systemDefault;
   }
 
   String _crapto1ImplementationToString(
@@ -55,8 +56,14 @@ class _SettingsPageState extends State<SettingsPage> {
     var value = await Navigator.of(context).pushNamed(LanguagePage.name);
     print(value);
     if (value == null) return;
-    var trans = await MyLocalizationsDelegate.delegate
-        .load(value == 'default' ? null : value as Locale);
+
+    AppLocalizations trans;
+    if (value == 'default') {
+      trans = lookupAppLocalizations(Locale('en'));
+    } else {
+      trans = lookupAppLocalizations(value as Locale);
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(trans.effectiveAfterRestartingTheApp),
     ));
@@ -135,7 +142,7 @@ class _SettingsPageState extends State<SettingsPage> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                S.of(context).generalSetting,
+                AppLocalizations.of(context)!.generalSetting,
               ),
             ),
             Card(
@@ -146,7 +153,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     leading: const Icon(
                       Icons.language,
                     ),
-                    title: Text(S.of(context).language),
+                    title: Text(AppLocalizations.of(context)!.language),
                     subtitle: Text(_localToString(settings.locale)),
                     trailing: const Icon(Icons.arrow_right),
                     onTap: _pushLanguagePage,

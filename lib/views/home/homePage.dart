@@ -6,7 +6,7 @@ import 'package:usb_serial/usb_serial.dart';
 import '../../services/chameleonClient.dart';
 import 'slotView.dart';
 import 'deviceInfoDialog.dart';
-import '../../generated/i18n.dart';
+import 'package:chameleon_mini_app/l10n/app_localizations.dart';
 import '../settings/settingsPage.dart';
 
 class HomePage extends StatefulWidget {
@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage>
       }
     });
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(S.of(context).usbDisconnected),
+      content: Text(AppLocalizations.of(context)!.usbDisconnected),
       duration: Duration(seconds: 10),
     ));
   }
@@ -91,7 +91,7 @@ class _HomePageState extends State<HomePage>
 
     if (devices.length == 0) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(S.of(context).usbDeviceNotFound),
+        content: Text(AppLocalizations.of(context)!.usbDeviceNotFound),
         duration: Duration(seconds: 3),
       ));
       return;
@@ -169,14 +169,14 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.of(context).chameleonMiniApp),
+        title: Text(AppLocalizations.of(context)!.chameleonMiniApp),
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
           tabs: slots.map((Slot slot) {
             return Tab(
               icon: slotIcons[slot.index],
-              text: '${S.of(context).slot} ${slot.index + 1}',
+              text: '${AppLocalizations.of(context)!.slot} ${slot.index + 1}',
             );
           }).toList(),
         ),

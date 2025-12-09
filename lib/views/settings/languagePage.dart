@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../generated/i18n.dart';
+import 'package:chameleon_mini_app/l10n/app_localizations.dart';
 
 class LanguagePage extends StatefulWidget {
   static const String name = '/Settings';
@@ -12,7 +11,6 @@ class LanguagePage extends StatefulWidget {
 }
 
 class _LanguagePageState extends State<LanguagePage> {
-
   Function() _pop(Object value) {
     return () => Navigator.of(context).pop(value);
   }
@@ -21,27 +19,28 @@ class _LanguagePageState extends State<LanguagePage> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text(S.of(context).selectLanguage),
+        title: new Text(AppLocalizations.of(context)!.selectLanguage),
       ),
       body: ListView(
         children: <Widget>[
           ListTile(
-            title: Text(S.of(context).systemDefault),
+            title: Text(AppLocalizations.of(context)!.systemDefault),
             subtitle: const Text('default'),
             onTap: _pop('default'),
           ),
           ListTile(
-            title: Text(S.of(context).english),
+            title: Text(AppLocalizations.of(context)!.english),
             subtitle: const Text('en'),
             onTap: _pop(const Locale('en')),
           ),
           ListTile(
-            title: Text(S.of(context).traditionalChinese),
+            title: Text(AppLocalizations.of(context)!.traditionalChinese),
             subtitle: const Text('zh-Hant-TW'),
-            onTap: _pop(const Locale.fromSubtags(languageCode: "zh", scriptCode: "Hant", countryCode: "TW")),
+            onTap: _pop(const Locale.fromSubtags(
+                languageCode: "zh", scriptCode: "Hant", countryCode: "TW")),
           ),
         ],
-      )
+      ),
     );
   }
 }

@@ -9,11 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:nfc_manager/nfc_manager.dart';
+import 'package:nfc_manager/nfc_manager_android.dart';
 
 import '../../services/settings.dart';
 import '../../services/chameleonClient.dart';
 import '../../services/crapto1.dart';
-import '../../generated/i18n.dart';
+import 'package:chameleon_mini_app/l10n/app_localizations.dart';
 
 class SlotView extends StatefulWidget {
   SlotView(this.slot, this.client,
@@ -123,7 +124,7 @@ class _SlotViewState extends State<SlotView> {
                 const CircularProgressIndicator(),
                 Container(
                   padding: const EdgeInsets.only(left: 16),
-                  child: Text(S.of(context).attacking),
+                  child: Text(AppLocalizations.of(context)!.attacking),
                 ),
               ],
             ),
@@ -306,7 +307,7 @@ class _SlotViewState extends State<SlotView> {
                 const CircularProgressIndicator(),
                 Container(
                   padding: const EdgeInsets.only(left: 16),
-                  child: Text(S.of(context).downloading),
+                  child: Text(AppLocalizations.of(context)!.downloading),
                 ),
               ],
             ),
@@ -354,15 +355,11 @@ class _SlotViewState extends State<SlotView> {
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       NfcManager.instance.startSession(
+        pollingOptions: {NfcPollingOption.iso14443, NfcPollingOption.iso15693},
         onDiscovered: (NfcTag tag) async {
-          print(tag.handle);
-          for (var key in tag.data.keys) {
-            print('$key: ${tag.data[key]}');
-          }
-          var nfca = tag.data['nfca'];
-          if (nfca?['identifier'] != null) {
-            print(nfca['identifier'].runtimeType);
-            var str = (nfca['identifier'] as List<int>)
+          var nfca = NfcAAndroid.from(tag);
+          if (nfca != null) {
+            var str = nfca.tag.id
                 .map((e) => e.toRadixString(16).toUpperCase().padLeft(2, '0'))
                 .join();
             print(str);
@@ -408,11 +405,12 @@ class _SlotViewState extends State<SlotView> {
                 return InputDecorator(
                   decoration: InputDecoration(
                     icon: const Icon(Icons.functions),
-                    labelText: S.of(context).mode,
+                    labelText: AppLocalizations.of(context)!.mode,
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
-                      disabledHint: Text(S.of(context).notAvailable),
+                      disabledHint:
+                          Text(AppLocalizations.of(context)!.notAvailable),
                       value: widget.slot.mode,
                       isDense: true,
                       items: widget.modes
@@ -431,7 +429,7 @@ class _SlotViewState extends State<SlotView> {
               controller: TextEditingController(text: widget.slot.uid),
               decoration: InputDecoration(
                   icon: const Icon(Icons.fingerprint),
-                  labelText: S.of(context).uid,
+                  labelText: AppLocalizations.of(context)!.uid,
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.nfc),
                     onPressed: _nfc,
@@ -449,11 +447,12 @@ class _SlotViewState extends State<SlotView> {
                 return InputDecorator(
                   decoration: InputDecoration(
                     icon: const Icon(Icons.touch_app),
-                    labelText: S.of(context).button,
+                    labelText: AppLocalizations.of(context)!.button,
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
-                      disabledHint: Text(S.of(context).notAvailable),
+                      disabledHint:
+                          Text(AppLocalizations.of(context)!.notAvailable),
                       value: widget.slot.button,
                       isDense: true,
                       items: widget.buttonModes
@@ -471,11 +470,12 @@ class _SlotViewState extends State<SlotView> {
                 return InputDecorator(
                   decoration: InputDecoration(
                     icon: const Icon(Icons.touch_app),
-                    labelText: S.of(context).longPressButton,
+                    labelText: AppLocalizations.of(context)!.longPressButton,
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
-                      disabledHint: Text(S.of(context).notAvailable),
+                      disabledHint:
+                          Text(AppLocalizations.of(context)!.notAvailable),
                       value: widget.slot.longPressButton,
                       isDense: true,
                       items: widget.longPressButtonModes
@@ -494,7 +494,7 @@ class _SlotViewState extends State<SlotView> {
                   text: widget.slot.memorySize?.toString()),
               decoration: InputDecoration(
                 icon: const Icon(Icons.memory),
-                labelText: S.of(context).memorySize,
+                labelText: AppLocalizations.of(context)!.memorySize,
               ),
             ),
             Container(
@@ -505,14 +505,14 @@ class _SlotViewState extends State<SlotView> {
                     Container(
                       padding: const EdgeInsets.only(right: 20.0),
                       child: FilledButton(
-                        child: Text(S.of(context).refresh),
+                        child: Text(AppLocalizations.of(context)!.refresh),
                         onPressed: widget.client.connected ? _refresh : null,
                       ),
                     ),
                     Container(
                       padding: const EdgeInsets.only(left: 20.0),
                       child: FilledButton(
-                        child: Text(S.of(context).apply),
+                        child: Text(AppLocalizations.of(context)!.apply),
                         onPressed: widget.client.connected ? _apply : null,
                       ),
                     ),
@@ -526,14 +526,14 @@ class _SlotViewState extends State<SlotView> {
                     Container(
                       padding: const EdgeInsets.only(right: 20.0),
                       child: FilledButton(
-                        child: Text(S.of(context).upload),
+                        child: Text(AppLocalizations.of(context)!.upload),
                         onPressed: widget.client.connected ? _upload : null,
                       ),
                     ),
                     Container(
                       padding: const EdgeInsets.only(left: 20.0),
                       child: FilledButton(
-                        child: Text(S.of(context).download),
+                        child: Text(AppLocalizations.of(context)!.download),
                         onPressed: widget.client.connected ? _download : null,
                       ),
                     ),
@@ -547,14 +547,14 @@ class _SlotViewState extends State<SlotView> {
                     Container(
                       padding: const EdgeInsets.only(right: 20.0),
                       child: FilledButton(
-                        child: Text(S.of(context).clear),
+                        child: Text(AppLocalizations.of(context)!.clear),
                         onPressed: widget.client.connected ? _clear : null,
                       ),
                     ),
                     Container(
                       padding: const EdgeInsets.only(left: 20.0),
                       child: FilledButton(
-                        child: Text(S.of(context).mfkey32),
+                        child: Text(AppLocalizations.of(context)!.mfkey32),
                         onPressed: widget.client.connected ? _mfkey32 : null,
                       ),
                     ),
