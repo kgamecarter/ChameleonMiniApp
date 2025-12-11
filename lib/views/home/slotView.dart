@@ -73,6 +73,7 @@ class _SlotViewState extends State<SlotView> {
       await client.setLongPressButton(slot.longPressButton!);
     await client.setUid(slot.uid!);
     await _refresh();
+    if (!mounted) return;
     final snackBar = const SnackBar(content: const Text('Applied'));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
@@ -109,6 +110,7 @@ class _SlotViewState extends State<SlotView> {
     await client.active(slot.index);
     await client.upload(data);
     await _refresh();
+    if (!mounted) return;
     final snackBar = const SnackBar(
       content: const Text('Upload dump file success.'),
     );
@@ -196,8 +198,9 @@ class _SlotViewState extends State<SlotView> {
     } on Mfkey32Exception catch (e) {
       errorMessage = e.cause;
     } finally {
-      Navigator.pop(context);
+      if (mounted) Navigator.pop(context);
     }
+    if (!mounted) return;
     if (errorMessage != null) {
       showDialog(
         context: context,
@@ -337,10 +340,11 @@ class _SlotViewState extends State<SlotView> {
       final filePath = await FlutterFileDialog.saveFile(params: params);
       print(filePath);
       if (filePath == null) return;
+      if (!mounted) return;
       final snackBar = const SnackBar(content: const Text('Saved'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     } finally {
-      Navigator.pop(context);
+      if (mounted) Navigator.pop(context);
     }
   }
 
@@ -366,11 +370,13 @@ class _SlotViewState extends State<SlotView> {
                 .map((e) => e.toRadixString(16).toUpperCase().padLeft(2, '0'))
                 .join();
             print(str);
-            setState(() {
-              widget.slot.uid = str;
-            });
+            if (mounted) {
+              setState(() {
+                widget.slot.uid = str;
+              });
+            }
           }
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          if (mounted) ScaffoldMessenger.of(context).hideCurrentSnackBar();
           await Future.delayed(const Duration(seconds: 1));
           await NfcManager.instance.stopSession();
         },
@@ -379,6 +385,28 @@ class _SlotViewState extends State<SlotView> {
   }
 
   Future<void> _clear() async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(AppLocalizations.of(context)!.clear),
+          content: Text(AppLocalizations.of(context)!.confirmClear),
+          actions: <Widget>[
+            TextButton(
+              child: Text(AppLocalizations.of(context)!.close),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            TextButton(
+              child: Text(AppLocalizations.of(context)!.clear),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
     var client = widget.client;
     var slot = widget.slot;
     await client.active(slot.index);
@@ -388,6 +416,7 @@ class _SlotViewState extends State<SlotView> {
       await client.clear();
     }
     await _refresh();
+    if (!mounted) return;
     final snackBar = const SnackBar(content: const Text('Cleared'));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
@@ -400,157 +429,165 @@ class _SlotViewState extends State<SlotView> {
       child: Form(
         key: _formKey,
         autovalidateMode: AutovalidateMode.always,
-        child: ListView(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          children: <Widget>[
-            const SizedBox(height: 8.0),
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                icon: const Icon(Icons.functions),
-                labelText: AppLocalizations.of(context)!.mode,
+          child: Column(
+            children: <Widget>[
+              const SizedBox(height: 8.0),
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  icon: const Icon(Icons.functions),
+                  labelText: AppLocalizations.of(context)!.mode,
+                ),
+                disabledHint: Text(AppLocalizations.of(context)!.notAvailable),
+                initialValue: widget.slot.mode,
+                isDense: true,
+                items: widget.modes
+                    ?.map(
+                      (str) => DropdownMenuItem(value: str, child: Text(str)),
+                    )
+                    .toList(),
+                onChanged: _modeChanged,
               ),
-              disabledHint: Text(AppLocalizations.of(context)!.notAvailable),
-              initialValue: widget.slot.mode,
-              isDense: true,
-              items: widget.modes
-                  ?.map((str) => DropdownMenuItem(value: str, child: Text(str)))
-                  .toList(),
-              onChanged: _modeChanged,
-            ),
-            const SizedBox(height: 8.0),
-            TextField(
-              enabled: widget.client.connected,
-              focusNode: uidFocusNode,
-              controller: TextEditingController(text: widget.slot.uid),
-              decoration: InputDecoration(
-                icon: const Icon(Icons.fingerprint),
-                labelText: AppLocalizations.of(context)!.uid,
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.nfc),
-                  onPressed: _nfc,
+              const SizedBox(height: 8.0),
+              TextField(
+                enabled: widget.client.connected,
+                focusNode: uidFocusNode,
+                controller: TextEditingController(text: widget.slot.uid),
+                decoration: InputDecoration(
+                  icon: const Icon(Icons.fingerprint),
+                  labelText: AppLocalizations.of(context)!.uid,
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.nfc),
+                    onPressed: _nfc,
+                  ),
+                ),
+                keyboardType: TextInputType.text,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(
+                    RegExp(r'^[0-9a-fA-F]{0,14}'),
+                  ),
+                ],
+                onChanged: _uidChanged,
+                onEditingComplete: _uidEditingComplete,
+              ),
+              const SizedBox(height: 8.0),
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  icon: const Icon(Icons.touch_app),
+                  labelText: AppLocalizations.of(context)!.button,
+                ),
+                disabledHint: Text(AppLocalizations.of(context)!.notAvailable),
+                initialValue: widget.slot.button,
+                isDense: true,
+                items: widget.buttonModes
+                    ?.map(
+                      (str) => DropdownMenuItem(value: str, child: Text(str)),
+                    )
+                    .toList(),
+                onChanged: _buttonModeChanged,
+              ),
+              const SizedBox(height: 8.0),
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  icon: const Icon(Icons.touch_app),
+                  labelText: AppLocalizations.of(context)!.longPressButton,
+                ),
+                disabledHint: Text(AppLocalizations.of(context)!.notAvailable),
+                initialValue: widget.slot.longPressButton,
+                isDense: true,
+                items: widget.longPressButtonModes
+                    ?.map(
+                      (str) => DropdownMenuItem(value: str, child: Text(str)),
+                    )
+                    .toList(),
+                onChanged: _longPressButtonModeChanged,
+              ),
+              const SizedBox(height: 8.0),
+              TextField(
+                enabled: false,
+                controller: TextEditingController(
+                  text: widget.slot.memorySize?.toString(),
+                ),
+                decoration: InputDecoration(
+                  icon: const Icon(Icons.memory),
+                  labelText: AppLocalizations.of(context)!.memorySize,
                 ),
               ),
-              keyboardType: TextInputType.text,
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.allow(
-                  RegExp(r'^[0-9a-fA-F]{0,14}'),
-                ),
-              ],
-              onChanged: _uidChanged,
-              onEditingComplete: _uidEditingComplete,
-            ),
-            const SizedBox(height: 8.0),
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                icon: const Icon(Icons.touch_app),
-                labelText: AppLocalizations.of(context)!.button,
-              ),
-              disabledHint: Text(AppLocalizations.of(context)!.notAvailable),
-              initialValue: widget.slot.button,
-              isDense: true,
-              items: widget.buttonModes
-                  ?.map((str) => DropdownMenuItem(value: str, child: Text(str)))
-                  .toList(),
-              onChanged: _buttonModeChanged,
-            ),
-            const SizedBox(height: 8.0),
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                icon: const Icon(Icons.touch_app),
-                labelText: AppLocalizations.of(context)!.longPressButton,
-              ),
-              disabledHint: Text(AppLocalizations.of(context)!.notAvailable),
-              initialValue: widget.slot.longPressButton,
-              isDense: true,
-              items: widget.longPressButtonModes
-                  ?.map((str) => DropdownMenuItem(value: str, child: Text(str)))
-                  .toList(),
-              onChanged: _longPressButtonModeChanged,
-            ),
-            const SizedBox(height: 8.0),
-            TextField(
-              enabled: false,
-              controller: TextEditingController(
-                text: widget.slot.memorySize?.toString(),
-              ),
-              decoration: InputDecoration(
-                icon: const Icon(Icons.memory),
-                labelText: AppLocalizations.of(context)!.memorySize,
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.icon(
-                        icon: const Icon(Icons.refresh),
-                        label: Text(AppLocalizations.of(context)!.refresh),
-                        onPressed: widget.client.connected ? _refresh : null,
-                      ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: FilledButton.icon(
-                        icon: const Icon(Icons.check_circle_outline),
-                        label: Text(AppLocalizations.of(context)!.apply),
-                        onPressed: widget.client.connected ? _apply : null,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16.0),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.icon(
-                        icon: const Icon(Icons.file_upload_outlined),
-                        label: Text(AppLocalizations.of(context)!.upload),
-                        onPressed: widget.client.connected ? _upload : null,
-                      ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: FilledButton.icon(
-                        icon: const Icon(Icons.file_download_outlined),
-                        label: Text(AppLocalizations.of(context)!.download),
-                        onPressed: widget.client.connected ? _download : null,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16.0),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.icon(
-                        icon: const Icon(Icons.delete_outline),
-                        label: Text(AppLocalizations.of(context)!.clear),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.errorContainer,
-                          foregroundColor: Theme.of(
-                            context,
-                          ).colorScheme.onErrorContainer,
+              const SizedBox(height: 16.0),
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: FilledButton.icon(
+                          icon: const Icon(Icons.refresh),
+                          label: Text(AppLocalizations.of(context)!.refresh),
+                          onPressed: widget.client.connected ? _refresh : null,
                         ),
-                        onPressed: widget.client.connected ? _clear : null,
                       ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: FilledButton.icon(
-                        icon: const Icon(Icons.key),
-                        label: Text(AppLocalizations.of(context)!.mfkey32),
-                        onPressed: widget.client.connected ? _mfkey32 : null,
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: FilledButton.icon(
+                          icon: const Icon(Icons.check_circle_outline),
+                          label: Text(AppLocalizations.of(context)!.apply),
+                          onPressed: widget.client.connected ? _apply : null,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+                    ],
+                  ),
+                  const SizedBox(height: 16.0),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: FilledButton.icon(
+                          icon: const Icon(Icons.file_upload_outlined),
+                          label: Text(AppLocalizations.of(context)!.upload),
+                          onPressed: widget.client.connected ? _upload : null,
+                        ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: FilledButton.icon(
+                          icon: const Icon(Icons.file_download_outlined),
+                          label: Text(AppLocalizations.of(context)!.download),
+                          onPressed: widget.client.connected ? _download : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16.0),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: FilledButton.icon(
+                          icon: const Icon(Icons.delete_outline),
+                          label: Text(AppLocalizations.of(context)!.clear),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.errorContainer,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onErrorContainer,
+                          ),
+                          onPressed: widget.client.connected ? _clear : null,
+                        ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: FilledButton.icon(
+                          icon: const Icon(Icons.key),
+                          label: Text(AppLocalizations.of(context)!.mfkey32),
+                          onPressed: widget.client.connected ? _mfkey32 : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

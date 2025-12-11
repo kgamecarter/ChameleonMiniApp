@@ -24,6 +24,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get close => 'Close';
 
   @override
+  String get confirmClear => 'Are you sure you want to clear?';
+
+  @override
+  String get crapto1Implementation => 'Crapto1 Implementation';
+
+  @override
+  String get crapto1Dart => 'Dart with Single-Thread';
+
+  @override
+  String get crapto1Java => 'Java with Multi-Thread';
+
+  @override
+  String get crapto1Online => 'Online (Server maybe offline)';
+
+  @override
+  String get crapto1Native => '.NET8 NativeAOT (ARM64 only)';
+
+  @override
   String get deviceInfo => 'Device Info';
 
   @override

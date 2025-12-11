@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'services/settings.dart';
-import 'routes.dart';
+import 'myApp.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Settings().load();
-  Routes();
+  final settings = Settings();
+  await settings.load();
+  runApp(MyApp(settings: settings));
 }

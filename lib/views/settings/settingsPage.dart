@@ -41,13 +41,13 @@ class _SettingsPageState extends State<SettingsPage> {
   ) {
     switch (crapto1implementation) {
       case Crapto1Implementation.Dart:
-        return 'Dart with Single-Thread';
+        return AppLocalizations.of(context)!.crapto1Dart;
       case Crapto1Implementation.Java:
-        return 'Java with Multi-Thread';
+        return AppLocalizations.of(context)!.crapto1Java;
       case Crapto1Implementation.Online:
-        return 'Online (Server maybe offline)';
+        return AppLocalizations.of(context)!.crapto1Online;
       case Crapto1Implementation.Native:
-        return '.NET8 NativeAOT (ARM64 only)';
+        return AppLocalizations.of(context)!.crapto1Native;
     }
   }
 
@@ -65,7 +65,7 @@ class _SettingsPageState extends State<SettingsPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) => SimpleDialog(
-        title: Text('Select implementation'),
+        title: Text(AppLocalizations.of(context)!.crapto1Implementation),
         children: <Widget>[
           RadioGroup<Crapto1Implementation>(
             groupValue: settings.crapto1Implementation,

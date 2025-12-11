@@ -24,6 +24,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get close => '關閉';
 
   @override
+  String get confirmClear => '確定要清除嗎？';
+
+  @override
+  String get crapto1Implementation => 'Crapto1 實作';
+
+  @override
+  String get crapto1Dart => 'Dart 單執行緒';
+
+  @override
+  String get crapto1Java => 'Java 多執行緒';
+
+  @override
+  String get crapto1Online => '線上 (伺服器可能離線)';
+
+  @override
+  String get crapto1Native => '.NET8 NativeAOT (僅限 ARM64)';
+
+  @override
   String get deviceInfo => '裝置資訊';
 
   @override
@@ -114,6 +132,24 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get close => '關閉';
+
+  @override
+  String get confirmClear => '確定要清除嗎？';
+
+  @override
+  String get crapto1Implementation => 'Crapto1 實作';
+
+  @override
+  String get crapto1Dart => 'Dart 單執行緒';
+
+  @override
+  String get crapto1Java => 'Java 多執行緒';
+
+  @override
+  String get crapto1Online => '線上 (伺服器可能離線)';
+
+  @override
+  String get crapto1Native => '.NET8 NativeAOT (僅限 ARM64)';
 
   @override
   String get deviceInfo => '裝置資訊';

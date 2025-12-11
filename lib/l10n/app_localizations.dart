@@ -129,6 +129,42 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get close;
 
+  /// No description provided for @confirmClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to clear?'**
+  String get confirmClear;
+
+  /// No description provided for @crapto1Implementation.
+  ///
+  /// In en, this message translates to:
+  /// **'Crapto1 Implementation'**
+  String get crapto1Implementation;
+
+  /// No description provided for @crapto1Dart.
+  ///
+  /// In en, this message translates to:
+  /// **'Dart with Single-Thread'**
+  String get crapto1Dart;
+
+  /// No description provided for @crapto1Java.
+  ///
+  /// In en, this message translates to:
+  /// **'Java with Multi-Thread'**
+  String get crapto1Java;
+
+  /// No description provided for @crapto1Online.
+  ///
+  /// In en, this message translates to:
+  /// **'Online (Server maybe offline)'**
+  String get crapto1Online;
+
+  /// No description provided for @crapto1Native.
+  ///
+  /// In en, this message translates to:
+  /// **'.NET8 NativeAOT (ARM64 only)'**
+  String get crapto1Native;
+
   /// No description provided for @deviceInfo.
   ///
   /// In en, this message translates to:
