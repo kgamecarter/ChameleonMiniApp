@@ -33,5 +33,7 @@
   "upload": "上傳",
   "usbDeviceNotFound": "找不到 USB 裝置",
   "usbDisconnected": "USB 已斷線",
-  "systemDefault": "系統預設"
+  "systemDefault": "系統預設",
+  "simplifiedChinese": "簡體中文",
+  "japanese": "日文"
 }

@@ -36,8 +36,29 @@ class _LanguagePageState extends State<LanguagePage> {
           ListTile(
             title: Text(AppLocalizations.of(context)!.traditionalChinese),
             subtitle: const Text('zh-Hant-TW'),
-            onTap: _pop(const Locale.fromSubtags(
-                languageCode: "zh", scriptCode: "Hant", countryCode: "TW")),
+            onTap: _pop(
+              const Locale.fromSubtags(
+                languageCode: "zh",
+                scriptCode: "Hant",
+                countryCode: "TW",
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text(AppLocalizations.of(context)!.simplifiedChinese),
+            subtitle: const Text('zh-Hans-CN'),
+            onTap: _pop(
+              const Locale.fromSubtags(
+                languageCode: "zh",
+                scriptCode: "Hans",
+                countryCode: "CN",
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text(AppLocalizations.of(context)!.japanese),
+            subtitle: const Text('ja'),
+            onTap: _pop(const Locale('ja')),
           ),
         ],
       ),

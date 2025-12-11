@@ -33,5 +33,7 @@
   "upload": "Upload",
   "usbDeviceNotFound": "USB device not found",
   "usbDisconnected": "USB Disconnected",
-  "systemDefault": "System Default"
+  "systemDefault": "System Default",
+  "simplifiedChinese": "Simplified Chinese",
+  "japanese": "Japanese"
 }
