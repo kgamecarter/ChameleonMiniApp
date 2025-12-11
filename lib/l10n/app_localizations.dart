@@ -153,12 +153,6 @@ abstract class AppLocalizations {
   /// **'Downloading'**
   String get downloading;
 
-  /// No description provided for @effectiveAfterRestartingTheApp.
-  ///
-  /// In en, this message translates to:
-  /// **'Effective after restarting app'**
-  String get effectiveAfterRestartingTheApp;
-
   /// No description provided for @chameleonMiniApp.
   ///
   /// In en, this message translates to:

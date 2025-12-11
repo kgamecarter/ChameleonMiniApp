@@ -16,22 +16,27 @@ class Routes {
 
   Routes() {
     runApp(
-      GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          title: 'Chameleon Mini App',
-          onGenerateTitle: (context) =>
-              AppLocalizations.of(context)!.chameleonMiniApp,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.lime),
-            useMaterial3: true,
-          ),
-          home: HomePage(),
-          routes: routes,
-          locale: settings.locale,
-        ),
+      AnimatedBuilder(
+        animation: settings,
+        builder: (context, child) {
+          return GestureDetector(
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            child: MaterialApp(
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              title: 'Chameleon Mini App',
+              onGenerateTitle: (context) =>
+                  AppLocalizations.of(context)!.chameleonMiniApp,
+              theme: ThemeData(
+                colorScheme: ColorScheme.fromSeed(seedColor: Colors.lime),
+                useMaterial3: true,
+              ),
+              home: HomePage(),
+              routes: routes,
+              locale: settings.locale,
+            ),
+          );
+        },
       ),
     );
   }

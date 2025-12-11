@@ -36,9 +36,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get downloading => '下載中';
 
   @override
-  String get effectiveAfterRestartingTheApp => '重啟App後生效';
-
-  @override
   String get chameleonMiniApp => 'Chameleon Mini App';
 
   @override
@@ -129,9 +126,6 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get downloading => '下載中';
-
-  @override
-  String get effectiveAfterRestartingTheApp => '重啟App後生效';
 
   @override
   String get chameleonMiniApp => 'Chameleon Mini App';

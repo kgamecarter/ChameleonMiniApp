@@ -21,9 +21,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.settings),
-      ),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.settings)),
       body: bodyData(),
     );
   }
@@ -39,7 +37,8 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   String _crapto1ImplementationToString(
-      Crapto1Implementation crapto1implementation) {
+    Crapto1Implementation crapto1implementation,
+  ) {
     switch (crapto1implementation) {
       case Crapto1Implementation.Dart:
         return 'Dart with Single-Thread';
@@ -57,19 +56,8 @@ class _SettingsPageState extends State<SettingsPage> {
     print(value);
     if (value == null) return;
 
-    AppLocalizations trans;
-    if (value == 'default') {
-      trans = lookupAppLocalizations(Locale('en'));
-    } else {
-      trans = lookupAppLocalizations(value as Locale);
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(trans.effectiveAfterRestartingTheApp),
-    ));
     setState(() {
       settings.locale = value == 'default' ? null : value as Locale;
-      settings.save();
     });
   }
 
@@ -79,44 +67,44 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (BuildContext context) => SimpleDialog(
         title: Text('Select implementation'),
         children: <Widget>[
-          RadioListTile(
-            selected:
-                settings.crapto1Implementation == Crapto1Implementation.Dart,
+          RadioGroup<Crapto1Implementation>(
             groupValue: settings.crapto1Implementation,
-            value: Crapto1Implementation.Dart,
-            title: Text(
-                _crapto1ImplementationToString(Crapto1Implementation.Dart)),
             onChanged: _selectCrapto1Implementation,
+            child: Column(
+              children: [
+                RadioListTile<Crapto1Implementation>(
+                  selected:
+                      settings.crapto1Implementation ==
+                      Crapto1Implementation.Dart,
+                  value: Crapto1Implementation.Dart,
+                  title: Text(
+                    _crapto1ImplementationToString(Crapto1Implementation.Dart),
+                  ),
+                ),
+                RadioListTile<Crapto1Implementation>(
+                  selected:
+                      settings.crapto1Implementation ==
+                      Crapto1Implementation.Java,
+                  value: Crapto1Implementation.Java,
+                  title: Text(
+                    _crapto1ImplementationToString(Crapto1Implementation.Java),
+                  ),
+                ),
+                RadioListTile<Crapto1Implementation>(
+                  selected:
+                      settings.crapto1Implementation ==
+                      Crapto1Implementation.Native,
+                  value: Crapto1Implementation.Native,
+                  title: Text(
+                    _crapto1ImplementationToString(
+                      Crapto1Implementation.Native,
+                    ),
+                  ),
+                  enabled: Platform.version.contains('arm64'),
+                ),
+              ],
+            ),
           ),
-          RadioListTile(
-            selected:
-                settings.crapto1Implementation == Crapto1Implementation.Java,
-            groupValue: settings.crapto1Implementation,
-            value: Crapto1Implementation.Java,
-            title: Text(
-                _crapto1ImplementationToString(Crapto1Implementation.Java)),
-            onChanged: _selectCrapto1Implementation,
-          ),
-          RadioListTile(
-            selected:
-                settings.crapto1Implementation == Crapto1Implementation.Native,
-            groupValue: settings.crapto1Implementation,
-            value: Crapto1Implementation.Native,
-            title: Text(
-                _crapto1ImplementationToString(Crapto1Implementation.Native)),
-            onChanged: Platform.version.contains('arm64')
-                ? _selectCrapto1Implementation
-                : null,
-          ),
-          // RadioListTile(
-          //   selected:
-          //       settings.crapto1Implementation == Crapto1Implementation.Online,
-          //   groupValue: settings.crapto1Implementation,
-          //   value: Crapto1Implementation.Online,
-          //   title: Text(
-          //       _crapto1ImplementationToString(Crapto1Implementation.Online)),
-          //   onChanged: _selectCrapto1Implementation,
-          // ),
         ],
       ),
     );
@@ -125,55 +113,56 @@ class _SettingsPageState extends State<SettingsPage> {
   void _selectCrapto1Implementation(Crapto1Implementation? value) {
     setState(() {
       settings.crapto1Implementation = value!;
-      settings.save();
     });
     Navigator.pop(context);
   }
 
   Widget bodyData() {
-    return SingleChildScrollView(
-      child: Theme(
-        data: ThemeData(fontFamily: 'Raleway'),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            //1
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                AppLocalizations.of(context)!.generalSetting,
-              ),
+    final colorScheme = Theme.of(context).colorScheme;
+    return ListView(
+      padding: const EdgeInsets.all(16.0),
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
+          child: Text(
+            AppLocalizations.of(context)!.generalSetting,
+            style: TextStyle(
+              color: colorScheme.primary,
+              fontWeight: FontWeight.bold,
             ),
-            Card(
-              elevation: 2.0,
-              child: Column(
-                children: <Widget>[
-                  ListTile(
-                    leading: const Icon(
-                      Icons.language,
-                    ),
-                    title: Text(AppLocalizations.of(context)!.language),
-                    subtitle: Text(_localToString(settings.locale)),
-                    trailing: const Icon(Icons.arrow_right),
-                    onTap: _pushLanguagePage,
-                  ),
-                  ListTile(
-                    leading: const Icon(
-                      Icons.functions,
-                    ),
-                    title: Text('Crapto1 & mfkey32 implementation'),
-                    subtitle: Text(_crapto1ImplementationToString(
-                        settings.crapto1Implementation!)),
-                    trailing: const Icon(Icons.arrow_right),
-                    onTap: _showCrapto1ImplementationDialog,
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+        Card(
+          elevation: 2.0,
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Column(
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.language),
+                title: Text(AppLocalizations.of(context)!.language),
+                subtitle: Text(_localToString(settings.locale)),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _pushLanguagePage,
+              ),
+              const Divider(height: 1, indent: 16, endIndent: 16),
+              ListTile(
+                leading: const Icon(Icons.functions),
+                title: Text('Crapto1 & mfkey32 implementation'),
+                subtitle: Text(
+                  _crapto1ImplementationToString(
+                    settings.crapto1Implementation!,
+                  ),
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _showCrapto1ImplementationDialog,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

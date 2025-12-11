@@ -36,9 +36,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get downloading => 'Downloading';
 
   @override
-  String get effectiveAfterRestartingTheApp => 'Effective after restarting app';
-
-  @override
   String get chameleonMiniApp => 'Chameleon Mini App';
 
   @override

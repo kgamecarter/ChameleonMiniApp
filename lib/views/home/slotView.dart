@@ -17,9 +17,14 @@ import '../../services/crapto1.dart';
 import 'package:chameleon_mini_app/l10n/app_localizations.dart';
 
 class SlotView extends StatefulWidget {
-  SlotView(this.slot, this.client,
-      {Key? key, this.modes, this.buttonModes, this.longPressButtonModes})
-      : super(key: key);
+  SlotView(
+    this.slot,
+    this.client, {
+    Key? key,
+    this.modes,
+    this.buttonModes,
+    this.longPressButtonModes,
+  }) : super(key: key);
 
   final Slot slot;
   final ChameleonClient client;
@@ -104,8 +109,9 @@ class _SlotViewState extends State<SlotView> {
     await client.active(slot.index);
     await client.upload(data);
     await _refresh();
-    final snackBar =
-        const SnackBar(content: const Text('Upload dump file success.'));
+    final snackBar = const SnackBar(
+      content: const Text('Upload dump file success.'),
+    );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
@@ -169,10 +175,7 @@ class _SlotViewState extends State<SlotView> {
       }
       switch (Settings().crapto1Implementation) {
         case Crapto1Implementation.Dart:
-          list = await compute(
-            keyWork,
-            KeyWorkMessage(mfKey32, uid, nonces),
-          );
+          list = await compute(keyWork, KeyWorkMessage(mfKey32, uid, nonces));
           break;
         case Crapto1Implementation.Java:
         case Crapto1Implementation.Online:
@@ -400,166 +403,153 @@ class _SlotViewState extends State<SlotView> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           children: <Widget>[
-            FormField(
-              builder: (FormFieldState state) {
-                return InputDecorator(
-                  decoration: InputDecoration(
-                    icon: const Icon(Icons.functions),
-                    labelText: AppLocalizations.of(context)!.mode,
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      disabledHint:
-                          Text(AppLocalizations.of(context)!.notAvailable),
-                      value: widget.slot.mode,
-                      isDense: true,
-                      items: widget.modes
-                          ?.map((str) =>
-                              DropdownMenuItem(value: str, child: Text(str)))
-                          .toList(),
-                      onChanged: _modeChanged,
-                    ),
-                  ),
-                );
-              },
+            const SizedBox(height: 8.0),
+            DropdownButtonFormField<String>(
+              decoration: InputDecoration(
+                icon: const Icon(Icons.functions),
+                labelText: AppLocalizations.of(context)!.mode,
+              ),
+              disabledHint: Text(AppLocalizations.of(context)!.notAvailable),
+              initialValue: widget.slot.mode,
+              isDense: true,
+              items: widget.modes
+                  ?.map((str) => DropdownMenuItem(value: str, child: Text(str)))
+                  .toList(),
+              onChanged: _modeChanged,
             ),
+            const SizedBox(height: 8.0),
             TextField(
               enabled: widget.client.connected,
               focusNode: uidFocusNode,
               controller: TextEditingController(text: widget.slot.uid),
               decoration: InputDecoration(
-                  icon: const Icon(Icons.fingerprint),
-                  labelText: AppLocalizations.of(context)!.uid,
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.nfc),
-                    onPressed: _nfc,
-                  )),
+                icon: const Icon(Icons.fingerprint),
+                labelText: AppLocalizations.of(context)!.uid,
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.nfc),
+                  onPressed: _nfc,
+                ),
+              ),
               keyboardType: TextInputType.text,
               inputFormatters: <TextInputFormatter>[
                 FilteringTextInputFormatter.allow(
-                    RegExp(r'^[0-9a-fA-F]{0,14}')),
+                  RegExp(r'^[0-9a-fA-F]{0,14}'),
+                ),
               ],
               onChanged: _uidChanged,
               onEditingComplete: _uidEditingComplete,
             ),
-            FormField(
-              builder: (FormFieldState state) {
-                return InputDecorator(
-                  decoration: InputDecoration(
-                    icon: const Icon(Icons.touch_app),
-                    labelText: AppLocalizations.of(context)!.button,
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      disabledHint:
-                          Text(AppLocalizations.of(context)!.notAvailable),
-                      value: widget.slot.button,
-                      isDense: true,
-                      items: widget.buttonModes
-                          ?.map((str) =>
-                              DropdownMenuItem(value: str, child: Text(str)))
-                          .toList(),
-                      onChanged: _buttonModeChanged,
-                    ),
-                  ),
-                );
-              },
+            const SizedBox(height: 8.0),
+            DropdownButtonFormField<String>(
+              decoration: InputDecoration(
+                icon: const Icon(Icons.touch_app),
+                labelText: AppLocalizations.of(context)!.button,
+              ),
+              disabledHint: Text(AppLocalizations.of(context)!.notAvailable),
+              initialValue: widget.slot.button,
+              isDense: true,
+              items: widget.buttonModes
+                  ?.map((str) => DropdownMenuItem(value: str, child: Text(str)))
+                  .toList(),
+              onChanged: _buttonModeChanged,
             ),
-            FormField(
-              builder: (FormFieldState state) {
-                return InputDecorator(
-                  decoration: InputDecoration(
-                    icon: const Icon(Icons.touch_app),
-                    labelText: AppLocalizations.of(context)!.longPressButton,
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      disabledHint:
-                          Text(AppLocalizations.of(context)!.notAvailable),
-                      value: widget.slot.longPressButton,
-                      isDense: true,
-                      items: widget.longPressButtonModes
-                          ?.map((str) =>
-                              DropdownMenuItem(value: str, child: Text(str)))
-                          .toList(),
-                      onChanged: _longPressButtonModeChanged,
-                    ),
-                  ),
-                );
-              },
+            const SizedBox(height: 8.0),
+            DropdownButtonFormField<String>(
+              decoration: InputDecoration(
+                icon: const Icon(Icons.touch_app),
+                labelText: AppLocalizations.of(context)!.longPressButton,
+              ),
+              disabledHint: Text(AppLocalizations.of(context)!.notAvailable),
+              initialValue: widget.slot.longPressButton,
+              isDense: true,
+              items: widget.longPressButtonModes
+                  ?.map((str) => DropdownMenuItem(value: str, child: Text(str)))
+                  .toList(),
+              onChanged: _longPressButtonModeChanged,
             ),
+            const SizedBox(height: 8.0),
             TextField(
               enabled: false,
               controller: TextEditingController(
-                  text: widget.slot.memorySize?.toString()),
+                text: widget.slot.memorySize?.toString(),
+              ),
               decoration: InputDecoration(
                 icon: const Icon(Icons.memory),
                 labelText: AppLocalizations.of(context)!.memorySize,
               ),
             ),
-            Container(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.only(right: 20.0),
-                      child: FilledButton(
-                        child: Text(AppLocalizations.of(context)!.refresh),
+            const SizedBox(height: 16.0),
+            Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.icon(
+                        icon: const Icon(Icons.refresh),
+                        label: Text(AppLocalizations.of(context)!.refresh),
                         onPressed: widget.client.connected ? _refresh : null,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: FilledButton(
-                        child: Text(AppLocalizations.of(context)!.apply),
+                    const SizedBox(width: 16.0),
+                    Expanded(
+                      child: FilledButton.icon(
+                        icon: const Icon(Icons.check_circle_outline),
+                        label: Text(AppLocalizations.of(context)!.apply),
                         onPressed: widget.client.connected ? _apply : null,
                       ),
                     ),
                   ],
-                )),
-            Container(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.only(right: 20.0),
-                      child: FilledButton(
-                        child: Text(AppLocalizations.of(context)!.upload),
+                ),
+                const SizedBox(height: 16.0),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.icon(
+                        icon: const Icon(Icons.file_upload_outlined),
+                        label: Text(AppLocalizations.of(context)!.upload),
                         onPressed: widget.client.connected ? _upload : null,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: FilledButton(
-                        child: Text(AppLocalizations.of(context)!.download),
+                    const SizedBox(width: 16.0),
+                    Expanded(
+                      child: FilledButton.icon(
+                        icon: const Icon(Icons.file_download_outlined),
+                        label: Text(AppLocalizations.of(context)!.download),
                         onPressed: widget.client.connected ? _download : null,
                       ),
                     ),
                   ],
-                )),
-            Container(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.only(right: 20.0),
-                      child: FilledButton(
-                        child: Text(AppLocalizations.of(context)!.clear),
+                ),
+                const SizedBox(height: 16.0),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.icon(
+                        icon: const Icon(Icons.delete_outline),
+                        label: Text(AppLocalizations.of(context)!.clear),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.errorContainer,
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onErrorContainer,
+                        ),
                         onPressed: widget.client.connected ? _clear : null,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: FilledButton(
-                        child: Text(AppLocalizations.of(context)!.mfkey32),
+                    const SizedBox(width: 16.0),
+                    Expanded(
+                      child: FilledButton.icon(
+                        icon: const Icon(Icons.key),
+                        label: Text(AppLocalizations.of(context)!.mfkey32),
                         onPressed: widget.client.connected ? _mfkey32 : null,
                       ),
                     ),
                   ],
-                )),
+                ),
+              ],
+            ),
           ],
         ),
       ),
