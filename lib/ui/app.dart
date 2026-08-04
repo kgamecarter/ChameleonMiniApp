@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:chameleon_mini_app/l10n/app_localizations.dart';
 
-import 'services/settings.dart';
-import 'views/home/homePage.dart';
-import 'views/settings/settingsPage.dart';
-import 'views/settings/languagePage.dart';
+import 'features/home/view_models/home_view_model.dart';
+import 'features/home/views/home_page.dart';
+import 'features/settings/view_models/settings_view_model.dart';
+import 'features/settings/views/language_page.dart';
+import 'features/settings/views/settings_page.dart';
 
 class MyApp extends StatelessWidget {
-  final Settings settings;
+  final SettingsViewModel settingsViewModel;
+  final HomeViewModel homeViewModel;
 
-  const MyApp({Key? key, required this.settings}) : super(key: key);
+  const MyApp({
+    super.key,
+    required this.settingsViewModel,
+    required this.homeViewModel,
+  });
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: settings,
+      animation: settingsViewModel,
       builder: (context, child) {
         return GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -28,12 +34,16 @@ class MyApp extends StatelessWidget {
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.lime),
               useMaterial3: true,
             ),
-            home: HomePage(),
+            home: HomePage(
+              viewModel: homeViewModel,
+              settingsViewModel: settingsViewModel,
+            ),
             routes: {
-              SettingsPage.name: (BuildContext context) => new SettingsPage(),
-              LanguagePage.name: (BuildContext context) => new LanguagePage(),
+              SettingsPage.name: (context) =>
+                  SettingsPage(viewModel: settingsViewModel),
+              LanguagePage.name: (context) => LanguagePage(),
             },
-            locale: settings.locale,
+            locale: settingsViewModel.locale,
           ),
         );
       },

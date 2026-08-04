@@ -21,8 +21,7 @@ class _ByteReader {
   }
 
   Future<int> get read async {
-    if (_queue.length == 0)
-      await _c.future;
+    if (_queue.length == 0) await _c.future;
     return _queue.removeFirst();
   }
 
@@ -71,11 +70,9 @@ class Xmodem {
 
       errorCount = 0;
       while (errorCount < MAX_ERRORS) {
-        output(Uint8List.fromList(<int>[
-          SOH,
-          blockNumber,
-          ~blockNumber & 0xFF
-        ]));
+        output(
+          Uint8List.fromList(<int>[SOH, blockNumber, ~blockNumber & 0xFF]),
+        );
         output(buffer);
         checkSum = buffer.reduce((v, e) => v + e);
         putData(checkSum);

@@ -4,7 +4,6 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 
-
 const _platform = const MethodChannel('tw.kgame.crapto1/mfkey');
 
 class Crypto1State {
@@ -63,10 +62,10 @@ class Crypto1 {
     int x = state.odd;
     state.odd = state.even;
     state.even = x;
-    
+
     return ret;
   }
-  
+
   int crypto1int([int _in = 0, bool isEncrypted = false]) {
     int ret = 0;
     for (var i = 0; i < 8; ++i)
@@ -99,22 +98,262 @@ int filter(int x) {
 }
 
 const List<int> _oddintParity = <int>[
-  1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-  0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-  0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-  1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-  0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-  1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-  1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-  0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-  0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-  1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-  1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-  0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-  1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-  0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-  0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-  1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
 ];
 
 int oddParity8(int x) => _oddintParity[x & 0xFF];
@@ -136,10 +375,10 @@ int swapEndian(int x) {
 }
 
 int prngSuccessor(int x, int n) {
-    x = swapEndian(x);
-    while (n-- > 0)
-      x = x >> 1 | ((x >> 16 ^ x >> 18 ^ x >> 19 ^ x >> 21) & 1) << 31;
-    return swapEndian(x);
+  x = swapEndian(x);
+  while (n-- > 0)
+    x = x >> 1 | ((x >> 16 ^ x >> 18 ^ x >> 19 ^ x >> 21) & 1) << 31;
+  return swapEndian(x);
 }
 
 class Span {
@@ -161,8 +400,7 @@ class Span {
   void sort() {
     var sublist = list.sublist(offset, length + offset);
     sublist.sort();
-    for (int i = 0; i < length; i++)
-      this[i] = sublist[i];
+    for (int i = 0; i < length; i++) this[i] = sublist[i];
   }
 
   int binarySearch() {
@@ -180,8 +418,7 @@ class Span {
   operator []=(int i, int value) => list[i + offset] = value;
 }
 
-class Crapto1 extends Crypto1
-{
+class Crapto1 extends Crypto1 {
   Crapto1(Crypto1State state) : super(state);
 
   int lfsrRollbackBit([int _in = 0, bool isEncrypted = false]) {
@@ -260,19 +497,32 @@ class Crapto1 extends Crypto1
     return end;
   }
 
-  static void _recover(Span odd, int oddTail, int oks, Span even, int evenTail, int eks, int rem, List<Crypto1State> sl, int _in) {
+  static void _recover(
+    Span odd,
+    int oddTail,
+    int oks,
+    Span even,
+    int evenTail,
+    int eks,
+    int rem,
+    List<Crypto1State> sl,
+    int _in,
+  ) {
     var o = 0;
     var e = 0;
 
     if (rem == -1) {
       for (e = 0; e <= evenTail; e++) {
-        even[e] = even[e] << 1 ^ evenParity32(even[e] & Crypto1.LF_POLY_EVEN) ^ ((_in & 4) != 0 ? 1 : 0);
+        even[e] =
+            even[e] << 1 ^
+            evenParity32(even[e] & Crypto1.LF_POLY_EVEN) ^
+            ((_in & 4) != 0 ? 1 : 0);
         for (o = 0; o <= oddTail; o++) {
           sl.add(
             Crypto1State(
               even[e] ^ evenParity32(odd[o] & Crypto1.LF_POLY_ODD),
               odd[o],
-            )
+            ),
           );
         }
       }
@@ -283,13 +533,25 @@ class Crapto1 extends Crypto1
       oks >>= 1;
       eks >>= 1;
       _in >>= 2;
-      oddTail = _extendTable(odd, oddTail, oks & 1, Crypto1.LF_POLY_EVEN << 1 | 1, Crypto1.LF_POLY_ODD << 1, 0);
-      if (0 > oddTail)
-        return;
+      oddTail = _extendTable(
+        odd,
+        oddTail,
+        oks & 1,
+        Crypto1.LF_POLY_EVEN << 1 | 1,
+        Crypto1.LF_POLY_ODD << 1,
+        0,
+      );
+      if (0 > oddTail) return;
 
-      evenTail = _extendTable(even, evenTail, eks & 1, Crypto1.LF_POLY_ODD, Crypto1.LF_POLY_EVEN << 1 | 1, _in & 3);
-      if (0 > evenTail)
-        return;
+      evenTail = _extendTable(
+        even,
+        evenTail,
+        eks & 1,
+        Crypto1.LF_POLY_ODD,
+        Crypto1.LF_POLY_EVEN << 1 | 1,
+        _in & 3,
+      );
+      if (0 > evenTail) return;
     }
 
     odd.slice(0, oddTail + 1).sort();
@@ -299,10 +561,20 @@ class Crapto1 extends Crypto1
       if (((odd[oddTail] ^ even[evenTail]) >> 24) == 0) {
         oddTail = odd.slice(0, (o = oddTail) + 1).binarySearch();
         evenTail = even.slice(0, (e = evenTail) + 1).binarySearch();
-        _recover(odd.slice(oddTail), o - oddTail, oks, even.slice(evenTail), e - evenTail, eks, rem, sl, _in);
-        oddTail--; evenTail--;
-      }
-      else if (odd[oddTail] > even[evenTail])
+        _recover(
+          odd.slice(oddTail),
+          o - oddTail,
+          oks,
+          even.slice(evenTail),
+          e - evenTail,
+          eks,
+          rem,
+          sl,
+          _in,
+        );
+        oddTail--;
+        evenTail--;
+      } else if (odd[oddTail] > even[evenTail])
         oddTail = odd.slice(0, oddTail + 1).binarySearch() - 1;
       else
         evenTail = even.slice(0, evenTail + 1).binarySearch() - 1;
@@ -312,10 +584,8 @@ class Crapto1 extends Crypto1
     var oks = 0;
     var eks = 0;
 
-    for (var i = 31; i >= 0; i -= 2)
-      oks = oks << 1 | _beBit(ks2, i);
-    for (var i = 30; i >= 0; i -= 2)
-      eks = eks << 1 | _beBit(ks2, i);
+    for (var i = 31; i >= 0; i -= 2) oks = oks << 1 | _beBit(ks2, i);
+    for (var i = 30; i >= 0; i -= 2) eks = eks << 1 | _beBit(ks2, i);
 
     var odd = Uint32List(4 << 21);
     var even = Uint32List(4 << 21);
@@ -324,10 +594,8 @@ class Crapto1 extends Crypto1
     var evenTail = 0;
 
     for (var i = 1 << 20; i >= 0; --i) {
-      if (filter(i) == (oks & 1))
-        odd[++oddTail] = i;
-      if (filter(i) == (eks & 1))
-        even[++evenTail] = i;
+      if (filter(i) == (oks & 1)) odd[++oddTail] = i;
+      if (filter(i) == (eks & 1)) even[++evenTail] = i;
     }
 
     for (var i = 0; i < 4; i++) {
@@ -336,38 +604,135 @@ class Crapto1 extends Crypto1
     }
 
     _in = (_in >> 16 & 0xff) | (_in << 16) | (_in & 0xff00);
-    _recover(Span(odd), oddTail, oks, Span(even), evenTail, eks, 11, statelist, _in << 1);
+    _recover(
+      Span(odd),
+      oddTail,
+      oks,
+      Span(even),
+      evenTail,
+      eks,
+      11,
+      statelist,
+      _in << 1,
+    );
 
     return statelist;
   }
 
-  
   static const List<int> _S1 = const <int>[
-    0x62141, 0x310A0, 0x18850, 0x0C428, 0x06214, 0x0310A,
-    0x85E30, 0xC69AD, 0x634D6, 0xB5CDE, 0xDE8DA, 0x6F46D,
-    0xB3C83, 0x59E41, 0xA8995,  0xD027F, 0x6813F, 0x3409F, 0x9E6FA ];
+    0x62141,
+    0x310A0,
+    0x18850,
+    0x0C428,
+    0x06214,
+    0x0310A,
+    0x85E30,
+    0xC69AD,
+    0x634D6,
+    0xB5CDE,
+    0xDE8DA,
+    0x6F46D,
+    0xB3C83,
+    0x59E41,
+    0xA8995,
+    0xD027F,
+    0x6813F,
+    0x3409F,
+    0x9E6FA,
+  ];
 
   static const List<int> _S2 = const <int>[
-    0x3A557B00, 0x5D2ABD80, 0x2E955EC0, 0x174AAF60, 0x0BA557B0,
-    0x05D2ABD8, 0x0449DE68, 0x048464B0, 0x42423258, 0x278192A8,
-    0x156042D0, 0x0AB02168, 0x43F89B30, 0x61FC4D98, 0x765EAD48,
-    0x7D8FDD20, 0x7EC7EE90, 0x7F63F748, 0x79117020 ];
+    0x3A557B00,
+    0x5D2ABD80,
+    0x2E955EC0,
+    0x174AAF60,
+    0x0BA557B0,
+    0x05D2ABD8,
+    0x0449DE68,
+    0x048464B0,
+    0x42423258,
+    0x278192A8,
+    0x156042D0,
+    0x0AB02168,
+    0x43F89B30,
+    0x61FC4D98,
+    0x765EAD48,
+    0x7D8FDD20,
+    0x7EC7EE90,
+    0x7F63F748,
+    0x79117020,
+  ];
   static const List<int> _T1 = const <int>[
-    0x4F37D, 0x279BE, 0x97A6A, 0x4BD35, 0x25E9A, 0x12F4D, 0x097A6, 0x80D66,
-    0xC4006, 0x62003, 0xB56B4, 0x5AB5A, 0xA9318, 0xD0F39, 0x6879C, 0xB057B,
-    0x582BD, 0x2C15E, 0x160AF, 0x8F6E2, 0xC3DC4, 0xE5857, 0x72C2B, 0x39615,
-    0x98DBF, 0xC806A, 0xE0680, 0x70340, 0x381A0, 0x98665, 0x4C332, 0xA272C ];
+    0x4F37D,
+    0x279BE,
+    0x97A6A,
+    0x4BD35,
+    0x25E9A,
+    0x12F4D,
+    0x097A6,
+    0x80D66,
+    0xC4006,
+    0x62003,
+    0xB56B4,
+    0x5AB5A,
+    0xA9318,
+    0xD0F39,
+    0x6879C,
+    0xB057B,
+    0x582BD,
+    0x2C15E,
+    0x160AF,
+    0x8F6E2,
+    0xC3DC4,
+    0xE5857,
+    0x72C2B,
+    0x39615,
+    0x98DBF,
+    0xC806A,
+    0xE0680,
+    0x70340,
+    0x381A0,
+    0x98665,
+    0x4C332,
+    0xA272C,
+  ];
   static const List<int> _T2 = const <int>[
-    0x3C88B810, 0x5E445C08, 0x2982A580, 0x14C152C0, 0x4A60A960,
-    0x253054B0, 0x52982A58, 0x2FEC9EA8, 0x1156C4D0, 0x08AB6268,
-    0x42F53AB0, 0x217A9D58, 0x161DC528, 0x0DAE6910, 0x46D73488,
-    0x25CB11C0, 0x52E588E0, 0x6972C470, 0x34B96238, 0x5CFC3A98,
-    0x28DE96C8, 0x12CFC0E0, 0x4967E070, 0x64B3F038, 0x74F97398,
-    0x7CDC3248, 0x38CE92A0, 0x1C674950, 0x0E33A4A8, 0x01B959D0,
-    0x40DCACE8, 0x26CEDDF0 ];
+    0x3C88B810,
+    0x5E445C08,
+    0x2982A580,
+    0x14C152C0,
+    0x4A60A960,
+    0x253054B0,
+    0x52982A58,
+    0x2FEC9EA8,
+    0x1156C4D0,
+    0x08AB6268,
+    0x42F53AB0,
+    0x217A9D58,
+    0x161DC528,
+    0x0DAE6910,
+    0x46D73488,
+    0x25CB11C0,
+    0x52E588E0,
+    0x6972C470,
+    0x34B96238,
+    0x5CFC3A98,
+    0x28DE96C8,
+    0x12CFC0E0,
+    0x4967E070,
+    0x64B3F038,
+    0x74F97398,
+    0x7CDC3248,
+    0x38CE92A0,
+    0x1C674950,
+    0x0E33A4A8,
+    0x01B959D0,
+    0x40DCACE8,
+    0x26CEDDF0,
+  ];
 
-  static const List<int> _C1 = const <int>[ 0x846B5, 0x4235A, 0x211AD ];
-  static const List<int> _C2 = const <int>[ 0x1A822E0, 0x21A822E0, 0x21A822E0 ];
+  static const List<int> _C1 = const <int>[0x846B5, 0x4235A, 0x211AD];
+  static const List<int> _C2 = const <int>[0x1A822E0, 0x21A822E0, 0x21A822E0];
 
   static List<Crypto1State> lfsrRecovery64(int ks2, int ks3) {
     var oks = Uint8List(32);
@@ -387,24 +752,18 @@ class Crapto1 extends Crypto1
       eks[16 + (i >> 1)] = _beBit(ks3, i);
     }
 
-
     for (var i = 0xfffff; i >= 0; i--) {
-      if (filter(i) != oks[0])
-        continue;
+      if (filter(i) != oks[0]) continue;
 
       var tail = 0;
       table[tail] = i;
 
       for (var j = 1; tail >= 0 && j < 29; j++)
         tail = _extendTableSimple(table, tail, oks[j]);
-      if (tail < 0)
-        continue;
+      if (tail < 0) continue;
 
-      for (var j = 0; j < 19; ++j)
-        low = low << 1 | evenParity32(i & _S1[j]);
-      for (var j = 0; j < 32; ++j)
-        hi[j] = evenParity32(i & _T1[j]);
-
+      for (var j = 0; j < 19; ++j) low = low << 1 | evenParity32(i & _S1[j]);
+      for (var j = 0; j < 32; ++j) hi[j] = evenParity32(i & _T1[j]);
 
       for (; tail >= 0; --tail) {
         bool continue2 = false;
@@ -431,12 +790,13 @@ class Crapto1 extends Crypto1
         }
         if (continue2) continue;
 
-        table[tail] = table[tail] << 1 | evenParity32(Crypto1.LF_POLY_EVEN & table[tail]);
+        table[tail] =
+            table[tail] << 1 | evenParity32(Crypto1.LF_POLY_EVEN & table[tail]);
         statelist.add(
           Crypto1State(
             table[tail] ^ evenParity32(Crypto1.LF_POLY_ODD & win),
-            win
-          )
+            win,
+          ),
         );
       }
     }
@@ -451,7 +811,7 @@ class Nonce {
   int ar = 0;
 
   Nonce();
-  
+
   Nonce.fromJson(Map<String, dynamic> json)
     : sector = json['sector'],
       block = json['block'],
@@ -460,7 +820,7 @@ class Nonce {
       nr = json['nr'],
       ar = json['ar'];
 
-  Map<String, dynamic> toJson() => <String, dynamic>{      
+  Map<String, dynamic> toJson() => <String, dynamic>{
     'sector': this.sector,
     'block': this.block,
     'type': this.type,
@@ -500,16 +860,17 @@ Future<String> mfKey32(int uid, Iterable<Nonce> nonces) {
         break;
       }
     }
-    if (allPass)
-      keys.add(s.lfsr);
+    if (allPass) keys.add(s.lfsr);
   }
   return Future<String>.value(keys.length == 1 ? keys[0] : null);
 }
 
 String mfKey64(int uid, int nt, int nr, int ar, int at) {
   // Extract the keystream from the messages
-  var ks2 = ar ^ prngSuccessor(nt, 64); // keystream used to encrypt reader response
-  var ks3 = at ^ prngSuccessor(nt, 96); // keystream used to encrypt tag response
+  var ks2 =
+      ar ^ prngSuccessor(nt, 64); // keystream used to encrypt reader response
+  var ks3 =
+      at ^ prngSuccessor(nt, 96); // keystream used to encrypt tag response
   var revstate = Crapto1.lfsrRecovery64(ks2, ks3)[0];
   var crapto1 = Crapto1(revstate);
   crapto1.lfsrRollbackWord();
@@ -531,34 +892,31 @@ class KeyWorkMessage {
 
 extension Iterables<E> on Iterable<E> {
   Map<K, List<E>> groupBy<K>(K Function(E) keyFunction) => fold(
-      <K, List<E>>{},
-      (Map<K, List<E>> map, E element) =>
-          map..putIfAbsent(keyFunction(element), () => <E>[]).add(element));
+    <K, List<E>>{},
+    (Map<K, List<E>> map, E element) =>
+        map..putIfAbsent(keyFunction(element), () => <E>[]).add(element),
+  );
 }
 
-Future<List<String>> keyWork(KeyWorkMessage msg) async {  
+Future<List<String>> keyWork(KeyWorkMessage msg) async {
   var list = <List<Nonce>>[];
   msg.nonces
-    .groupBy((n) => 'Sec${n.sector} Key${n.type == 0x60 ? 'A': 'B'}')
-    .forEach((key, ns) {
-      if (ns.length < 2)
-        return;
-      list.add(ns);
-    });
+      .groupBy((n) => 'Sec${n.sector} Key${n.type == 0x60 ? 'A' : 'B'}')
+      .forEach((key, ns) {
+        if (ns.length < 2) return;
+        list.add(ns);
+      });
   var s = Stopwatch();
   s.start();
   var r = <String>[];
-  var fs = list
-    .map((List<Nonce>? ns) => msg.mfkey32(msg.uid, ns!))
-    .toList();
+  var fs = list.map((List<Nonce>? ns) => msg.mfkey32(msg.uid, ns!)).toList();
   var keys = await Future.wait(fs);
   s.stop();
   print('${s.elapsedMilliseconds}ms');
   for (var i = 0; i < list.length; i++) {
-    if (keys[i] == null)
-      continue;
+    if (keys[i] == null) continue;
     var ns = list[i];
-    r.add('Sec${ns[0].sector} Key${ns[0].type == 0x60 ? 'A': 'B'} ${keys[i]}');
+    r.add('Sec${ns[0].sector} Key${ns[0].type == 0x60 ? 'A' : 'B'} ${keys[i]}');
   }
   return r;
 }
@@ -575,7 +933,9 @@ Future<String> mfKey32Java(int uid, List<Nonce> nonces) async {
       int id = call.arguments['id'];
       int? key = call.arguments['key'];
       final completer = _tasks.remove(id);
-      completer?.complete(key?.toRadixString(16).toUpperCase().padLeft(12, '0'));
+      completer?.complete(
+        key?.toRadixString(16).toUpperCase().padLeft(12, '0'),
+      );
     });
   }
   var map = Map<String, dynamic>();

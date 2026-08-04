@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,22 +9,28 @@ import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/nfc_manager_android.dart';
 
-import '../../services/chameleonClient.dart';
-import '../../view_models/slotViewModel.dart';
+import '../../../../data/repositories/chameleon_repository.dart';
+import '../../../../domain/models/slot.dart';
+import '../../settings/view_models/settings_view_model.dart';
+import '../view_models/slot_view_model.dart';
 import 'package:chameleon_mini_app/l10n/app_localizations.dart';
 
 class SlotView extends StatefulWidget {
-  SlotView(
-    this.slot,
-    this.client, {
-    Key? key,
+  SlotView({
+    super.key,
+    required this.slot,
+    required this.repository,
+    required this.settingsViewModel,
+    required this.connected,
     this.modes,
     this.buttonModes,
     this.longPressButtonModes,
-  }) : super(key: key);
+  });
 
   final Slot slot;
-  final ChameleonClient client;
+  final ChameleonRepository repository;
+  final SettingsViewModel settingsViewModel;
+  final bool connected;
   final List<String>? modes, buttonModes, longPressButtonModes;
 
   @override
@@ -40,7 +45,11 @@ class _SlotViewState extends State<SlotView> {
   @override
   void initState() {
     super.initState();
-    _viewModel = SlotViewModel(widget.slot, widget.client);
+    _viewModel = SlotViewModel(
+      widget.slot,
+      widget.repository,
+      widget.settingsViewModel,
+    );
     _viewModel.addListener(_onViewModelChanged);
   }
 
@@ -323,7 +332,7 @@ class _SlotViewState extends State<SlotView> {
               ),
               const SizedBox(height: 8.0),
               TextField(
-                enabled: widget.client.connected,
+                enabled: widget.connected,
                 focusNode: uidFocusNode,
                 controller: TextEditingController(text: widget.slot.uid),
                 decoration: InputDecoration(
@@ -395,7 +404,7 @@ class _SlotViewState extends State<SlotView> {
                         child: FilledButton.icon(
                           icon: const Icon(Icons.refresh),
                           label: Text(AppLocalizations.of(context)!.refresh),
-                          onPressed: widget.client.connected ? _refresh : null,
+                          onPressed: widget.connected ? _refresh : null,
                         ),
                       ),
                       const SizedBox(width: 16.0),
@@ -403,7 +412,7 @@ class _SlotViewState extends State<SlotView> {
                         child: FilledButton.icon(
                           icon: const Icon(Icons.check_circle_outline),
                           label: Text(AppLocalizations.of(context)!.apply),
-                          onPressed: widget.client.connected ? _apply : null,
+                          onPressed: widget.connected ? _apply : null,
                         ),
                       ),
                     ],
@@ -415,7 +424,7 @@ class _SlotViewState extends State<SlotView> {
                         child: FilledButton.icon(
                           icon: const Icon(Icons.file_upload_outlined),
                           label: Text(AppLocalizations.of(context)!.upload),
-                          onPressed: widget.client.connected ? _upload : null,
+                          onPressed: widget.connected ? _upload : null,
                         ),
                       ),
                       const SizedBox(width: 16.0),
@@ -423,7 +432,7 @@ class _SlotViewState extends State<SlotView> {
                         child: FilledButton.icon(
                           icon: const Icon(Icons.file_download_outlined),
                           label: Text(AppLocalizations.of(context)!.download),
-                          onPressed: widget.client.connected ? _download : null,
+                          onPressed: widget.connected ? _download : null,
                         ),
                       ),
                     ],
@@ -443,7 +452,7 @@ class _SlotViewState extends State<SlotView> {
                               context,
                             ).colorScheme.onErrorContainer,
                           ),
-                          onPressed: widget.client.connected ? _clear : null,
+                          onPressed: widget.connected ? _clear : null,
                         ),
                       ),
                       const SizedBox(width: 16.0),
@@ -451,7 +460,7 @@ class _SlotViewState extends State<SlotView> {
                         child: FilledButton.icon(
                           icon: const Icon(Icons.key),
                           label: Text(AppLocalizations.of(context)!.mfkey32),
-                          onPressed: widget.client.connected ? _mfkey32 : null,
+                          onPressed: widget.connected ? _mfkey32 : null,
                         ),
                       ),
                     ],

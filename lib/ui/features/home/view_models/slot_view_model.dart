@@ -1,10 +1,11 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
-import '../services/chameleonClient.dart';
-import '../services/crapto1.dart';
-import '../services/ffiService.dart';
-import '../services/settings.dart';
+import '../../../../data/repositories/chameleon_repository.dart';
+import '../../../../data/services/crapto1_native_service.dart';
+import '../../../../domain/models/crapto1_implementation.dart';
+import '../../../../domain/models/slot.dart';
+import '../../../../domain/services/crapto1_service.dart';
+import '../../settings/view_models/settings_view_model.dart';
 
 class Mfkey32Exception implements Exception {
   String cause;
@@ -13,10 +14,10 @@ class Mfkey32Exception implements Exception {
 
 class SlotViewModel extends ChangeNotifier {
   final Slot slot;
-  final ChameleonClient client;
-  final Settings settings;
+  final ChameleonRepository _repository;
+  final SettingsViewModel _settings;
 
-  SlotViewModel(this.slot, this.client) : settings = Settings();
+  SlotViewModel(this.slot, this._repository, this._settings);
 
   bool _isBusy = false;
   bool get isBusy => _isBusy;
@@ -50,7 +51,7 @@ class SlotViewModel extends ChangeNotifier {
   Future<void> refresh() async {
     setBusy(true);
     try {
-      var s = await client.refresh(slot.index);
+      var s = await _repository.refresh(slot.index);
       if (s != null) {
         slot.uid = s.uid;
         slot.mode = s.mode;
@@ -67,15 +68,15 @@ class SlotViewModel extends ChangeNotifier {
   Future<void> apply() async {
     setBusy(true);
     try {
-      await client.active(slot.index);
-      var selectedSlot = await client.getActive();
+      await _repository.activate(slot.index);
+      var selectedSlot = await _repository.getActive();
       if (selectedSlot != slot.index) return;
 
-      if (slot.mode != null) await client.setMode(slot.mode!);
-      if (slot.button != null) await client.setButton(slot.button!);
+      if (slot.mode != null) await _repository.setMode(slot.mode!);
+      if (slot.button != null) await _repository.setButton(slot.button!);
       if (slot.longPressButton != null)
-        await client.setLongPressButton(slot.longPressButton!);
-      if (slot.uid != null) await client.setUid(slot.uid!);
+        await _repository.setLongPressButton(slot.longPressButton!);
+      if (slot.uid != null) await _repository.setUid(slot.uid!);
 
       await refresh();
     } finally {
@@ -86,8 +87,8 @@ class SlotViewModel extends ChangeNotifier {
   Future<void> upload(Uint8List data) async {
     setBusy(true);
     try {
-      await client.active(slot.index);
-      await client.upload(data);
+      await _repository.activate(slot.index);
+      await _repository.upload(data);
       await refresh();
     } finally {
       setBusy(false);
@@ -97,8 +98,8 @@ class SlotViewModel extends ChangeNotifier {
   Future<String> downloadMct() async {
     setBusy(true);
     try {
-      await client.active(slot.index);
-      var result = await client.download();
+      await _repository.activate(slot.index);
+      var result = await _repository.download();
       if (result == null) throw Exception("Download failed");
 
       var data = result.take(slot.memorySize ?? 0).toList();
@@ -111,11 +112,11 @@ class SlotViewModel extends ChangeNotifier {
   Future<void> clear() async {
     setBusy(true);
     try {
-      await client.active(slot.index);
-      if (await client.getMode() == 'MF_DETECTION') {
-        await client.clearDetection();
+      await _repository.activate(slot.index);
+      if (await _repository.getMode() == 'MF_DETECTION') {
+        await _repository.clearDetection();
       } else {
-        await client.clear();
+        await _repository.clear();
       }
       await refresh();
     } finally {
@@ -126,17 +127,17 @@ class SlotViewModel extends ChangeNotifier {
   Future<List<String>> mfkey32() async {
     setBusy(true);
     try {
-      await client.active(slot.index);
-      var data = await client.getDetection();
+      await _repository.activate(slot.index);
+      var data = await _repository.getDetection();
       if (data.length == 0) {
         throw Mfkey32Exception('No data found on device.');
       }
       // no encrypt in 1.4 firmware
       int canary = _toUint64(data, 8);
       if (canary != 0x5245564556312E34) {
-        ChameleonClient.decryptData(data, 123321, 208);
+        _repository.decryptDetectionData(data, 123321, 208);
       }
-      if (!Crc.checkCrc14443(Crc.CRC16_14443_A, data, 210)) {
+      if (!_repository.hasValidDetectionCrc(data)) {
         throw Mfkey32Exception('Data failed CRC check.');
       }
       var uid = _toUint32(data, 0);
@@ -157,15 +158,15 @@ class SlotViewModel extends ChangeNotifier {
       }
 
       List<String>? list;
-      switch (settings.crapto1Implementation) {
-        case Crapto1Implementation.Dart:
+      switch (_settings.crapto1Implementation) {
+        case Crapto1Implementation.dart:
           list = await compute(keyWork, KeyWorkMessage(mfKey32, uid, nonces));
           break;
-        case Crapto1Implementation.Java:
-        case Crapto1Implementation.Online:
+        case Crapto1Implementation.java:
+        case Crapto1Implementation.online:
           list = await keyWork(KeyWorkMessage(mfKey32Java, uid, nonces));
           break;
-        case Crapto1Implementation.Native:
+        case Crapto1Implementation.native:
           list = await compute(
             keyWork,
             KeyWorkMessage(mfKey32Native, uid, nonces),

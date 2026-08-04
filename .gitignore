@@ -73,3 +73,4 @@ android/key.properties
 ios/Flutter/flutter_export_environment.sh
 .flutter-plugins-dependencies
 android/app/src/main/jniLibs/arm64-v8a/*.so
+.agents/

@@ -1,7 +1,7 @@
 import 'dart:ffi';
 import 'dart:io';
 import 'package:ffi/ffi.dart';
-import 'package:chameleon_mini_app/services/crapto1.dart';
+import '../../domain/services/crapto1_service.dart';
 
 final class LibCrapto1Nonce extends Struct {
   @Uint32()
@@ -15,12 +15,16 @@ final class LibCrapto1Nonce extends Struct {
 final _crapto1Lib = Platform.isAndroid
     ? DynamicLibrary.open('libCrapto1Native.so')
     : DynamicLibrary.process();
-final _libCrapto1MfKey32 = _crapto1Lib.lookupFunction<
-    Uint64 Function(Uint32, Uint32, Pointer),
-    int Function(int, int, Pointer<LibCrapto1Nonce>)>('MfKey32');
-final _libCrapto1MfKey64 = _crapto1Lib.lookupFunction<
-    Uint64 Function(Uint32, Uint32, Uint32, Uint32, Uint32),
-    int Function(int, int, int, int, int)>('MfKey64');
+final _libCrapto1MfKey32 = _crapto1Lib
+    .lookupFunction<
+      Uint64 Function(Uint32, Uint32, Pointer),
+      int Function(int, int, Pointer<LibCrapto1Nonce>)
+    >('MfKey32');
+final _libCrapto1MfKey64 = _crapto1Lib
+    .lookupFunction<
+      Uint64 Function(Uint32, Uint32, Uint32, Uint32, Uint32),
+      int Function(int, int, int, int, int)
+    >('MfKey64');
 
 Future<String?> mfKey32Native(int uid, List<Nonce> nonces) async {
   print('Native mfKey32');

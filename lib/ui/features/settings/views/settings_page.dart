@@ -3,26 +3,30 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:chameleon_mini_app/l10n/app_localizations.dart';
 
-import '../../services/settings.dart';
-import 'languagePage.dart';
+import '../../../../domain/models/crapto1_implementation.dart';
+import '../view_models/settings_view_model.dart';
+import 'language_page.dart';
 
 class SettingsPage extends StatefulWidget {
   static const String name = '/Settings/Language';
 
-  SettingsPage({Key? key}) : super(key: key);
+  const SettingsPage({super.key, required this.viewModel});
+
+  final SettingsViewModel viewModel;
 
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final Settings settings = Settings();
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.settings)),
-      body: bodyData(),
+    return ListenableBuilder(
+      listenable: widget.viewModel,
+      builder: (context, _) => Scaffold(
+        appBar: AppBar(title: Text(AppLocalizations.of(context)!.settings)),
+        body: bodyData(),
+      ),
     );
   }
 
@@ -40,13 +44,13 @@ class _SettingsPageState extends State<SettingsPage> {
     Crapto1Implementation crapto1implementation,
   ) {
     switch (crapto1implementation) {
-      case Crapto1Implementation.Dart:
+      case Crapto1Implementation.dart:
         return AppLocalizations.of(context)!.crapto1Dart;
-      case Crapto1Implementation.Java:
+      case Crapto1Implementation.java:
         return AppLocalizations.of(context)!.crapto1Java;
-      case Crapto1Implementation.Online:
+      case Crapto1Implementation.online:
         return AppLocalizations.of(context)!.crapto1Online;
-      case Crapto1Implementation.Native:
+      case Crapto1Implementation.native:
         return AppLocalizations.of(context)!.crapto1Native;
     }
   }
@@ -56,9 +60,9 @@ class _SettingsPageState extends State<SettingsPage> {
     print(value);
     if (value == null) return;
 
-    setState(() {
-      settings.locale = value == 'default' ? null : value as Locale;
-    });
+    await widget.viewModel.setLocale(
+      value == 'default' ? null : value as Locale,
+    );
   }
 
   void _showCrapto1ImplementationDialog() {
@@ -68,36 +72,36 @@ class _SettingsPageState extends State<SettingsPage> {
         title: Text(AppLocalizations.of(context)!.crapto1Implementation),
         children: <Widget>[
           RadioGroup<Crapto1Implementation>(
-            groupValue: settings.crapto1Implementation,
+            groupValue: widget.viewModel.crapto1Implementation,
             onChanged: _selectCrapto1Implementation,
             child: Column(
               children: [
                 RadioListTile<Crapto1Implementation>(
                   selected:
-                      settings.crapto1Implementation ==
-                      Crapto1Implementation.Dart,
-                  value: Crapto1Implementation.Dart,
+                      widget.viewModel.crapto1Implementation ==
+                      Crapto1Implementation.dart,
+                  value: Crapto1Implementation.dart,
                   title: Text(
-                    _crapto1ImplementationToString(Crapto1Implementation.Dart),
+                    _crapto1ImplementationToString(Crapto1Implementation.dart),
                   ),
                 ),
                 RadioListTile<Crapto1Implementation>(
                   selected:
-                      settings.crapto1Implementation ==
-                      Crapto1Implementation.Java,
-                  value: Crapto1Implementation.Java,
+                      widget.viewModel.crapto1Implementation ==
+                      Crapto1Implementation.java,
+                  value: Crapto1Implementation.java,
                   title: Text(
-                    _crapto1ImplementationToString(Crapto1Implementation.Java),
+                    _crapto1ImplementationToString(Crapto1Implementation.java),
                   ),
                 ),
                 RadioListTile<Crapto1Implementation>(
                   selected:
-                      settings.crapto1Implementation ==
-                      Crapto1Implementation.Native,
-                  value: Crapto1Implementation.Native,
+                      widget.viewModel.crapto1Implementation ==
+                      Crapto1Implementation.native,
+                  value: Crapto1Implementation.native,
                   title: Text(
                     _crapto1ImplementationToString(
-                      Crapto1Implementation.Native,
+                      Crapto1Implementation.native,
                     ),
                   ),
                   enabled: Platform.version.contains('arm64'),
@@ -110,10 +114,11 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  void _selectCrapto1Implementation(Crapto1Implementation? value) {
-    setState(() {
-      settings.crapto1Implementation = value!;
-    });
+  Future<void> _selectCrapto1Implementation(
+    Crapto1Implementation? value,
+  ) async {
+    if (value == null) return;
+    await widget.viewModel.setCrapto1Implementation(value);
     Navigator.pop(context);
   }
 
@@ -143,7 +148,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ListTile(
                 leading: const Icon(Icons.language),
                 title: Text(AppLocalizations.of(context)!.language),
-                subtitle: Text(_localToString(settings.locale)),
+                subtitle: Text(_localToString(widget.viewModel.locale)),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: _pushLanguagePage,
               ),
@@ -153,7 +158,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 title: Text('Crapto1 & mfkey32 implementation'),
                 subtitle: Text(
                   _crapto1ImplementationToString(
-                    settings.crapto1Implementation!,
+                    widget.viewModel.crapto1Implementation!,
                   ),
                 ),
                 trailing: const Icon(Icons.chevron_right),

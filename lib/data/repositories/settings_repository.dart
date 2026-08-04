@@ -3,37 +3,29 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum Crapto1Implementation { Dart, Java, Online, Native }
+import '../../domain/models/crapto1_implementation.dart';
 
-class Settings extends ChangeNotifier {
-  static final Settings _instance = Settings._internal();
-
-  factory Settings() {
-    return _instance;
-  }
-
-  Settings._internal();
+class SettingsRepository {
+  SettingsRepository({SharedPreferences? preferences}) : _prefs = preferences;
 
   SharedPreferences? _prefs;
 
   Locale? _locale;
   Locale? get locale => _locale;
 
-  set locale(Locale? value) {
+  Future<void> setLocale(Locale? value) async {
     if (_locale == value) return;
     _locale = value;
-    _saveLocale();
-    notifyListeners();
+    await _saveLocale();
   }
 
   Crapto1Implementation? _crapto1Implementation;
   Crapto1Implementation? get crapto1Implementation => _crapto1Implementation;
 
-  set crapto1Implementation(Crapto1Implementation? value) {
-    if (value == null || _crapto1Implementation == value) return;
+  Future<void> setCrapto1Implementation(Crapto1Implementation value) async {
+    if (_crapto1Implementation == value) return;
     _crapto1Implementation = value;
-    _saveCrapto1Implementation();
-    notifyListeners();
+    await _saveCrapto1Implementation();
   }
 
   Future<void> load() async {
@@ -58,22 +50,20 @@ class Settings extends ChangeNotifier {
     if (v == null) {
       if (Platform.isAndroid) {
         if (Platform.version.contains('arm64')) {
-          v = Crapto1Implementation.Native.index;
+          v = Crapto1Implementation.native.index;
         } else {
-          v = Crapto1Implementation.Java.index;
+          v = Crapto1Implementation.java.index;
         }
       } else {
-        v = Crapto1Implementation.Dart.index;
+        v = Crapto1Implementation.dart.index;
       }
     }
 
     if (v >= 0 && v < Crapto1Implementation.values.length) {
       _crapto1Implementation = Crapto1Implementation.values[v];
     } else {
-      _crapto1Implementation = Crapto1Implementation.Dart;
+      _crapto1Implementation = Crapto1Implementation.dart;
     }
-
-    notifyListeners();
   }
 
   Future<void> _saveLocale() async {

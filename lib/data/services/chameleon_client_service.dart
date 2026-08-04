@@ -3,22 +3,12 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:usb_serial/usb_serial.dart';
 
+import '../../domain/models/slot.dart';
 import 'xmodem.dart';
-
-class Slot {
-  Slot(this.index);
-
-  final int index;
-  String? uid;
-  int? memorySize;
-  String? mode;
-  String? button;
-  String? longPressButton;
-}
 
 class ChameleonCommands {
   static var v1_0 = ChameleonCommands();
-  static var v1_3 = ChameleonCommandsV1_3(); 
+  static var v1_3 = ChameleonCommandsV1_3();
 
   String get getVersion => 'VERSIONMY?';
   String get active => 'SETTINGMY=';
@@ -134,8 +124,7 @@ class ChameleonClient {
     print(cmd);
     var data = asciiCodec.encode('$cmd\r\n');
     var c = new Completer<Uint8List>();
-    if (subcription == null)
-      subcription = port!.inputStream!.listen(null);
+    if (subcription == null) subcription = port!.inputStream!.listen(null);
     subcription!.onData((bytes) {
       c.complete(bytes);
       subcription!.onData(null);
@@ -150,9 +139,11 @@ class ChameleonClient {
     print(str);
     var strs = str.split('\r\n').where((s) => s.isNotEmpty).toList();
     if (strs[0].startsWith('100:') || // 100:OK
-        strs[0].startsWith('110:')) { // 110:WAITING FOR XMODEM
+        strs[0].startsWith('110:')) {
+      // 110:WAITING FOR XMODEM
       return '';
-    } else if (strs[0].startsWith('101:')) { // 101:OK WITH TEXT
+    } else if (strs[0].startsWith('101:')) {
+      // 101:OK WITH TEXT
       return strs[strs.length - 1];
     } else {
       throw str[0];
@@ -163,7 +154,8 @@ class ChameleonClient {
 
   Future<String> getVersion() => sendCommand(commands.getVersion);
 
-  Future<void> active(int index) async => await sendCommand(commands.active + index.toString());
+  Future<void> active(int index) async =>
+      await sendCommand(commands.active + index.toString());
 
   Future<int> getActive() async {
     var result = await sendCommand(commands.getActive);
@@ -190,9 +182,11 @@ class ChameleonClient {
     return result.split(',');
   }
 
-  Future<int> getMemorySize() async => int.parse(await sendCommand(commands.getMemorySize));
+  Future<int> getMemorySize() async =>
+      int.parse(await sendCommand(commands.getMemorySize));
 
-  Future<int> getUidSize() async => int.parse(await sendCommand(commands.getUidSize));
+  Future<int> getUidSize() async =>
+      int.parse(await sendCommand(commands.getUidSize));
 
   Future<String> getUid() => sendCommand(commands.getUid);
 
@@ -206,13 +200,17 @@ class ChameleonClient {
 
   Future<void> setButton(String mode) => sendCommand(commands.setButton + mode);
 
-  Future<String> getLongPressButton() => sendCommand(commands.getLongPressButton);
+  Future<String> getLongPressButton() =>
+      sendCommand(commands.getLongPressButton);
 
-  Future<void> setLongPressButton(String mode) => sendCommand(commands.setLongPressButton + mode);
+  Future<void> setLongPressButton(String mode) =>
+      sendCommand(commands.setLongPressButton + mode);
 
-  Future<bool> getReadOnly() async => (await sendCommand(commands.getReadOnly) == '1' ? true : false);
+  Future<bool> getReadOnly() async =>
+      (await sendCommand(commands.getReadOnly) == '1' ? true : false);
 
-  Future<void> setReadOnly(bool state) => sendCommand(commands.setReadOnly + (state ? '1' : '0'));
+  Future<void> setReadOnly(bool state) =>
+      sendCommand(commands.setReadOnly + (state ? '1' : '0'));
 
   Future<Uint8List> getDetection() => sendCommandRaw(commands.getDetection);
 
@@ -237,8 +235,7 @@ class ChameleonClient {
   Future<List<Slot>> refreshAll() async {
     var selectedSlot = await getActive();
     var slots = <Slot>[];
-    for (int i = 0; i < 8; i++)
-      slots.add((await refresh(i))!);
+    for (int i = 0; i < 8; i++) slots.add((await refresh(i))!);
     await active(selectedSlot);
     return slots;
   }
@@ -246,19 +243,18 @@ class ChameleonClient {
   Future<Slot?> refresh(int i) async {
     await active(i);
     var selectedSlot = await getActive();
-    if (selectedSlot != i)
-      return null;
+    if (selectedSlot != i) return null;
     var slot = Slot(i);
     slot.uid = await getUid();
     slot.mode = await getMode();
     slot.button = await getButton();
     try {
       slot.longPressButton = await getLongPressButton();
-    } catch (e) { }
+    } catch (e) {}
     slot.memorySize = await getMemorySize();
     return slot;
   }
-  
+
   Future<void> checkCommand() async {
     try {
       this.commands = ChameleonCommands.v1_0;
@@ -268,46 +264,38 @@ class ChameleonClient {
     }
   }
 
-  static void decryptData(Uint8List arr, int key, int size)
-  {
+  static void decryptData(Uint8List arr, int key, int size) {
     for (int i = 0; i < size; i++)
       arr[i] = size + key + i - size ~/ key ^ arr[i];
   }
 }
 
-class Crc
-{
+class Crc {
   static const CRC16_14443_A = 0x6363;
   static const CRC16_14443_B = 0xFFFF;
 
-  static int _updateCrc14443(int b, int crc)
-  {
+  static int _updateCrc14443(int b, int crc) {
     int ch = b ^ (crc & 0x00ff);
     ch = (ch ^ (ch << 4)) & 0xFF;
     return ((crc >> 8) ^ (ch << 8) ^ (ch << 3) ^ (ch >> 4)) & 0xFFFF;
   }
 
-  static int _computeCrc14443(int crcType, Uint8List bytes, int len)
-  {
-    if (len < 2)
-      return -1;
+  static int _computeCrc14443(int crcType, Uint8List bytes, int len) {
+    if (len < 2) return -1;
     var res = crcType;
 
-    for (int i = 0; i < len; i++)
-      res = _updateCrc14443(bytes[i], res);
+    for (int i = 0; i < len; i++) res = _updateCrc14443(bytes[i], res);
 
     if (crcType == CRC16_14443_B)
-      res = ~res & 0xFFFF;                /* ISO/IEC 13239 (formerly ISO/IEC 3309) */
+      res = ~res & 0xFFFF; /* ISO/IEC 13239 (formerly ISO/IEC 3309) */
     return res;
   }
 
-  static bool checkCrc14443(int crcType, Uint8List bytes, int len)
-  {
+  static bool checkCrc14443(int crcType, Uint8List bytes, int len) {
     if (len < 3) return false;
 
     var res = _computeCrc14443(crcType, bytes, len - 2);
-    if (res == (bytes[len - 2] | bytes[len - 1] << 8))
-      return true;
+    if (res == (bytes[len - 2] | bytes[len - 1] << 8)) return true;
     return false;
   }
 }
