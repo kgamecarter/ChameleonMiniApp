@@ -40,11 +40,18 @@ class SlotView extends StatefulWidget {
 class _SlotViewState extends State<SlotView> {
   late SlotViewModel _viewModel;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  FocusNode uidFocusNode = FocusNode();
+  final FocusNode _uidFocusNode = FocusNode();
+  late final TextEditingController _uidController;
+  late final TextEditingController _memorySizeController;
+  bool _isBusy = false;
 
   @override
   void initState() {
     super.initState();
+    _uidController = TextEditingController(text: widget.slot.uid);
+    _memorySizeController = TextEditingController(
+      text: widget.slot.memorySize?.toString() ?? '',
+    );
     _viewModel = SlotViewModel(
       widget.slot,
       widget.repository,
@@ -57,16 +64,27 @@ class _SlotViewState extends State<SlotView> {
   void dispose() {
     _viewModel.removeListener(_onViewModelChanged);
     _viewModel.dispose();
+    _uidController.dispose();
+    _memorySizeController.dispose();
+    _uidFocusNode.dispose();
     super.dispose();
   }
 
   void _onViewModelChanged() {
+    final uid = widget.slot.uid ?? '';
+    if (!_uidFocusNode.hasFocus && _uidController.text != uid) {
+      _uidController.text = uid;
+    }
+    final memorySize = widget.slot.memorySize?.toString() ?? '';
+    if (_memorySizeController.text != memorySize) {
+      _memorySizeController.text = memorySize;
+    }
     setState(() {});
   }
 
   _uidChanged(String str) => _viewModel.setUid(str);
   _uidEditingComplete() {
-    uidFocusNode.unfocus();
+    _uidFocusNode.unfocus();
     print(widget.slot.uid);
   }
 
@@ -302,172 +320,264 @@ class _SlotViewState extends State<SlotView> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
+  Future<void> _runAction(Future<void> Function() action) async {
+    if (_isBusy) return;
+    setState(() => _isBusy = true);
+    try {
+      await action();
+    } finally {
+      if (mounted) setState(() => _isBusy = false);
+    }
+  }
+
+  InputDecoration _fieldDecoration(
+    BuildContext context, {
+    required String label,
+    required IconData icon,
+    Widget? suffixIcon,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon),
+      suffixIcon: suffixIcon,
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      filled: true,
+      fillColor: colorScheme.surfaceContainerHighest,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: colorScheme.outlineVariant),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: colorScheme.primary, width: 2),
+      ),
+    );
+  }
+
+  Widget _buildActionGrid(
+    BuildContext context,
+    AppLocalizations localizations,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final actions = <Widget>[
+      FilledButton.icon(
+        icon: const Icon(Icons.check_circle_outline),
+        label: Text(localizations.apply),
+        onPressed: widget.connected && !_isBusy
+            ? () => _runAction(_apply)
+            : null,
+      ),
+      FilledButton.tonalIcon(
+        icon: const Icon(Icons.refresh),
+        label: Text(localizations.refresh),
+        onPressed: widget.connected && !_isBusy
+            ? () => _runAction(_refresh)
+            : null,
+      ),
+      OutlinedButton.icon(
+        icon: const Icon(Icons.file_upload_outlined),
+        label: Text(localizations.upload),
+        onPressed: widget.connected && !_isBusy
+            ? () => _runAction(_upload)
+            : null,
+      ),
+      OutlinedButton.icon(
+        icon: const Icon(Icons.file_download_outlined),
+        label: Text(localizations.download),
+        onPressed: widget.connected && !_isBusy
+            ? () => _runAction(_download)
+            : null,
+      ),
+      FilledButton.tonalIcon(
+        icon: const Icon(Icons.key_outlined),
+        label: Text(localizations.mfkey32),
+        onPressed: widget.connected && !_isBusy
+            ? () => _runAction(_mfkey32)
+            : null,
+      ),
+      OutlinedButton.icon(
+        icon: const Icon(Icons.delete_outline),
+        label: Text(localizations.clear),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: colorScheme.error,
+          side: BorderSide(color: colorScheme.error),
+        ),
+        onPressed: widget.connected && !_isBusy
+            ? () => _runAction(_clear)
+            : null,
+      ),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const spacing = 8.0;
+        final columnCount = constraints.maxWidth >= 720 ? 3 : 2;
+        final buttonWidth =
+            (constraints.maxWidth - spacing * (columnCount - 1)) / columnCount;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final action in actions)
+              SizedBox(width: buttonWidth, height: 48, child: action),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
-      bottom: false,
       child: Form(
         key: _formKey,
         autovalidateMode: AutovalidateMode.always,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            children: <Widget>[
-              const SizedBox(height: 8.0),
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  icon: const Icon(Icons.functions),
-                  labelText: AppLocalizations.of(context)!.mode,
-                ),
-                disabledHint: Text(AppLocalizations.of(context)!.notAvailable),
-                initialValue: widget.slot.mode,
-                isDense: true,
-                items: widget.modes
-                    ?.map(
-                      (str) => DropdownMenuItem(value: str, child: Text(str)),
-                    )
-                    .toList(),
-                onChanged: _modeChanged,
-              ),
-              const SizedBox(height: 8.0),
-              TextField(
-                enabled: widget.connected,
-                focusNode: uidFocusNode,
-                controller: TextEditingController(text: widget.slot.uid),
-                decoration: InputDecoration(
-                  icon: const Icon(Icons.fingerprint),
-                  labelText: AppLocalizations.of(context)!.uid,
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.nfc),
-                    onPressed: _nfc,
-                  ),
-                ),
-                keyboardType: TextInputType.text,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.allow(
-                    RegExp(r'^[0-9a-fA-F]{0,14}'),
-                  ),
-                ],
-                onChanged: _uidChanged,
-                onEditingComplete: _uidEditingComplete,
-              ),
-              const SizedBox(height: 8.0),
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  icon: const Icon(Icons.touch_app),
-                  labelText: AppLocalizations.of(context)!.button,
-                ),
-                disabledHint: Text(AppLocalizations.of(context)!.notAvailable),
-                initialValue: widget.slot.button,
-                isDense: true,
-                items: widget.buttonModes
-                    ?.map(
-                      (str) => DropdownMenuItem(value: str, child: Text(str)),
-                    )
-                    .toList(),
-                onChanged: _buttonModeChanged,
-              ),
-              const SizedBox(height: 8.0),
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  icon: const Icon(Icons.touch_app),
-                  labelText: AppLocalizations.of(context)!.longPressButton,
-                ),
-                disabledHint: Text(AppLocalizations.of(context)!.notAvailable),
-                initialValue: widget.slot.longPressButton,
-                isDense: true,
-                items: widget.longPressButtonModes
-                    ?.map(
-                      (str) => DropdownMenuItem(value: str, child: Text(str)),
-                    )
-                    .toList(),
-                onChanged: _longPressButtonModeChanged,
-              ),
-              const SizedBox(height: 8.0),
-              TextField(
-                enabled: false,
-                controller: TextEditingController(
-                  text: widget.slot.memorySize?.toString(),
-                ),
-                decoration: InputDecoration(
-                  icon: const Icon(Icons.memory),
-                  labelText: AppLocalizations.of(context)!.memorySize,
-                ),
-              ),
-              const SizedBox(height: 16.0),
-              Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: FilledButton.icon(
-                          icon: const Icon(Icons.refresh),
-                          label: Text(AppLocalizations.of(context)!.refresh),
-                          onPressed: widget.connected ? _refresh : null,
-                        ),
-                      ),
-                      const SizedBox(width: 16.0),
-                      Expanded(
-                        child: FilledButton.icon(
-                          icon: const Icon(Icons.check_circle_outline),
-                          label: Text(AppLocalizations.of(context)!.apply),
-                          onPressed: widget.connected ? _apply : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16.0),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: FilledButton.icon(
-                          icon: const Icon(Icons.file_upload_outlined),
-                          label: Text(AppLocalizations.of(context)!.upload),
-                          onPressed: widget.connected ? _upload : null,
-                        ),
-                      ),
-                      const SizedBox(width: 16.0),
-                      Expanded(
-                        child: FilledButton.icon(
-                          icon: const Icon(Icons.file_download_outlined),
-                          label: Text(AppLocalizations.of(context)!.download),
-                          onPressed: widget.connected ? _download : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16.0),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: FilledButton.icon(
-                          icon: const Icon(Icons.delete_outline),
-                          label: Text(AppLocalizations.of(context)!.clear),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: Theme.of(
+          padding: const EdgeInsets.all(12),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 960),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Card(
+                    margin: EdgeInsets.zero,
+                    clipBehavior: Clip.antiAlias,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          DropdownButtonFormField<String>(
+                            decoration: _fieldDecoration(
                               context,
-                            ).colorScheme.errorContainer,
-                            foregroundColor: Theme.of(
-                              context,
-                            ).colorScheme.onErrorContainer,
+                              label: localizations.mode,
+                              icon: Icons.functions,
+                            ),
+                            disabledHint: Text(localizations.notAvailable),
+                            initialValue: widget.slot.mode,
+                            isExpanded: true,
+                            items: widget.modes
+                                ?.map(
+                                  (str) => DropdownMenuItem(
+                                    value: str,
+                                    child: Text(str),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: _isBusy ? null : _modeChanged,
                           ),
-                          onPressed: widget.connected ? _clear : null,
-                        ),
+                          const SizedBox(height: 10),
+                          TextFormField(
+                            enabled: widget.connected && !_isBusy,
+                            focusNode: _uidFocusNode,
+                            controller: _uidController,
+                            decoration: _fieldDecoration(
+                              context,
+                              label: localizations.uid,
+                              icon: Icons.fingerprint,
+                              suffixIcon: IconButton(
+                                tooltip: 'NFC',
+                                icon: const Icon(Icons.nfc),
+                                onPressed: widget.connected && !_isBusy
+                                    ? _nfc
+                                    : null,
+                              ),
+                            ),
+                            textCapitalization: TextCapitalization.characters,
+                            autocorrect: false,
+                            enableSuggestions: false,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'[0-9a-fA-F]'),
+                              ),
+                              LengthLimitingTextInputFormatter(14),
+                            ],
+                            onChanged: _uidChanged,
+                            onEditingComplete: _uidEditingComplete,
+                          ),
+                          const SizedBox(height: 10),
+                          DropdownButtonFormField<String>(
+                            decoration: _fieldDecoration(
+                              context,
+                              label: localizations.button,
+                              icon: Icons.touch_app_outlined,
+                            ),
+                            disabledHint: Text(localizations.notAvailable),
+                            initialValue: widget.slot.button,
+                            isExpanded: true,
+                            items: widget.buttonModes
+                                ?.map(
+                                  (str) => DropdownMenuItem(
+                                    value: str,
+                                    child: Text(str),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: _isBusy ? null : _buttonModeChanged,
+                          ),
+                          const SizedBox(height: 10),
+                          DropdownButtonFormField<String>(
+                            decoration: _fieldDecoration(
+                              context,
+                              label: localizations.longPressButton,
+                              icon: Icons.back_hand_outlined,
+                            ),
+                            disabledHint: Text(localizations.notAvailable),
+                            initialValue: widget.slot.longPressButton,
+                            isExpanded: true,
+                            items: widget.longPressButtonModes
+                                ?.map(
+                                  (str) => DropdownMenuItem(
+                                    value: str,
+                                    child: Text(str),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: _isBusy
+                                ? null
+                                : _longPressButtonModeChanged,
+                          ),
+                          const SizedBox(height: 10),
+                          TextFormField(
+                            controller: _memorySizeController,
+                            readOnly: true,
+                            enabled: false,
+                            decoration: _fieldDecoration(
+                              context,
+                              label: localizations.memorySize,
+                              icon: Icons.memory,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 16.0),
-                      Expanded(
-                        child: FilledButton.icon(
-                          icon: const Icon(Icons.key),
-                          label: Text(AppLocalizations.of(context)!.mfkey32),
-                          onPressed: widget.connected ? _mfkey32 : null,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    child: _isBusy
+                        ? const Padding(
+                            key: ValueKey('progress'),
+                            padding: EdgeInsets.symmetric(vertical: 4),
+                            child: LinearProgressIndicator(minHeight: 3),
+                          )
+                        : const SizedBox(
+                            key: ValueKey('progress-placeholder'),
+                            height: 8,
+                          ),
+                  ),
+                  _buildActionGrid(context, localizations),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),

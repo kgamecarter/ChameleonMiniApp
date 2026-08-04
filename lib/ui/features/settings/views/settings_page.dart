@@ -24,18 +24,29 @@ class _SettingsPageState extends State<SettingsPage> {
     return ListenableBuilder(
       listenable: widget.viewModel,
       builder: (context, _) => Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.settings)),
-        body: bodyData(),
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.settings),
+          scrolledUnderElevation: 0,
+        ),
+        body: _buildBody(context),
       ),
     );
   }
 
   String _localToString(Locale? locale) {
-    if (locale?.languageCode == 'en')
+    if (locale?.languageCode == 'en') {
       return AppLocalizations.of(context)!.english;
+    }
+    if (locale?.languageCode == 'ja') {
+      return AppLocalizations.of(context)!.japanese;
+    }
     if (locale?.languageCode == 'zh') {
-      if (locale?.scriptCode == 'Hant')
+      if (locale?.scriptCode == 'Hant') {
         return AppLocalizations.of(context)!.traditionalChinese;
+      }
+      if (locale?.scriptCode == 'Hans') {
+        return AppLocalizations.of(context)!.simplifiedChinese;
+      }
     }
     return AppLocalizations.of(context)!.systemDefault;
   }
@@ -55,61 +66,62 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  void _pushLanguagePage() async {
-    var value = await Navigator.of(context).pushNamed(LanguagePage.name);
-    print(value);
-    if (value == null) return;
+  Future<void> _pushLanguagePage() async {
+    final value = await Navigator.of(context).pushNamed(LanguagePage.name);
+    if (!mounted || value == null) return;
 
     await widget.viewModel.setLocale(
       value == 'default' ? null : value as Locale,
     );
   }
 
-  void _showCrapto1ImplementationDialog() {
-    showDialog(
+  Future<void> _showCrapto1ImplementationDialog() async {
+    final colorScheme = Theme.of(context).colorScheme;
+    await showDialog<void>(
       context: context,
-      builder: (BuildContext context) => SimpleDialog(
+      builder: (BuildContext context) => AlertDialog(
+        icon: Icon(Icons.memory_rounded, color: colorScheme.primary),
         title: Text(AppLocalizations.of(context)!.crapto1Implementation),
-        children: <Widget>[
-          RadioGroup<Crapto1Implementation>(
+        contentPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 360),
+          child: RadioGroup<Crapto1Implementation>(
             groupValue: widget.viewModel.crapto1Implementation,
             onChanged: _selectCrapto1Implementation,
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                RadioListTile<Crapto1Implementation>(
-                  selected:
-                      widget.viewModel.crapto1Implementation ==
-                      Crapto1Implementation.dart,
+                _ImplementationOption(
                   value: Crapto1Implementation.dart,
-                  title: Text(
-                    _crapto1ImplementationToString(Crapto1Implementation.dart),
+                  groupValue: widget.viewModel.crapto1Implementation,
+                  label: _crapto1ImplementationToString(
+                    Crapto1Implementation.dart,
                   ),
+                  colorScheme: colorScheme,
                 ),
-                RadioListTile<Crapto1Implementation>(
-                  selected:
-                      widget.viewModel.crapto1Implementation ==
-                      Crapto1Implementation.java,
+                const SizedBox(height: 4),
+                _ImplementationOption(
                   value: Crapto1Implementation.java,
-                  title: Text(
-                    _crapto1ImplementationToString(Crapto1Implementation.java),
+                  groupValue: widget.viewModel.crapto1Implementation,
+                  label: _crapto1ImplementationToString(
+                    Crapto1Implementation.java,
                   ),
+                  colorScheme: colorScheme,
                 ),
-                RadioListTile<Crapto1Implementation>(
-                  selected:
-                      widget.viewModel.crapto1Implementation ==
-                      Crapto1Implementation.native,
+                const SizedBox(height: 4),
+                _ImplementationOption(
                   value: Crapto1Implementation.native,
-                  title: Text(
-                    _crapto1ImplementationToString(
-                      Crapto1Implementation.native,
-                    ),
+                  groupValue: widget.viewModel.crapto1Implementation,
+                  label: _crapto1ImplementationToString(
+                    Crapto1Implementation.native,
                   ),
                   enabled: Platform.version.contains('arm64'),
+                  colorScheme: colorScheme,
                 ),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -119,55 +131,183 @@ class _SettingsPageState extends State<SettingsPage> {
   ) async {
     if (value == null) return;
     await widget.viewModel.setCrapto1Implementation(value);
-    Navigator.pop(context);
+    if (mounted) Navigator.of(context).pop();
   }
 
-  Widget bodyData() {
-    final colorScheme = Theme.of(context).colorScheme;
-    return ListView(
-      padding: const EdgeInsets.all(16.0),
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-          child: Text(
-            AppLocalizations.of(context)!.generalSetting,
-            style: TextStyle(
-              color: colorScheme.primary,
-              fontWeight: FontWeight.bold,
+  Widget _buildBody(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return SafeArea(
+      top: false,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final horizontalPadding = constraints.maxWidth >= 720 ? 32.0 : 16.0;
+
+          return ListView(
+            padding: EdgeInsets.fromLTRB(
+              horizontalPadding,
+              24,
+              horizontalPadding,
+              24,
             ),
-          ),
-        ),
-        Card(
-          elevation: 2.0,
-          clipBehavior: Clip.antiAlias,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          child: Column(
-            children: <Widget>[
-              ListTile(
-                leading: const Icon(Icons.language),
-                title: Text(AppLocalizations.of(context)!.language),
-                subtitle: Text(_localToString(widget.viewModel.locale)),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: _pushLanguagePage,
-              ),
-              const Divider(height: 1, indent: 16, endIndent: 16),
-              ListTile(
-                leading: const Icon(Icons.functions),
-                title: Text('Crapto1 & mfkey32 implementation'),
-                subtitle: Text(
-                  _crapto1ImplementationToString(
-                    widget.viewModel.crapto1Implementation!,
+            children: [
+              Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 680),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Semantics(
+                        header: true,
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.only(
+                            start: 8,
+                            bottom: 12,
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context)!.generalSetting,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: colorScheme.primary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Card(
+                        margin: EdgeInsets.zero,
+                        elevation: 0,
+                        color: colorScheme.surfaceContainerLow,
+                        clipBehavior: Clip.antiAlias,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(color: colorScheme.outlineVariant),
+                        ),
+                        child: Column(
+                          children: [
+                            _SettingsTile(
+                              icon: Icons.language_rounded,
+                              title: AppLocalizations.of(context)!.language,
+                              subtitle: _localToString(widget.viewModel.locale),
+                              onTap: _pushLanguagePage,
+                            ),
+                            Divider(
+                              height: 1,
+                              indent: 72,
+                              color: colorScheme.outlineVariant,
+                            ),
+                            _SettingsTile(
+                              icon: Icons.memory_rounded,
+                              title: AppLocalizations.of(
+                                context,
+                              )!.crapto1Implementation,
+                              subtitle: _crapto1ImplementationToString(
+                                widget.viewModel.crapto1Implementation!,
+                              ),
+                              onTap: _showCrapto1ImplementationDialog,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: _showCrapto1ImplementationDialog,
               ),
             ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SettingsTile extends StatelessWidget {
+  const _SettingsTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      leading: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: colorScheme.secondaryContainer,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: ExcludeSemantics(
+          child: Icon(icon, color: colorScheme.onSecondaryContainer),
+        ),
+      ),
+      title: Text(
+        title,
+        style: theme.textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 4),
+        child: Text(
+          subtitle,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+            height: 1.35,
           ),
         ),
-      ],
+      ),
+      trailing: ExcludeSemantics(
+        child: Icon(
+          Icons.chevron_right_rounded,
+          color: colorScheme.onSurfaceVariant,
+        ),
+      ),
+      onTap: onTap,
+    );
+  }
+}
+
+class _ImplementationOption extends StatelessWidget {
+  const _ImplementationOption({
+    required this.value,
+    required this.groupValue,
+    required this.label,
+    required this.colorScheme,
+    this.enabled = true,
+  });
+
+  final Crapto1Implementation value;
+  final Crapto1Implementation? groupValue;
+  final String label;
+  final ColorScheme colorScheme;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = value == groupValue;
+
+    return RadioListTile<Crapto1Implementation>(
+      value: value,
+      selected: selected,
+      enabled: enabled,
+      title: Text(label),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      selectedTileColor: colorScheme.secondaryContainer,
+      tileColor: selected ? colorScheme.secondaryContainer : Colors.transparent,
     );
   }
 }

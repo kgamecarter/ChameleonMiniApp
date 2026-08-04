@@ -60,6 +60,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get english => '英文';
 
   @override
+  String get firmwareVersion => '韌體版本';
+
+  @override
   String get generalSetting => '一般設定';
 
   @override
@@ -94,6 +97,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settings => '設定';
+
+  @override
+  String get signalStrength => '訊號強度 (RSSI)';
 
   @override
   String get traditionalChinese => '正體中文';
@@ -176,6 +182,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get english => '英语';
 
   @override
+  String get firmwareVersion => '固件版本';
+
+  @override
   String get generalSetting => '通用设置';
 
   @override
@@ -210,6 +219,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get settings => '设置';
+
+  @override
+  String get signalStrength => '信号强度 (RSSI)';
 
   @override
   String get traditionalChinese => '繁体中文';
@@ -292,6 +304,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get english => '英文';
 
   @override
+  String get firmwareVersion => '韌體版本';
+
+  @override
   String get generalSetting => '一般設定';
 
   @override
@@ -326,6 +341,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get settings => '設定';
+
+  @override
+  String get signalStrength => '訊號強度 (RSSI)';
 
   @override
   String get traditionalChinese => '正體中文';

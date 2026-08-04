@@ -72,27 +72,12 @@ android {
         targetCompatibility 1.8
     }
 
-    task dotnetPublish(type: Exec) {
-        workingDir '../../Crapto1Native/'
-        commandLine 'dotnet', 'publish'
-        doLast {
-            delete '../../Crapto1Native/obj'
-        }
-    }
-
     task buildBflat(type: Exec) {
-        dependsOn dotnetPublish
-        doFirst {
-            file('src/main/jniLibs/arm64-v8a/').mkdirs()
-        }
         workingDir '../../Crapto1Native/'
-        commandLine 'bflat', 'build', '--no-reflection', '--no-stacktrace-data', '--no-globalization', '--no-exception-messages', '-Os', '--no-pie', '--separate-symbols', '--os:linux', '--arch:arm64', '--libc:bionic', '-r:bin/Release/net8.0/publish/Crapto1Sharp.dll', '-o:../android/app/src/main/jniLibs/arm64-v8a/libCrapto1Native.so'
-        doLast {
-            delete 'src/main/jniLibs/arm64-v8a/libCrapto1Native.so.dwo'
-        }
+        commandLine 'cmd', '/d', '/c', 'build.cmd'
     }
 
-    preBuild.dependsOn(dotnetPublish, buildBflat)
+    preBuild.dependsOn(buildBflat)
 }
 
 flutter {

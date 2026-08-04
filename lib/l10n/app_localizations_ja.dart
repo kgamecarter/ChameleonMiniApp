@@ -60,6 +60,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get english => '英語';
 
   @override
+  String get firmwareVersion => 'ファームウェアのバージョン';
+
+  @override
   String get generalSetting => '一般設定';
 
   @override
@@ -94,6 +97,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settings => '設定';
+
+  @override
+  String get signalStrength => '信号強度 (RSSI)';
 
   @override
   String get traditionalChinese => '繁体字中国語';

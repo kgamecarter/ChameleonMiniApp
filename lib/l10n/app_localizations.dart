@@ -204,6 +204,12 @@ abstract class AppLocalizations {
   /// **'English'**
   String get english;
 
+  /// No description provided for @firmwareVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware version'**
+  String get firmwareVersion;
+
   /// No description provided for @generalSetting.
   ///
   /// In en, this message translates to:
@@ -275,6 +281,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get settings;
+
+  /// No description provided for @signalStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Signal strength (RSSI)'**
+  String get signalStrength;
 
   /// No description provided for @traditionalChinese.
   ///
